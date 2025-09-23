@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     // Set application properties
-    app.setApplicationName("Garlic GUI Decompiler");
+    app.setApplicationName("Garlic Decompiler GUI");
     app.setApplicationVersion("1.0.0");
     app.setOrganizationName("AbhiTheModder");
 

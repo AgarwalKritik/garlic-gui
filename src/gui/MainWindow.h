@@ -33,6 +33,7 @@ private slots:
     void onDecompilationStarted();
     void onDecompilationFinished(bool success);
     void onDecompilationProgress(int progress);
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     void setupUI();

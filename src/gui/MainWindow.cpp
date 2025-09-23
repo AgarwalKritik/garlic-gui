@@ -57,9 +57,9 @@ void MainWindow::setupMenuBar()
     // File Menu
     QMenu *fileMenu = m_menuBar->addMenu("&File");
 
-    m_openAction = new QAction("&Open APK/DEX...", this);
+    m_openAction = new QAction("&Open APK/CLASS/JAR/DEX...", this);
     m_openAction->setShortcut(QKeySequence::Open);
-    m_openAction->setStatusTip("Open APK or DEX file for decompilation");
+    m_openAction->setStatusTip("Open APK, CLASS, JAR, or DEX file for decompilation");
     connect(m_openAction, &QAction::triggered, this, &MainWindow::openFile);
     fileMenu->addAction(m_openAction);
 
@@ -231,11 +231,45 @@ void MainWindow::exportProject()
 
 void MainWindow::aboutApplication()
 {
-    QMessageBox::about(this, "About Garlic GUI Decompiler",
-                       "<h3>Garlic GUI Decompiler v1.0.0</h3>"
-                       "<p>A fast Android APK/DEX decompiler with modern GUI interface.</p>"
+    QMessageBox::about(this, "About Garlic Decompiler GUI",
+                       "<h3>Garlic Decompiler GUI v1.0.0</h3>"
+                       "<p>A fast Android APK/CLASS/JAR/DEX decompiler with modern GUI interface.</p>"
                        "<p>Built with Qt6 and powered by Garlic decompiler engine.</p>"
-                       "<p><a href='https://github.com/neocanable/garlic'>Garlic Decompiler</a></p>");
+                       "<p>Acknowledgements:</p>"
+                       "<p><a href='https://github.com/neocanable/garlic'>Garlic Decompiler</a></p>"
+                       "<p>Developed with ❤️ by AbhiTheModder & Kritik Agarwal.</p>"
+                       "<p>© 2025 AbhiTheModder. All rights reserved.</p>");
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    // Prompt to save project if there are unsaved changes
+    if (m_projectManager->hasUnsavedChanges(m_currentProject))
+    {
+        QMessageBox::StandardButton resBtn = QMessageBox::question(
+            this, "Unsaved Changes",
+            "You have unsaved changes. Do you want to save the project before exiting?",
+            QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+            QMessageBox::Yes);
+
+        if (resBtn == QMessageBox::Yes)
+        {
+            saveProject();
+            event->accept();
+        }
+        else if (resBtn == QMessageBox::No)
+        {
+            event->accept();
+        }
+        else
+        {
+            event->ignore();
+        }
+    }
+    else
+    {
+        event->accept();
+    }
 }
 
 void MainWindow::onDecompilationStarted()
@@ -270,7 +304,7 @@ void MainWindow::onDecompilationProgress(int progress)
 
 void MainWindow::updateWindowTitle(const QString &projectPath)
 {
-    QString title = "Garlic GUI Decompiler";
+    QString title = "Garlic Decompiler GUI";
     if (!projectPath.isEmpty())
     {
         QFileInfo fileInfo(projectPath);

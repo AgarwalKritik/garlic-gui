@@ -16,7 +16,7 @@ void DecompilerProgressDialog::setupUI()
     m_mainLayout->setContentsMargins(20, 20, 20, 20);
 
     // Title
-    m_titleLabel = new QLabel("Decompiling APK/DEX File");
+    m_titleLabel = new QLabel("Decompiling the file...");
     m_titleLabel->setStyleSheet("QLabel { font-size: 14px; font-weight: bold; }");
     m_mainLayout->addWidget(m_titleLabel);
 

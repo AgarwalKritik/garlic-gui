@@ -102,7 +102,7 @@ bool ProjectManager::createProjectMetadata(const QString &projectPath)
     QJsonObject metadata;
     metadata["version"] = "1.0";
     metadata["created"] = QDateTime::currentDateTime().toString(Qt::ISODate);
-    metadata["tool"] = "Garlic GUI Decompiler";
+    metadata["tool"] = "Garlic Decompiler";
 
     QJsonDocument doc(metadata);
 

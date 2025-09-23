@@ -9,8 +9,8 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     // Set application properties
-    app.setApplicationName("Garlic Decompiler GUI");
-    app.setApplicationVersion("1.0.0");
+    app.setApplicationName("Garlic Decompiler");
+    app.setApplicationVersion("1.0");
     app.setOrganizationName("AbhiTheModder");
     app.setWindowIcon(QIcon(":/icon/garlic.png"));
 

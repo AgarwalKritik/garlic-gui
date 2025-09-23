@@ -289,7 +289,7 @@ int garlic_is_valid_class(const char *file_path)
 
 const char *garlic_get_version()
 {
-    return "Garlic Decompiler v1.0.0 (GUI Integration)";
+    return "Garlic Decompiler v1.0 (GUI Integration)";
 }
 
 const char *garlic_get_file_type_string(const char *file_path)

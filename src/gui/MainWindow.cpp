@@ -11,6 +11,17 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QThread>
+#include <QDir>
+#include <QFileInfo>
+
+inline void ensureOutputDir(const QString &path)
+{
+    QDir dir(path);
+    if (!dir.exists())
+    {
+        dir.mkpath(".");
+    }
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), m_menuBar(nullptr), m_toolBar(nullptr), m_statusBar(nullptr), m_centralSplitter(nullptr), m_fileTreeWidget(nullptr), m_codeEditorWidget(nullptr), m_decompiler(nullptr), m_projectManager(nullptr), m_statusLabel(nullptr), m_progressBar(nullptr)
@@ -232,11 +243,14 @@ void MainWindow::exportProject()
 void MainWindow::aboutApplication()
 {
     QMessageBox::about(this, "About Garlic Decompiler GUI",
-                       "<h3>Garlic Decompiler GUI v1.0.0</h3>"
+                       "<h3>Garlic Decompiler GUI</h3>"
+                       "<h4>Version 1.0</h4>"
                        "<p>A fast Android APK/CLASS/JAR/DEX decompiler with modern GUI interface.</p>"
-                       "<p>Built with Qt6 and powered by Garlic decompiler engine.</p>"
+                       "<p>Built with Qt6 with C++ and powered by Garlic decompiler engine written in C.</p>"
                        "<p>Acknowledgements:</p>"
-                       "<p><a href='https://github.com/neocanable/garlic'>Garlic Decompiler</a></p>"
+                       "<p>1. <a href='https://github.com/neocanable/garlic'>Garlic Decompiler</a></p>"
+                       "<p>2. <a href='https://www.qt.io/'>Qt Framework</a></p>"
+                       "<br>"
                        "<p>Developed with ❤️ by AbhiTheModder & Kritik Agarwal.</p>"
                        "<p>© 2025 AbhiTheModder. All rights reserved.</p>");
 }
@@ -273,7 +287,7 @@ void MainWindow::onDecompilationProgress(int progress)
 
 void MainWindow::updateWindowTitle(const QString &projectPath)
 {
-    QString title = "Garlic Decompiler GUI";
+    QString title = "Garlic Decompiler";
     if (!projectPath.isEmpty())
     {
         QFileInfo fileInfo(projectPath);

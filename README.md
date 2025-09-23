@@ -78,25 +78,17 @@ windeployqt6 GarlicGUI.exe
 
 > For Complete Project Structure See [STRUCTURE.md](./STRUCTURE.md)
 
-## Integration with Garlic
-
-**Integration Status**: 
-- [x] **Partially Complete**
-
-The application now includes partial integration with the real Garlic decompiler:
-
-- [x] **Native Garlic Integration**: Direct embedding of Garlic's C source code
-- [x] **Identical Build System**: Uses the similar CMake configuration as Garlic CLI
-- [x] **Full Format Support**: APK, DEX, JAR, and CLASS files with native detection
-- [x] **Optimized Performance**: Same compiler flags and optimizations as Garlic
-- [ ] **Cross-Platform**: Windows and Linux support with proper threading
-
-**To Do:**
-- [x] Working GUI for Linux
+## To Do:
+~~- [x] Direct embedding of Garlic's C source code~~
+~~- [x] Use the similar CMake type configuration as in Garlic CLI~~
+~~- [x] Support all formats APK, DEX, JAR, and CLASS files with native detection~~
+~~- [x] Same compiler flags and optimizations as Garlic~~
+- [ ] **Cross-Platform Support**: Windows and Linux support with proper threading
+~~- [x] Working GUI for Linux~~
 - [ ] Working GUI for Windows
 - [ ] Code Editing Support
 
-**Future Scope:**
+### Future Scope:
 - [ ] Build Garlic entirely into a C++ Project instead of C (if feasible)
 
 ### Setup Instructions

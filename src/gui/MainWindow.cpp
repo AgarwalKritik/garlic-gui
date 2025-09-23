@@ -241,37 +241,6 @@ void MainWindow::aboutApplication()
                        "<p>© 2025 AbhiTheModder. All rights reserved.</p>");
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-    // Prompt to save project if there are unsaved changes
-    if (m_projectManager->hasUnsavedChanges(m_currentProject))
-    {
-        QMessageBox::StandardButton resBtn = QMessageBox::question(
-            this, "Unsaved Changes",
-            "You have unsaved changes. Do you want to save the project before exiting?",
-            QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
-            QMessageBox::Yes);
-
-        if (resBtn == QMessageBox::Yes)
-        {
-            saveProject();
-            event->accept();
-        }
-        else if (resBtn == QMessageBox::No)
-        {
-            event->accept();
-        }
-        else
-        {
-            event->ignore();
-        }
-    }
-    else
-    {
-        event->accept();
-    }
-}
-
 void MainWindow::onDecompilationStarted()
 {
     m_statusLabel->setText("Decompiling...");

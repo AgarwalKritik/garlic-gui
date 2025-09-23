@@ -113,6 +113,7 @@ set(GUI_SOURCES
     src/gui/DecompilerProgressDialog.h
     src/garlic/garlic_wrapper.c
     src/garlic/garlic_wrapper.h
+    resources.qrc
 )
 
 # Create executable

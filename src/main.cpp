@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QStyleFactory>
 #include <QDir>
+#include <QIcon>
 #include "gui/MainWindow.h"
 
 int main(int argc, char *argv[])
@@ -11,6 +12,7 @@ int main(int argc, char *argv[])
     app.setApplicationName("Garlic Decompiler GUI");
     app.setApplicationVersion("1.0.0");
     app.setOrganizationName("AbhiTheModder");
+    app.setWindowIcon(QIcon(":/icon/garlic.png"));
 
     // Set modern style
     app.setStyle(QStyleFactory::create("Fusion"));

@@ -79,12 +79,12 @@ windeployqt6 GarlicGUI.exe
 > For Complete Project Structure See [STRUCTURE.md](./STRUCTURE.md)
 
 ## To Do:
-~~- [x] Direct embedding of Garlic's C source code~~
-~~- [x] Use the similar CMake type configuration as in Garlic CLI~~
-~~- [x] Support all formats APK, DEX, JAR, and CLASS files with native detection~~
-~~- [x] Same compiler flags and optimizations as Garlic~~
-- [ ] **Cross-Platform Support**: Windows and Linux support with proper threading
-~~- [x] Working GUI for Linux~~
+- [x] ~~Direct embedding of Garlic's C source code~~ (Done)
+- [x] ~~Use the similar CMake type configuration as in Garlic CLI~~ (Done)
+- [x] ~~Support all formats APK, DEX, JAR, and CLASS files with native detection~~ (Done)
+- [x] ~~Same compiler flags and optimizations as Garlic~~ (Done)
+- [ ] **Cross-Platform Support** for Windows and Linux with proper threading
+- [x] ~~Working GUI for Linux~~ (Done)
 - [ ] Working GUI for Windows
 - [ ] Code Editing Support
 

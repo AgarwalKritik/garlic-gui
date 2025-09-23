@@ -37,7 +37,7 @@ static inline string dex_str_of_method_id(jd_meta_dex *meta, u2 idx)
 }
 
 static inline string dex_method_class_descriptor(jd_meta_dex *meta,
-                                           encoded_method *em)
+                                                 encoded_method *em)
 {
     // m's class desc
     dex_method_id *method_id = &meta->method_ids[em->method_id];
@@ -59,4 +59,4 @@ static inline string dex_field_name(jd_meta_dex *meta, encoded_field *efield)
     dex_field_id *field_id = &meta->field_ids[efield->field_id];
     return meta->strings[field_id->name_idx].data;
 }
-#endif //GARLIC_DEX_META_HELPER_H
+#endif // GARLIC_DEX_META_HELPER_H

@@ -1,6 +1,6 @@
 #include "class_tools.h"
 
-char* get_method_access_flags_str(u2 access_flag)
+char *get_method_access_flags_str(u2 access_flag)
 {
     char *access = x_alloc(40);
 
@@ -32,7 +32,7 @@ char* get_method_access_flags_str(u2 access_flag)
     return access;
 }
 
-char* get_class_access_flags_str(u2 access_flag)
+char *get_class_access_flags_str(u2 access_flag)
 {
     char *access = x_alloc(40);
     if ((be16toh(access_flag) & CLASS_ACC_PUBLIC) != 0)
@@ -52,9 +52,3 @@ char* get_class_access_flags_str(u2 access_flag)
 
     return access;
 }
-
-
-
-
-
-

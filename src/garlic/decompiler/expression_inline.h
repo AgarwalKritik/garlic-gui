@@ -14,5 +14,4 @@ static inline bool stack_var_can_inline(jd_var *var)
     return var->def_count == var->use_count;
 }
 
-
-#endif //GARLIC_EXPRESSION_INLINE_H
+#endif // GARLIC_EXPRESSION_INLINE_H

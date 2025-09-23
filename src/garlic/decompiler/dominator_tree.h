@@ -19,4 +19,4 @@ void dominance_frontier(jd_method *m);
 
 bool dominates(const jd_bblock *check, const jd_bblock *other);
 
-#endif //GARLIC_DOMINATOR_TREE_H
+#endif // GARLIC_DOMINATOR_TREE_H

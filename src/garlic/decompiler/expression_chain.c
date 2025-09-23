@@ -21,7 +21,8 @@ static bool identify_assignment_chain_of_basic_block(jd_method *m,
 {
     bool result = false;
 
-    for (int k = node->start_idx; k <= node->end_idx; ++k) {
+    for (int k = node->start_idx; k <= node->end_idx; ++k)
+    {
         jd_exp *exp = lget_obj(m->expressions, k);
         if (exp_is_nopped(exp) || !exp_is_assignment(exp))
             continue;
@@ -37,17 +38,19 @@ static bool identify_assignment_chain_of_basic_block(jd_method *m,
                     def_var->store_count,
                     def_var->use_count - def_var->store_count);
 
-        if (stack_var_can_inline(def_var)) {
+        if (stack_var_can_inline(def_var))
+        {
             continue;
         }
-        if (def_var->dupped_count == 0) {
+        if (def_var->dupped_count == 0)
+        {
             continue;
         }
 
         jd_exp *next_exp = next_valid_exp(m, k + 1);
 
-        while (next_exp != NULL && next_exp->block == basic_block
-               ) {
+        while (next_exp != NULL && next_exp->block == basic_block)
+        {
             if (!exp_is_save(next_exp))
                 break;
 
@@ -80,11 +83,10 @@ static bool identify_assignment_chain_of_basic_block(jd_method *m,
                         def_var->use_count,
                         def_var->store_count,
                         def_var->def_count);
-            def_var->use_count --;
-            def_var->def_count --;
-            def_var->store_count --;
-            def_var->dupped_count --;
-
+            def_var->use_count--;
+            def_var->def_count--;
+            def_var->store_count--;
+            def_var->dupped_count--;
 
             assignment->right->type = JD_EXPRESSION_OPERATOR;
             assignment->right->data = operator;
@@ -96,11 +98,11 @@ static bool identify_assignment_chain_of_basic_block(jd_method *m,
     return result;
 }
 
-
 static bool identify_assignment_chain_of_node(jd_method *m, jd_node *node)
 {
     bool result = false;
-    for (int j = 0; j < node->children->size; ++j) {
+    for (int j = 0; j < node->children->size; ++j)
+    {
         jd_node *child = lget_obj(node->children, j);
         if (!node_is_basic_block(child))
             continue;
@@ -119,7 +121,8 @@ bool identify_assignment_chain(jd_method *m)
     // a = b = c = 0;
     // all of them are store local variable, not define new stack variable
     bool result = false;
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_atomic(node))
             continue;
@@ -129,23 +132,24 @@ bool identify_assignment_chain(jd_method *m)
     return result;
 }
 
-
 static bool assignment_chain_can_be_assignment(jd_exp_assignment_chain *c)
 {
     int stack_var_size = 0;
-    for (int i = 0; i < c->left->size; ++i) {
+    for (int i = 0; i < c->left->size; ++i)
+    {
         jd_exp *e = lget_obj(c->left, i);
         if (exp_is_stack_var(e))
-            stack_var_size ++;
+            stack_var_size++;
     }
     return stack_var_size == 1;
 }
 
-static jd_exp* chain_left_stack_var(jd_exp_assignment_chain *c)
+static jd_exp *chain_left_stack_var(jd_exp_assignment_chain *c)
 {
-    for (int i = 0; i < c->left->size; ++i) {
+    for (int i = 0; i < c->left->size; ++i)
+    {
         jd_exp *e = lget_obj(c->left, i);
-        if (exp_is_stack_var(e)) 
+        if (exp_is_stack_var(e))
             return e;
     }
     return NULL;
@@ -162,9 +166,10 @@ bool identify_assignment_chain_store(jd_method *m)
             !exp_is_assignment_chain(expression))
             continue;
         jd_exp_assignment_chain *assignment_chain = expression->data;
-        for (int j = 0; j < assignment_chain->left->size; ++j) {
+        for (int j = 0; j < assignment_chain->left->size; ++j)
+        {
             jd_exp *exp = lget_obj(assignment_chain->left, j);
-            if (!exp_is_stack_var(exp)) 
+            if (!exp_is_stack_var(exp))
                 continue;
             jd_var *var = exp->data;
             DEBUG_PRINT("[inlining stack var]: %s def: %d use: %d store: %d\n",
@@ -172,22 +177,24 @@ bool identify_assignment_chain_store(jd_method *m)
                         var->def_count,
                         var->use_count,
                         var->store_count);
-            for (int k = idx + 1; k < m->expressions->size; ++k) {
+            for (int k = idx + 1; k < m->expressions->size; ++k)
+            {
                 jd_exp *other = lget_obj(m->expressions, k);
                 if (exp_is_nopped(other) ||
                     !exp_is_save(other))
                     continue;
                 jd_exp *stored_value_exp = exp_saved_value(other);
                 jd_exp *stored_left_exp = exp_saved_left(other);
-                if (!exp_is_stack_var(stored_value_exp)) 
+                if (!exp_is_stack_var(stored_value_exp))
                     continue;
                 jd_var *stored_var = stored_value_exp->data;
-                if (stored_var != var) 
+                if (stored_var != var)
                     continue;
                 exp->type = stored_left_exp->type;
                 exp->data = stored_left_exp->data;
-                var->def_count --;
-                if (var->def_count == 0) {
+                var->def_count--;
+                if (var->def_count == 0)
+                {
                     var->store_count--;
                     exp_mark_nopped(other);
                 }
@@ -195,7 +202,8 @@ bool identify_assignment_chain_store(jd_method *m)
             }
         }
 
-        if (assignment_chain_can_be_assignment(assignment_chain)) {
+        if (assignment_chain_can_be_assignment(assignment_chain))
+        {
             jd_exp *stack_var_left = chain_left_stack_var(assignment_chain);
             jd_var *left_var = stack_var_left->data;
 
@@ -208,9 +216,10 @@ bool identify_assignment_chain_store(jd_method *m)
             lvalue->stack_var = left_var;
             jd_exp *right = assignment_chain->right;
 
-            for (int j = 0; j < assignment_chain->left->size; ++j) {
+            for (int j = 0; j < assignment_chain->left->size; ++j)
+            {
                 jd_exp *exp = lget_obj(assignment_chain->left, j);
-                if (exp_is_stack_var(exp)) 
+                if (exp_is_stack_var(exp))
                     continue;
                 jd_exp *new_right = make_obj(jd_exp);
                 new_right->type = JD_EXPRESSION_OPERATOR;
@@ -239,12 +248,14 @@ bool identify_define_stack_variable_chain(jd_method *m)
     if (m->assignment_chains == NULL)
         m->assignment_chains = linit_int();
 
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_atomic(node))
             continue;
 
-        for (int j = 0; j < node->children->size; ++j) {
+        for (int j = 0; j < node->children->size; ++j)
+        {
             jd_node *child = lget_obj(node->children, j);
             if (!node_is_basic_block(child))
                 continue;
@@ -254,7 +265,8 @@ bool identify_define_stack_variable_chain(jd_method *m)
                 continue;
             jd_nblock *nblock = basic_block->ub->nblock;
 
-            for (int k = child->start_idx; k <= child->end_idx; ++k) {
+            for (int k = child->start_idx; k <= child->end_idx; ++k)
+            {
                 jd_exp *exp = lget_obj(m->expressions, k);
                 if (exp_is_nopped(exp) || !exp_is_assignment(exp))
                     continue;
@@ -271,7 +283,8 @@ bool identify_define_stack_variable_chain(jd_method *m)
 
                 while (next_exp != NULL &&
                        basic_block_contains_exp(basic_block, next_exp) &&
-                       exp_is_define_stack_var(next_exp) ) {
+                       exp_is_define_stack_var(next_exp))
+                {
 
                     jd_exp_def_var *def_exp = next_exp->data;
                     jd_exp *left_exp = &def_exp->list->args[0];
@@ -282,7 +295,8 @@ bool identify_define_stack_variable_chain(jd_method *m)
                     if (value_var != def_var)
                         break;
 
-                    if (chain == NULL) {
+                    if (chain == NULL)
+                    {
                         chain = make_obj(jd_exp_assignment_chain);
                         chain->left = linit_object();
                         chain->right = make_obj(jd_exp);
@@ -301,13 +315,14 @@ bool identify_define_stack_variable_chain(jd_method *m)
 
                     exp_mark_nopped(next_exp);
                     find_define_stack_variable_chain = true;
-                    def_var->redef_count --;
-                    def_var->use_count --;
+                    def_var->redef_count--;
+                    def_var->use_count--;
                     next_exp = next_valid_exp(m, next_exp->idx + 1);
                 }
 
                 if (find_define_stack_variable_chain &&
-                    chain != NULL) {
+                    chain != NULL)
+                {
                     exp->type = JD_EXPRESSION_ASSIGNMENT_CHAIN;
                     exp->data = chain;
                     ladd_int(m->assignment_chains, exp->idx);

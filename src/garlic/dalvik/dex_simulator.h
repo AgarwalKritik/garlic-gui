@@ -8,4 +8,4 @@ void dex_simulator(jd_method *m);
 
 void dex_variable_name(jd_method *m, jd_dex_ins *ins, jd_val *val, int slot);
 
-#endif //GARLIC_DEX_SIMULATOR_H
+#endif // GARLIC_DEX_SIMULATOR_H

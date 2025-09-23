@@ -5,4 +5,4 @@
 
 void optimize_goto_expression(jd_method *m);
 
-#endif //GARLIC_EXPRESSION_GOTO_H
+#endif // GARLIC_EXPRESSION_GOTO_H

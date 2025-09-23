@@ -18,7 +18,8 @@ void dex_method_descriptor(jd_method *m)
         return;
 
     str_list *str_list = str_list_init();
-    for (int i = 0; i < proto_id->type_list->size; ++i) {
+    for (int i = 0; i < proto_id->type_list->size; ++i)
+    {
         dex_type_item *type_item = &proto_id->type_list->list[i];
         string type = dex_str_of_type_id(meta, type_item->type_idx);
         str_concat(str_list, type);

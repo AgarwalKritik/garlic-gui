@@ -17,7 +17,7 @@ void dex_variable_name(jd_method *m, jd_dex_ins *ins, jd_val *val, int slot)
     stack_val_name(m, ins, val, slot);
 }
 
-static jd_stack* dex_exception_stack(jd_method *m,
+static jd_stack *dex_exception_stack(jd_method *m,
                                      jd_dex_ins *ins,
                                      jd_stack *src)
 {
@@ -26,10 +26,12 @@ static jd_stack* dex_exception_stack(jd_method *m,
     string class_desc = NULL;
 
     int catch_type_index = eblock->exception->catch_type_index;
-    if (catch_type_index == 0) {
+    if (catch_type_index == 0)
+    {
         class_desc = str_dup("Ljava/lang/Throwable");
     }
-    else {
+    else
+    {
         jd_dex *dex = m->meta;
         jd_meta_dex *meta = dex->meta;
         dex_type_id *type_id = &meta->type_ids[catch_type_index];
@@ -43,7 +45,8 @@ static jd_stack* dex_exception_stack(jd_method *m,
     eval->data->cname = class_simple_name(full);
     eval->ins = ins;
 
-    if (dex_ins_is_move_exception(ins)) {
+    if (dex_ins_is_move_exception(ins))
+    {
         int reg_num = move_exception_reg_num(ins);
         eval->slot = reg_num;
         clone->local_vars[reg_num] = eval;
@@ -62,17 +65,19 @@ static void dex_method_enter_stack(jd_method *m)
     bool instance = method_is_member(m);
 
     int param_itor = m->max_locals - 1;
-    for (int i = m->desc->list->size - 1; i >= 0 ; --i) {
+    for (int i = m->desc->list->size - 1; i >= 0; --i)
+    {
         string item = lget_string(m->desc->list, i);
         jd_val *val = stack_create_val_with_descriptor(m, item,
                                                        param_itor);
         dex_variable_name(m, NULL, val, val->slot);
         stack->local_vars[param_itor] = val;
         m->parameters[i] = val;
-        param_itor --;
+        param_itor--;
 
         if (val->type == JD_VAR_LONG_T ||
-            val->type == JD_VAR_DOUBLE_T) {
+            val->type == JD_VAR_DOUBLE_T)
+        {
             stack->local_vars[param_itor] = val;
             param_itor--;
         }
@@ -80,7 +85,8 @@ static void dex_method_enter_stack(jd_method *m)
 
     match_dex_parameter(m, stack);
 
-    if (instance) {
+    if (instance)
+    {
         string desc = dex_method_class_descriptor(meta, m->meta_method);
         string full = class_full_name(desc);
         string cname = class_simple_name(full);
@@ -96,7 +102,8 @@ static void perform_dex_stack_var_defination(jd_dex_ins *ins)
     jd_stack *stack_out = ins->stack_out;
 
     if (dex_ins_is_filled_new_array(ins) ||
-        dex_ins_is_filled_new_array_range(ins)) {
+        dex_ins_is_filled_new_array_range(ins))
+    {
         jd_val *val = stack_create_empty_val();
         val->type = JD_VAR_REFERENCE_T;
         val->data->cname = (string)g_str_Object;
@@ -108,12 +115,12 @@ static void perform_dex_stack_var_defination(jd_dex_ins *ins)
         return;
     }
 
-    for (size_t slot = 0; bitset_next_set_bit(ins->defs, &slot); slot++) {
+    for (size_t slot = 0; bitset_next_set_bit(ins->defs, &slot); slot++)
+    {
         jd_val *val = stack_out->local_vars[slot];
         jd_var *stack_var = stack_define_var(m, val, slot);
         hset_i2o(m->offset2var_map, ins->offset, stack_var);
     }
-
 }
 
 static void dex_run_instruction_action(jd_dex_ins *ins)
@@ -126,7 +133,8 @@ static bool block_can_execute(jd_method *m, jd_dex_ins *ins, jd_dex_ins *start)
 {
     jd_bblock *block = start->block;
     bitset_t *live_ins = lget_object(m->live_ins, block->block_id);
-    for (size_t i = 0; bitset_next_set_bit(live_ins, &i) ; i++) {
+    for (size_t i = 0; bitset_next_set_bit(live_ins, &i); i++)
+    {
         if (ins->stack_out->local_vars[i] == NULL)
             return false;
     }
@@ -134,14 +142,16 @@ static bool block_can_execute(jd_method *m, jd_dex_ins *ins, jd_dex_ins *start)
 }
 
 static void merge_local_variables_for_exception_block(jd_dex_ins *ins,
-                                                     jd_dex_ins *suc_ins)
+                                                      jd_dex_ins *suc_ins)
 {
-    for (int j = 0; j < ins->stack_out->local_vars_count; ++j) {
+    for (int j = 0; j < ins->stack_out->local_vars_count; ++j)
+    {
         jd_val *local_var = ins->stack_out->local_vars[j];
         if (local_var == NULL)
             continue;
         jd_val *suc_var = suc_ins->stack_in->local_vars[j];
-        if (suc_var == NULL) {
+        if (suc_var == NULL)
+        {
             suc_ins->stack_in->local_vars[j] = local_var;
         }
     }
@@ -157,22 +167,28 @@ static void dex_fill_watch_successors(jd_method *m, jd_dex_ins *ins)
 
     if (ins->offset < end_ins->offset)
         ladd_obj(m->ins_watch_successors, ins->next);
-    else {
+    else
+    {
         // find next block
-        for (int i = 0; i < block->out->size; ++i) {
+        for (int i = 0; i < block->out->size; ++i)
+        {
             jd_edge *edge = lget_obj(block->out, i);
             jd_bblock *target_block = edge->target_block;
-            if (target_block->type == JD_BB_NORMAL) {
+            if (target_block->type == JD_BB_NORMAL)
+            {
                 jd_nblock *tnb = target_block->ub->nblock;
                 jd_dex_ins *block_start_ins = tnb->start_ins;
                 ladd_obj(m->ins_watch_successors, block_start_ins);
             }
         }
-        for (int i = 0; i < block->out->size; ++i) {
+        for (int i = 0; i < block->out->size; ++i)
+        {
             jd_edge *edge = lget_obj(block->out, i);
             jd_bblock *target_block = edge->target_block;
             if (target_block->type == JD_BB_EXCEPTION /* &&
-                ins_is_try_end(m, block_end_ins)*/) {
+                ins_is_try_end(m, block_end_ins)*/
+            )
+            {
                 jd_eblock *eblock = target_block->ub->eblock;
                 uint32_t hstart_off = eblock->handler_start_offset;
                 jd_bblock *handler_block = block_start_offset(m, hstart_off);
@@ -187,13 +203,19 @@ static void merge_stack_to_handler_start(jd_method *m,
                                          jd_dex_ins *ins,
                                          jd_dex_ins *start_ins)
 {
-    if (start_ins->stack_in == NULL) return;
-    if (ins->stack_in == NULL) {
+    if (start_ins->stack_in == NULL)
+        return;
+    if (ins->stack_in == NULL)
+    {
         dex_exception_stack(m, ins, start_ins->stack_in);
-    } else {
-        for (int k = 0; k < start_ins->stack_in->local_vars_count; ++k) {
+    }
+    else
+    {
+        for (int k = 0; k < start_ins->stack_in->local_vars_count; ++k)
+        {
             jd_val *val = start_ins->stack_in->local_vars[k];
-            if (val == NULL) continue;
+            if (val == NULL)
+                continue;
             ins->stack_in->local_vars[k] = val;
         }
     }
@@ -213,10 +235,13 @@ static void merge_all_try_start_block(jd_method *m, jd_ins *ins)
      * }
      *
      **/
-    for (int i = 0; i < m->mix_exceptions->size; ++i) {
+    for (int i = 0; i < m->mix_exceptions->size; ++i)
+    {
         jd_mix_exception *e = lget_obj(m->mix_exceptions, i);
-        if (!is_list_empty(e->catches)) {
-            for (int j = 0; j < e->catches->size; ++j) {
+        if (!is_list_empty(e->catches))
+        {
+            for (int j = 0; j < e->catches->size; ++j)
+            {
                 jd_range *range = lget_obj(e->catches, j);
                 if (range->start_offset != ins->offset)
                     continue;
@@ -225,7 +250,8 @@ static void merge_all_try_start_block(jd_method *m, jd_ins *ins)
                 merge_stack_to_handler_start(m, ins, start_ins);
             }
         }
-        if (e->finally != NULL && e->finally->start_offset == ins->offset) {
+        if (e->finally != NULL && e->finally->start_offset == ins->offset)
+        {
             jd_ins *start_ins = get_ins(m, e->try->start_idx);
             merge_stack_to_handler_start(m, ins, start_ins);
         }
@@ -234,13 +260,16 @@ static void merge_all_try_start_block(jd_method *m, jd_ins *ins)
 
 static void dex_fill_visit_queue(jd_method *m, jd_dex_ins *ins)
 {
-    for (int i = 0; i < m->ins_watch_successors->size; ++i) {
+    for (int i = 0; i < m->ins_watch_successors->size; ++i)
+    {
         jd_dex_ins *suc_ins = lget_obj(m->ins_watch_successors, i);
         int is_handler_start = ins_is_handler_start(m, suc_ins);
-        if (is_handler_start && block_can_execute(m, ins, suc_ins)) {
+        if (is_handler_start && block_can_execute(m, ins, suc_ins))
+        {
             merge_all_try_start_block(m, suc_ins);
         }
-        else if (suc_ins->stack_in == NULL && !is_handler_start) {
+        else if (suc_ins->stack_in == NULL && !is_handler_start)
+        {
             suc_ins->stack_in = stack_clone(ins->stack_out);
             queue_push_object(m->ins_visit_queue, suc_ins);
         }
@@ -256,13 +285,13 @@ static void dex_ins_cb(jd_method *m, jd_dex_ins *ins)
     dex_fill_visit_queue(m, ins);
 }
 
-
 static void dex_process_instruction_action(jd_method *m, ins_action_cb cb)
 {
     int times = 0;
     jd_dex_ins *ins = NULL;
-    while ((ins = queue_pop_object(m->ins_visit_queue)) != NULL) {
-        times ++;
+    while ((ins = queue_pop_object(m->ins_visit_queue)) != NULL)
+    {
+        times++;
         cb(m, ins);
     }
 }
@@ -275,9 +304,9 @@ void dex_simulator(jd_method *m)
     m->ins_visit_queue = queue_init_object();
     m->stack_variables = linit_object();
     m->offset2var_map = hashmap_init((hcmp_fn)i2obj_cmp, 0);
-    m->slot_counter_map = hashmap_init((hcmp_fn) i2i_cmp, 0);
-    m->class_counter_map = hashmap_init((hcmp_fn) s2i_cmp, 0);
-    m->var_name_map = hashmap_init((hcmp_fn) s2s_cmp, 0);
+    m->slot_counter_map = hashmap_init((hcmp_fn)i2i_cmp, 0);
+    m->class_counter_map = hashmap_init((hcmp_fn)s2i_cmp, 0);
+    m->var_name_map = hashmap_init((hcmp_fn)s2s_cmp, 0);
     m->types = linit_object();
 
     dex_method_enter_stack(m);

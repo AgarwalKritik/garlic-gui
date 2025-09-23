@@ -6,4 +6,4 @@
 
 void dex_instruction_to_expression(jd_method *m);
 
-#endif //GARLIC_DEX_EXPRESSION_BUILDER_H
+#endif // GARLIC_DEX_EXPRESSION_BUILDER_H

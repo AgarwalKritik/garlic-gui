@@ -220,15 +220,15 @@ void exp_instanceof_to_stream(FILE *stream,
                               jd_node *node,
                               jd_exp *expression);
 
-void exp_ternary_to_stream(FILE *stream, jd_node *node,  jd_exp *expression);
+void exp_ternary_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
 
-void exp_break_to_stream(FILE *stream, jd_node *node,  jd_exp *expression);
+void exp_break_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
 
-void exp_continue_to_stream(FILE *stream, jd_node *node,  jd_exp *expression);
+void exp_continue_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
 
-void exp_while_to_stream(FILE *stream, jd_node *node,  jd_exp *expression);
+void exp_while_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
 
-void exp_do_while_to_stream(FILE *stream, jd_node *node,  jd_exp *expression);
+void exp_do_while_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
 
 void exp_for_to_stream(FILE *stream,
                        jd_node *node,
@@ -246,7 +246,7 @@ void exp_assignment_chain_to_stream(FILE *stream,
                                     jd_node *node,
                                     jd_exp *expression);
 
-void exp_stack_var_to_stream(FILE *stream, jd_node *node,  jd_exp *expression);
+void exp_stack_var_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
 
 void exp_uninitialize_to_stream(FILE *stream,
                                 jd_node *node,
@@ -256,17 +256,17 @@ void exp_initialize_to_stream(FILE *stream,
                               jd_node *node,
                               jd_exp *expression);
 
-void exp_cast_to_stream(FILE *stream, jd_node *node,  jd_exp *expression);
+void exp_cast_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
 
-void exp_store_to_stream(FILE *stream, jd_node *node,  jd_exp *expression);
+void exp_store_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
 
 void exp_define_stack_var_to_stream(FILE *stream,
                                     jd_node *node,
                                     jd_exp *expression);
 
-void exp_athrow_to_stream(FILE *stream, jd_node *node,  jd_exp *expression);
+void exp_athrow_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
 
-void exp_iinc_to_stream(FILE *stream, jd_node *node,  jd_exp *expression);
+void exp_iinc_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
 
 void exp_declaration_to_stream(FILE *stream,
                                jd_node *node,
@@ -281,8 +281,8 @@ void exp_lambda_to_stream(FILE *stream,
                           jd_exp *expression);
 
 void exp_anonymous_to_stream(FILE *stream,
-                          jd_node *node,
-                          jd_exp *expression);
+                             jd_node *node,
+                             jd_exp *expression);
 
 void exp_monitorenter_to_stream(FILE *stream,
                                 jd_node *node,
@@ -296,9 +296,7 @@ void exp_str_concat_to_stream(FILE *stream,
                               jd_node *node,
                               jd_exp *expression);
 
-void exp_enum_to_stream(FILE *stream, jd_node *node,  jd_exp *expression);
+void exp_enum_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
 
 void exp_if_break_to_stream(FILE *stream, jd_node *node, jd_exp *expression);
-#endif //GARLIC_TRANSFORMER_H
-
-
+#endif // GARLIC_TRANSFORMER_H

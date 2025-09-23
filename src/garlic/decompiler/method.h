@@ -100,7 +100,8 @@ static inline bool method_is_lambda(jd_method *m)
 
 static inline bool method_is_enum_constructor(jd_method *m)
 {
-    if (STR_EQL(m->name, g_str_init)) {
+    if (STR_EQL(m->name, g_str_init))
+    {
         jclass_file *jc = m->meta;
         if (class_has_flag(jc, CLASS_ACC_ENUM))
             return true;
@@ -108,4 +109,4 @@ static inline bool method_is_enum_constructor(jd_method *m)
     return false;
 }
 
-#endif //GARLIC_METHOD_H
+#endif // GARLIC_METHOD_H

@@ -16,5 +16,4 @@ void exp_put_static_to_stream(FILE *stream, jd_node *node, jd_exp *expression)
 
     fprintf(stream, "%s.%s = ", put_static->class_name, put_static->name);
     expression_to_stream(stream, node, val_exp);
-
 }

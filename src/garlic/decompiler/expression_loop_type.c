@@ -5,7 +5,7 @@
 #include "decompiler/expression_visitor.h"
 #include "jvm/jvm_expression_builder.h"
 
-static jd_exp* loop_condition_exp(jd_method *m, jd_loop *loop)
+static jd_exp *loop_condition_exp(jd_method *m, jd_loop *loop)
 {
     jd_range *range = loop->condition_range;
     jd_exp *loop_exp = get_exp(m, range->end_idx);
@@ -16,7 +16,7 @@ static jd_exp* loop_condition_exp(jd_method *m, jd_loop *loop)
     return condition;
 }
 
-static jd_exp* loop_last_valid_exp(jd_method *m, jd_node *loop)
+static jd_exp *loop_last_valid_exp(jd_method *m, jd_node *loop)
 {
     jd_exp *exp = get_exp(m, loop->end_idx);
     if (exp_is_nopped(exp))
@@ -26,18 +26,21 @@ static jd_exp* loop_last_valid_exp(jd_method *m, jd_node *loop)
 
 static bool loop_condition_contains(list_object *exps, jd_exp *exp)
 {
-    switch(exp->type) {
-        case JD_EXPRESSION_PUT_STATIC:
-        case JD_EXPRESSION_PUT_FIELD:
-        case JD_EXPRESSION_STORE:
-            break;
-        default:
-            return false;
+    switch (exp->type)
+    {
+    case JD_EXPRESSION_PUT_STATIC:
+    case JD_EXPRESSION_PUT_FIELD:
+    case JD_EXPRESSION_STORE:
+        break;
+    default:
+        return false;
     }
-    for (int i = 0; i < exps->size; ++i) {
+    for (int i = 0; i < exps->size; ++i)
+    {
         jd_exp *e = lget_obj(exps, i);
         if (exp_is_local_variable(e) &&
-            exp_is_store(exp)) {
+            exp_is_store(exp))
+        {
             jd_val *val = e->data;
             jd_exp_store *store = exp->data;
             jd_exp *l = &store->list->args[0];
@@ -46,7 +49,8 @@ static bool loop_condition_contains(list_object *exps, jd_exp *exp)
                 return true;
         }
         else if (exp_is_get_field(e) &&
-                 exp_is_put_field(exp)) {
+                 exp_is_put_field(exp))
+        {
             jd_exp_get_field *get_field = e->data;
             jd_exp_put_field *put_field = exp->data;
 
@@ -55,7 +59,8 @@ static bool loop_condition_contains(list_object *exps, jd_exp *exp)
                 return true;
         }
         else if (exp_is_get_static(e) &&
-                 exp_is_put_static(exp)) {
+                 exp_is_put_static(exp))
+        {
             jd_exp_get_static *get = e->data;
             jd_exp_put_static *put = exp->data;
 
@@ -63,7 +68,6 @@ static bool loop_condition_contains(list_object *exps, jd_exp *exp)
                 STR_EQL(get->class_name, put->class_name) &&
                 STR_EQL(get->owner_class_name, put->owner_class_name))
                 return true;
-
         }
     }
     return false;
@@ -82,7 +86,7 @@ static void loop_to_while_structure(jd_method *m, jd_loop *loop)
         return;
 
     jd_exp *exp = get_exp(m, loop->condition_range->end_idx);
-//    assert(exp_is_if(exp));
+    //    assert(exp_is_if(exp));
     if (!exp_is_if(exp))
         return;
 
@@ -108,7 +112,7 @@ static void loop_to_do_while_structure(jd_method *m, jd_loop *loop)
         return;
 
     jd_exp *exp = get_exp(m, loop->condition_range->end_idx);
-    if(!exp_is_if(exp))
+    if (!exp_is_if(exp))
         return;
     jd_exp_if *if_exp = exp->data;
     jd_exp *condition = if_exp->expression;
@@ -149,12 +153,14 @@ static void loop_to_for_structure(jd_method *m, jd_loop *loop)
         return;
     jd_node *pre_node = pre_exp->block->node;
 
-    for (int i = pre_node->end_idx; i >= pre_node->start_idx ; --i) {
+    for (int i = pre_node->end_idx; i >= pre_node->start_idx; --i)
+    {
         jd_exp *e = get_exp(m, i);
         DEBUG_PRINT("[loop exp]: id: %d type: %d\n", e->idx, e->type);
         if (exp_is_nopped(e))
             continue;
-        if (loop_condition_contains(exps, e)) {
+        if (loop_condition_contains(exps, e))
+        {
             initial_exp = e;
             break;
         }
@@ -170,7 +176,8 @@ static void loop_to_for_structure(jd_method *m, jd_loop *loop)
         return;
     jd_exp *last_continue = NULL;
 
-    if (exp_is_continue(last_exp)) {
+    if (exp_is_continue(last_exp))
+    {
         last_continue = last_exp;
         last_exp = prev_valid_exp(m, last_exp->idx - 1);
     }
@@ -207,7 +214,8 @@ static void loop_to_for_structure(jd_method *m, jd_loop *loop)
 
 void identify_loop_type(jd_method *m)
 {
-    for (int i = 0; i < m->loops->size; ++i) {
+    for (int i = 0; i < m->loops->size; ++i)
+    {
         jd_loop *loop = lget_obj(m->loops, i);
         loop_to_for_structure(m, loop);
 

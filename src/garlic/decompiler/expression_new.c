@@ -10,7 +10,8 @@ static bool exp_contains_new_object(jd_exp *exp)
     jd_ins *ins = exp->ins;
     if (ins != NULL && jvm_ins_is_newobj(ins))
         return true;
-    if (exp_is_store(exp)) {
+    if (exp_is_store(exp))
+    {
         jd_exp_store *store = exp->data;
         jd_exp *right = &store->list->args[1];
         return exp_is_uninitialize(right);
@@ -26,7 +27,8 @@ static bool identify_initialize_of_assignment(jd_method *m, jd_exp *exp, int i)
     jd_exp_lvalue *new_obj_lvalue = new_obj_assignment->left->data;
     jd_var *left_var = new_obj_lvalue->stack_var;
 
-    for (int j = i + 1; j < m->expressions->size; ++j) {
+    for (int j = i + 1; j < m->expressions->size; ++j)
+    {
         jd_exp *invoke_exp = lget_obj(m->expressions, j);
         if (exp_is_nopped(invoke_exp))
             continue;
@@ -52,7 +54,8 @@ static bool identify_initialize_of_assignment(jd_method *m, jd_exp *exp, int i)
         initialize->list = make_obj(jd_exp_list);
         initialize->list->len = invoke->list->len - 1;
         initialize->class_name = left_var->cname;
-        if (initialize->list->len > 0) {
+        if (initialize->list->len > 0)
+        {
             size_t size = sizeof(jd_exp) * initialize->list->len;
             initialize->list->args = x_alloc(size);
             memcpy(initialize->list->args,
@@ -61,15 +64,16 @@ static bool identify_initialize_of_assignment(jd_method *m, jd_exp *exp, int i)
         }
         invoke_exp->data = initialize;
         invoke_exp->type = JD_EXPRESSION_INITIALIZE;
-        left_var->use_count --;
-        left_var->def_count --;
-        left_var->dupped_count --;
+        left_var->use_count--;
+        left_var->def_count--;
+        left_var->dupped_count--;
 
         jd_exp *right = new_obj_assignment->right;
         right->type = JD_EXPRESSION_INITIALIZE;
         right->data = initialize;
 
-        if (invoke->anonymous != NULL) {
+        if (invoke->anonymous != NULL)
+        {
             right->type = JD_EXPRESSION_ANONYMOUS;
             right->data = invoke->anonymous;
         }
@@ -77,8 +81,8 @@ static bool identify_initialize_of_assignment(jd_method *m, jd_exp *exp, int i)
         invoke_exp->type = JD_EXPRESSION_ASSIGNMENT;
         invoke_exp->data = new_obj_assignment;
 
-        new_obj_assignment->dupped_count --;
-        new_obj_assignment->def_count --;
+        new_obj_assignment->dupped_count--;
+        new_obj_assignment->def_count--;
         exp_mark_nopped(exp);
         found = true;
         break;
@@ -94,7 +98,8 @@ static bool identify_initialize_of_store(jd_method *m, jd_exp *exp, int i)
     jd_exp *right = &store->list->args[1];
     jd_val *left_val = left->data;
 
-    for (int j = i + 1; j < m->expressions->size; ++j) {
+    for (int j = i + 1; j < m->expressions->size; ++j)
+    {
         jd_exp *invoke_exp = lget_obj(m->expressions, j);
         if (exp_is_nopped(invoke_exp) || !exp_is_invoke(invoke_exp))
             continue;
@@ -116,10 +121,11 @@ static bool identify_initialize_of_store(jd_method *m, jd_exp *exp, int i)
         jd_exp_initialize *initialize = make_obj(jd_exp_initialize);
         initialize->list = make_obj(jd_exp_list);
         initialize->list->len = invoke->list->len - 1;
-//        string _name = class_simple_name(left_val->data->cname);
+        //        string _name = class_simple_name(left_val->data->cname);
         initialize->class_name = left_val->data->cname;
-//        initialize->desc = left_val->data->desc;
-        if (initialize->list->len > 0) {
+        //        initialize->desc = left_val->data->desc;
+        if (initialize->list->len > 0)
+        {
             size_t size = sizeof(jd_exp) * initialize->list->len;
             initialize->list->args = x_alloc(size);
             memcpy(initialize->list->args,
@@ -132,17 +138,20 @@ static bool identify_initialize_of_store(jd_method *m, jd_exp *exp, int i)
         jd_val *val = left->data;
         jd_var *var = val->stack_var;
         if (var != NULL)
-            var->use_count --;
+            var->use_count--;
 
-        if (invoke->lambda != NULL) {
+        if (invoke->lambda != NULL)
+        {
             right->type = JD_EXPRESSION_LAMBDA;
             right->data = invoke->lambda;
         }
-        else if (invoke->anonymous != NULL) {
+        else if (invoke->anonymous != NULL)
+        {
             right->type = JD_EXPRESSION_ANONYMOUS;
             right->data = invoke->anonymous;
         }
-        else {
+        else
+        {
             right->type = JD_EXPRESSION_INITIALIZE;
             right->data = initialize;
         }
@@ -157,7 +166,8 @@ static bool identify_initialize_of_store(jd_method *m, jd_exp *exp, int i)
 bool identify_initialize(jd_method *m)
 {
     bool found = false;
-    for (int i = 0; i < m->expressions->size; ++i) {
+    for (int i = 0; i < m->expressions->size; ++i)
+    {
         jd_exp *exp = lget_obj(m->expressions, i);
         if (!exp_contains_new_object(exp))
             continue;
@@ -166,7 +176,6 @@ bool identify_initialize(jd_method *m)
             found = identify_initialize_of_assignment(m, exp, i);
         else if (exp_is_store(exp))
             found = identify_initialize_of_store(m, exp, i);
-
     }
     return found;
 }

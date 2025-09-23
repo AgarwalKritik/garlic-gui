@@ -28,7 +28,7 @@
 #define le64toh(x) OSSwapLittleToHostInt64(x)
 
 #endif
-#endif	/* __FINK_ENDIANDEV_PKG_ENDIAN_H__ */
+#endif /* __FINK_ENDIANDEV_PKG_ENDIAN_H__ */
 
 #ifdef __linux__
 #include <endian.h>

@@ -10,7 +10,7 @@
 #include "ssa.h"
 #include "control_flow.h"
 
-static inline FILE* file_output(jsource_file *jf)
+static inline FILE *file_output(jsource_file *jf)
 {
     return jf->source == NULL ? DEFAULT_WRITE_OUT : jf->source;
 }
@@ -18,16 +18,17 @@ static inline FILE* file_output(jsource_file *jf)
 static inline string front_ins_string(jd_exp *expression, jd_ins *ins)
 {
 
-    if (ins == NULL) {
+    if (ins == NULL)
+    {
         return str_create("[%24d] ", expression->idx);
     }
-    else {
+    else
+    {
         return str_create("[%4d %23s %4d] ",
                           ins->offset,
                           ins->name,
                           expression->idx);
     }
-
 }
 
 static inline void front_ins_stream(jsource_file *jf, jd_exp *exp, jd_ins *ins)
@@ -47,18 +48,22 @@ void print_expression(jd_exp *expression, jd_ins *ins)
     if (exp_is_nopped(expression) || exp_is_empty(expression))
         return;
 
-
-    if (DEBUG_INS_AND_NODE_INFO) {
-        if (!isatty(fileno(stdout))) {
-            if (DEBUG_WRITE_COLOR) {
-                if (!exp_is_copy(expression)) {
+    if (DEBUG_INS_AND_NODE_INFO)
+    {
+        if (!isatty(fileno(stdout)))
+        {
+            if (DEBUG_WRITE_COLOR)
+            {
+                if (!exp_is_copy(expression))
+                {
                     printf("\033[0;31m");
                     printf("%s", front_ins_string(expression, ins));
                     printf("\033[0m");
                     fprintf(DEFAULT_WRITE_OUT, "%s;\n",
                             exp_to_s(expression));
                 }
-                else {
+                else
+                {
                     printf("\033[0;32m");
                     printf("%s", front_ins_string(expression, ins));
                     printf("\033[0m");
@@ -66,13 +71,15 @@ void print_expression(jd_exp *expression, jd_ins *ins)
                             exp_to_s(expression));
                 }
             }
-            else {
+            else
+            {
                 printf("%s ", front_ins_string(expression, ins));
                 fprintf(DEFAULT_WRITE_OUT, "%s;\n",
                         exp_to_s(expression));
             }
         }
-        else {
+        else
+        {
             fprintf(DEFAULT_WRITE_OUT, "%s %s\n",
                     front_ins_string(expression, ins),
                     exp_to_s(expression));
@@ -88,22 +95,27 @@ void print_exp_full(jd_exp *expression, jd_ins *ins)
     if (exp_is_empty(expression))
         return;
 
-    if (DEBUG_INS_AND_NODE_INFO) {
-        if (!isatty(fileno(stdout))) {
-            if (DEBUG_WRITE_COLOR) {
+    if (DEBUG_INS_AND_NODE_INFO)
+    {
+        if (!isatty(fileno(stdout)))
+        {
+            if (DEBUG_WRITE_COLOR)
+            {
                 printf("\033[0;31m");
                 printf("%s ", front_ins_string(expression, ins));
                 printf("\033[0m");
                 fprintf(DEFAULT_WRITE_OUT, "%s;\n",
                         exp_to_s(expression));
             }
-            else {
+            else
+            {
                 printf("%s", front_ins_string(expression, ins));
                 fprintf(DEFAULT_WRITE_OUT, "%s;\n",
                         exp_to_s(expression));
             }
         }
-        else {
+        else
+        {
             fprintf(DEFAULT_WRITE_OUT, "%s %s\n",
                     front_ins_string(expression, ins),
                     exp_to_s(expression));
@@ -121,19 +133,23 @@ static void write_expression(jsource_file *jf,
                              bool terminated)
 {
     FILE *stream = file_output(jf);
-    if (DEBUG_INS_AND_NODE_INFO) {
-        if (DEBUG_WRITE_COLOR) {
+    if (DEBUG_INS_AND_NODE_INFO)
+    {
+        if (DEBUG_WRITE_COLOR)
+        {
             fprintf(stream, "\033[0;31m");
             front_ins_stream(jf, exp, ins);
             fprintf(stream, "\033[0m");
             expression_to_stream(stream, node, exp);
         }
-        else {
+        else
+        {
             front_ins_stream(jf, exp, ins);
             expression_to_stream(stream, node, exp);
         }
     }
-    else {
+    else
+    {
         expression_to_stream(stream, node, exp);
     }
     if (terminated)
@@ -143,7 +159,8 @@ static void write_expression(jsource_file *jf,
 void print_all_expression(jd_method *m)
 {
     printf("---------------- m: %s\n", m->name);
-    for (int i = 0; i < m->expressions->size; ++i) {
+    for (int i = 0; i < m->expressions->size; ++i)
+    {
         jd_exp *expression = lget_obj(m->expressions, i);
         jd_ins *ins = expression->ins;
         if (exp_is_nopped(expression))
@@ -155,7 +172,8 @@ void print_all_expression(jd_method *m)
 
 static bool is_block_start(jd_method *m, jd_ins *ins)
 {
-    for (int i = 0; i < m->basic_blocks->size; ++i) {
+    for (int i = 0; i < m->basic_blocks->size; ++i)
+    {
         jd_bblock *b = lget_obj(m->basic_blocks, i);
         if (b->type != JD_BB_NORMAL)
             continue;
@@ -167,7 +185,8 @@ static bool is_block_start(jd_method *m, jd_ins *ins)
 
 static void print_phi_nodes(jd_method *m, jd_ins *ins)
 {
-    for (int i = 0; i < m->local_phi_list->size; ++i) {
+    for (int i = 0; i < m->local_phi_list->size; ++i)
+    {
         jd_local_phi_node *phi_node = lget_obj(m->local_phi_list, i);
         if (phi_node->ins_offset != ins->offset)
             continue;
@@ -175,7 +194,8 @@ static void print_phi_nodes(jd_method *m, jd_ins *ins)
                phi_node->slot,
                phi_node->version);
         printf("\t(\n");
-        for (int j = 0; j < phi_node->params->size; ++j) {
+        for (int j = 0; j < phi_node->params->size; ++j)
+        {
             jd_ssa_param *param = lget_obj(phi_node->params, j);
             printf("\t\tssa_var: "
                    "slot:%d version:%d blk: %d def: %d ssa_var_%d_%d\n",
@@ -194,9 +214,11 @@ static void print_ssa_var(jd_method *m, jd_ins *ins)
 {
     if (ins == NULL)
         return;
-    for (int i = 0; i < m->ssa_vars->size; ++i) {
+    for (int i = 0; i < m->ssa_vars->size; ++i)
+    {
         jd_ssa_var *var = lget_obj(m->ssa_vars, i);
-        if (var->ins->offset == ins->offset) {
+        if (var->ins->offset == ins->offset)
+        {
             printf("[ssa_var]: var_%d_%d\n", var->slot, var->version);
         }
     }
@@ -204,12 +226,14 @@ static void print_ssa_var(jd_method *m, jd_ins *ins)
 
 void print_all_expression_with_ssa(jd_method *m)
 {
-    for (int i = 0; i < m->expressions->size; ++i) {
+    for (int i = 0; i < m->expressions->size; ++i)
+    {
         jd_exp *expression = lget_obj(m->expressions, i);
         jd_ins *ins = expression->ins;
         if (ins != NULL && ins_is_duplicate(ins))
             continue;
-        if (ins != NULL && is_block_start(m, ins)) {
+        if (ins != NULL && is_block_start(m, ins))
+        {
             jd_bblock *block = ins->block;
             printf("#BLK%zu, %d -> %d\n",
                    block->block_id,
@@ -234,7 +258,6 @@ void print_all_expression_with_ssa(jd_method *m)
             printf("\033[0;32m");
             print_phi_nodes(m, ins);
             printf("\033[0m");
-
         }
         if (exp_is_nopped(expression) || exp_is_empty(expression))
             continue;
@@ -246,7 +269,8 @@ void print_all_expression_with_ssa(jd_method *m)
 
 void print_full_expression(jd_method *m)
 {
-    for (int i = 0; i < m->expressions->size; ++i) {
+    for (int i = 0; i < m->expressions->size; ++i)
+    {
         jd_exp *expression = lget_obj(m->expressions, i);
         jd_ins *ins = expression->ins;
         print_exp_full(expression, ins);
@@ -255,28 +279,32 @@ void print_full_expression(jd_method *m)
 
 void print_code_nodes(jd_method *m, jd_node *node)
 {
-    if (node == NULL) {
+    if (node == NULL)
+    {
         printf("---------------- m: %s\n", m->name);
         node = lget_obj_first(m->nodes);
     }
 
     string ident = get_node_ident(node);
 
-    for (int i = 0; i < node->children->size; ++i) {
+    for (int i = 0; i < node->children->size; ++i)
+    {
         jd_node *child = lget_obj(node->children, i);
 
-        if (node_is_expression(child)) {
+        if (node_is_expression(child))
+        {
             jd_exp *exp = child->data;
             if (exp_is_nopped(exp) || exp_is_empty(exp))
                 continue;
             fprintf(DEFAULT_WRITE_OUT, "%s", ident);
             print_expression(exp, exp->ins);
         }
-        else {
+        else
+        {
             fprintf(DEFAULT_WRITE_OUT, "%s %s "
-                    "{ // block_id: %d  "
-                    "range: %d - %d  "
-                    "parent_id: %d\n",
+                                       "{ // block_id: %d  "
+                                       "range: %d - %d  "
+                                       "parent_id: %d\n",
                     ident,
                     node_name(child),
                     child->node_id,
@@ -287,12 +315,12 @@ void print_code_nodes(jd_method *m, jd_node *node)
             fprintf(DEFAULT_WRITE_OUT, "%s }\n", ident);
         }
     }
-
 }
 
 void print_code_nodes_v2(jd_method *m, jd_node *node)
 {
-    if (node == NULL) {
+    if (node == NULL)
+    {
         // print_node_tree(m, NULL);
         node = lget_obj_first(m->nodes);
         create_method_defination(m);
@@ -301,7 +329,8 @@ void print_code_nodes_v2(jd_method *m, jd_node *node)
 
     string ident = get_node_ident(node);
 
-    if (node_is_expression(node)) {
+    if (node_is_expression(node))
+    {
         jd_exp *exp = node->data;
         if (exp_is_nopped(exp) || exp_is_empty(exp))
             return;
@@ -310,23 +339,26 @@ void print_code_nodes_v2(jd_method *m, jd_node *node)
         return;
     }
 
-    for (int i = 0; i < node->children->size; ++i) {
+    for (int i = 0; i < node->children->size; ++i)
+    {
         jd_node *child = lget_obj(node->children, i);
 
-        if (node_is_basic_block(child)) {
+        if (node_is_basic_block(child))
+        {
             jd_bblock *b = child->data;
             jd_nblock *nb = b->ub->nblock;
-//            debug_basic_block_node(child);
+            //            debug_basic_block_node(child);
 
-//            for (int j = nb->start_idx; j <= nb->end_idx; ++j) {
-//                jd_exp *exp = get_exp(m, j);
-//                if (exp_is_nopped(exp) || exp_is_empty(exp))
-//                    continue;
-//                fprintf(DEFAULT_WRITE_OUT, "%s", ident);
-//                print_expression(exp, exp->ins);
-//            }
+            //            for (int j = nb->start_idx; j <= nb->end_idx; ++j) {
+            //                jd_exp *exp = get_exp(m, j);
+            //                if (exp_is_nopped(exp) || exp_is_empty(exp))
+            //                    continue;
+            //                fprintf(DEFAULT_WRITE_OUT, "%s", ident);
+            //                print_expression(exp, exp->ins);
+            //            }
 
-            for (int j = child->start_idx; j <= child->end_idx ; ++j) {
+            for (int j = child->start_idx; j <= child->end_idx; ++j)
+            {
                 jd_exp *exp = get_exp(m, j);
                 if (exp_is_nopped(exp) || exp_is_empty(exp))
                     continue;
@@ -334,18 +366,20 @@ void print_code_nodes_v2(jd_method *m, jd_node *node)
                 print_expression(exp, exp->ins);
             }
         }
-        else if (node_is_expression(child)) {
+        else if (node_is_expression(child))
+        {
             jd_exp *exp = child->data;
             if (exp_is_nopped(exp) || exp_is_empty(exp))
                 return;
             fprintf(DEFAULT_WRITE_OUT, "%s", ident);
             print_expression(exp, exp->ins);
         }
-        else {
+        else
+        {
             fprintf(DEFAULT_WRITE_OUT, "%s%s { "
-                    "// block_id: %d  "
-                    "range: %d - %d  "
-                    "parent_id: %d\n",
+                                       "// block_id: %d  "
+                                       "range: %d - %d  "
+                                       "parent_id: %d\n",
                     ident,
                     node_name(child),
                     child->node_id,
@@ -356,7 +390,6 @@ void print_code_nodes_v2(jd_method *m, jd_node *node)
             fprintf(DEFAULT_WRITE_OUT, "%s}\n", ident);
         }
     }
-
 }
 
 string lambada_method_ident(jd_method *m)
@@ -383,10 +416,12 @@ string method_block_to_string(jd_method *m, jd_node *node)
     if (node == NULL)
         node = lget_obj_first(m->nodes);
 
-    for (int i = 0; i < node->children->size; ++i) {
+    for (int i = 0; i < node->children->size; ++i)
+    {
         jd_node *child = lget_obj(node->children, i);
         string ident = get_node_ident(child);
-        if (child->type == JD_NODE_EXPRESSION) {
+        if (child->type == JD_NODE_EXPRESSION)
+        {
             jd_exp *exp = child->data;
             if (exp_is_nopped(exp) ||
                 exp_is_empty(exp) ||
@@ -394,17 +429,18 @@ string method_block_to_string(jd_method *m, jd_node *node)
                 exp_is_switch(exp))
                 continue;
 
-
             fprintf(stream, "%s%s%s;\n",
                     ident,
                     front_ins_string(exp, exp->ins),
                     exp_to_s(exp));
             fflush(stream);
         }
-        else {
+        else
+        {
             if (child->type == JD_NODE_IF ||
                 child->type == JD_NODE_SWITCH ||
-                child->type == JD_NODE_ELSE_IF) {
+                child->type == JD_NODE_ELSE_IF)
+            {
                 jd_node *first = node_first_effective_child(child);
                 jd_exp *expression = first->data;
                 fprintf(stream,
@@ -420,8 +456,9 @@ string method_block_to_string(jd_method *m, jd_node *node)
                         first->end_idx,
                         first->parent->node_id);
             }
-            else {
-                fprintf(stream, 
+            else
+            {
+                fprintf(stream,
                         "%s%s { "
                         "// block_id: %d  "
                         "range: %d - %d  "
@@ -443,15 +480,15 @@ string method_block_to_string(jd_method *m, jd_node *node)
     fseek(stream, 0, SEEK_END);
     len = ftell(stream);
     fseek(stream, 0, SEEK_SET);
-    
+
     string result = x_alloc(len + 1);
     fread(result, 1, len, stream);
     result[len] = '\0';
     fclose(stream);
     return result;
 #else
-    string result = x_alloc(len+1);
-    memcpy(result, buf, len+1);
+    string result = x_alloc(len + 1);
+    memcpy(result, buf, len + 1);
     result[len] = '\0';
     free(buf);
     fclose(stream);
@@ -461,7 +498,8 @@ string method_block_to_string(jd_method *m, jd_node *node)
 
 static void write_notice(jsource_file *jf)
 {
-    if (!SOURCE_FILE_NOTICE) return;
+    if (!SOURCE_FILE_NOTICE)
+        return;
     FILE *stream = file_output(jf);
 
     fprintf(stream, "/*\n");
@@ -473,9 +511,11 @@ static void write_notice(jsource_file *jf)
 static void write_import(jsource_file *jf)
 {
     FILE *stream = file_output(jf);
-    if (jf->pname != NULL) {
+    if (jf->pname != NULL)
+    {
         fprintf(stream, "package ");
-        for (int i = 0; i < strlen(jf->pname); ++i) {
+        for (int i = 0; i < strlen(jf->pname); ++i)
+        {
             unsigned char c = jf->pname[i];
             if (c == '/')
                 fprintf(stream, ".");
@@ -492,14 +532,18 @@ static void write_import(jsource_file *jf)
 static void write_class_annotation(jsource_file *jf)
 {
     FILE *stream = file_output(jf);
-    for (int i = 0; i < jf->annotations->size; ++i) {
+    for (int i = 0; i < jf->annotations->size; ++i)
+    {
         jd_annotation *ano = lget_obj(jf->annotations, i);
-        for (int j = 0; j < strlen(ano->str); ++j) {
+        for (int j = 0; j < strlen(ano->str); ++j)
+        {
             unsigned char c = ano->str[j];
-            if (iscntrl(c)) {
+            if (iscntrl(c))
+            {
                 fprintf(stream, "\\%02X", c);
             }
-            else {
+            else
+            {
                 fprintf(stream, "%c", c);
             }
         }
@@ -515,7 +559,8 @@ static void write_method_annotation(jsource_file *jf, jd_node *node)
         return;
 
     FILE *stream = file_output(jf);
-    for (int j = 0; j < m->annotations->size; ++j) {
+    for (int j = 0; j < m->annotations->size; ++j)
+    {
         jd_annotation *ano = lget_obj(m->annotations, j);
         fprintf(stream, "%s%s\n", ident, ano->str);
     }
@@ -525,13 +570,15 @@ static void write_field(jsource_file *jf, jd_node *node)
 {
     string ident = get_node_ident(node);
     FILE *stream = file_output(jf);
-    for (int i = 0; i < jf->fields_count; ++i) {
+    for (int i = 0; i < jf->fields_count; ++i)
+    {
         jd_field *field = &jf->fields[i];
         if (field_is_hide(field) || field_is_assert(field))
             continue;
-//        if (field_is_synthetic(field) && jf->is_anonymous)
-//            continue;
-        for (int j = 0; j < field->annotations->size; ++j) {
+        //        if (field_is_synthetic(field) && jf->is_anonymous)
+        //            continue;
+        for (int j = 0; j < field->annotations->size; ++j)
+        {
             jd_annotation *ano = lget_obj(field->annotations, j);
             string annotation = ano->str;
             fprintf(stream, "%s%s\n", ident, annotation);
@@ -543,21 +590,25 @@ static void write_field(jsource_file *jf, jd_node *node)
 
 static void write_node_debug_info(jsource_file *jf, jd_node *node)
 {
-    if (DEBUG_INS_AND_NODE_INFO) {
-        if (DEBUG_WRITE_COLOR) {
+    if (DEBUG_INS_AND_NODE_INFO)
+    {
+        if (DEBUG_WRITE_COLOR)
+        {
             printf("\033[0;32m");
             fprintf(file_output(jf), " // node_id: %d  "
-                                       "range: %d - %d  "
-                                       "parent_id: %d",
+                                     "range: %d - %d  "
+                                     "parent_id: %d",
                     node->node_id,
                     node->start_idx,
                     node->end_idx,
                     node->parent->node_id);
             printf("\033[0m");
-        } else {
+        }
+        else
+        {
             fprintf(file_output(jf), " // block_id: %d  "
-                                       "range: %d - %d  "
-                                       "parent_id: %d",
+                                     "range: %d - %d  "
+                                     "parent_id: %d",
                     node->node_id,
                     node->start_idx,
                     node->end_idx,
@@ -596,7 +647,8 @@ static void write_method(FILE *stream, jsource_file *jf, jd_node *node)
         return;
 
     write_method_annotation(jf, node);
-    if (method_is_empty(m)) {
+    if (method_is_empty(m))
+    {
         fprintf(stream, "%s%s;\n\n", ident,
                 create_method_defination(m));
         return;
@@ -622,7 +674,8 @@ static void write_expression_node(FILE *stream, jsource_file *jf, jd_node *n)
 static void write_basic_block(FILE *stream, jsource_file *jf, jd_node *n)
 {
     string ident = get_node_ident(n);
-    for (int j = n->start_idx; j <= n->end_idx; ++j) {
+    for (int j = n->start_idx; j <= n->end_idx; ++j)
+    {
         jd_exp *exp = get_exp(n->method, j);
         if (exp_is_nopped(exp) ||
             exp_is_empty(exp))
@@ -704,7 +757,8 @@ static void write_catch(FILE *stream, jsource_file *jf, jd_node *n)
     string ident = get_node_ident(n);
     fprintf(stream, "%s%s (", ident, node_name(n));
     jd_exp *param_exp = n->param_exp;
-    if (param_exp != NULL) {
+    if (param_exp != NULL)
+    {
         jd_val *val = param_exp->data;
         fprintf(stream, "%s ", val->data->cname);
         write_expression(jf, n, n->param_exp, n->param_exp->ins, false);
@@ -721,7 +775,8 @@ static void write_case(FILE *stream, jsource_file *jf, jd_node *n)
     jd_case *_case = n->data;
     if (_case->is_default)
         fprintf(stream, "%sdefault: {", ident);
-    else {
+    else
+    {
         fprintf(stream, "%s%s ", ident, node_name(n));
         fprintf(stream, "%d", _case->key);
         fprintf(stream, ": {");
@@ -758,61 +813,63 @@ void writter_for_class(jsource_file *jf, jd_node *node)
     if (node == NULL)
         node = lget_obj_first(jf->blocks);
     FILE *stream = file_output(jf);
-    for (int i = 0; i < node->children->size; ++i) {
+    for (int i = 0; i < node->children->size; ++i)
+    {
         jd_node *child = lget_obj(node->children, i);
-        switch (child->type) {
-            case JD_NODE_PACKAGE_IMPORT:
-                write_notice(jf);
-                write_import(jf);
-                break;
-            case JD_NODE_CLASS:
-                write_class(stream, child);
-                break;
-            case JD_NODE_FIELD:
-                write_field(jf, child);
-                break;
-            case JD_NODE_METHOD:
-                write_method(stream, jf, child);
-                break;
-            case JD_NODE_EXPRESSION:
-                write_expression_node(stream, jf, child);
-                break;
-            case JD_NODE_BASIC_BLOCK:
-                write_basic_block(stream, jf, child);
-                break;
-            case JD_NODE_DELETED:
-                break;
-            case JD_NODE_IF:
-            case JD_NODE_ELSE_IF:
-                write_if_node(stream, jf, child);
-                break;
-            case JD_NODE_SWITCH:
-                write_switch_node(stream, jf, child);
-                break;
-            case JD_NODE_FOR:
-                write_for_loop_node(stream, jf, child);
-                break;
-            case JD_NODE_WHILE:
-                write_while_node(stream, jf, child);
-                break;
-            case JD_NODE_DO_WHILE:
-                write_do_while_node(stream, jf, child);
-                break;
-            case JD_NODE_LOOP:
-                write_loop_node(stream, jf, child);
-                break;
-            case JD_NODE_CATCH:
-                write_catch(stream, jf, child);
-                break;
-            case JD_NODE_CASE:
-                write_case(stream, jf, child);
-                break;
-            case JD_NODE_SYNCHRONIZED:
-                write_synchronized(stream, jf, child);
-                break;
-            default:
-                write_default(stream, jf, child);
-                break;
+        switch (child->type)
+        {
+        case JD_NODE_PACKAGE_IMPORT:
+            write_notice(jf);
+            write_import(jf);
+            break;
+        case JD_NODE_CLASS:
+            write_class(stream, child);
+            break;
+        case JD_NODE_FIELD:
+            write_field(jf, child);
+            break;
+        case JD_NODE_METHOD:
+            write_method(stream, jf, child);
+            break;
+        case JD_NODE_EXPRESSION:
+            write_expression_node(stream, jf, child);
+            break;
+        case JD_NODE_BASIC_BLOCK:
+            write_basic_block(stream, jf, child);
+            break;
+        case JD_NODE_DELETED:
+            break;
+        case JD_NODE_IF:
+        case JD_NODE_ELSE_IF:
+            write_if_node(stream, jf, child);
+            break;
+        case JD_NODE_SWITCH:
+            write_switch_node(stream, jf, child);
+            break;
+        case JD_NODE_FOR:
+            write_for_loop_node(stream, jf, child);
+            break;
+        case JD_NODE_WHILE:
+            write_while_node(stream, jf, child);
+            break;
+        case JD_NODE_DO_WHILE:
+            write_do_while_node(stream, jf, child);
+            break;
+        case JD_NODE_LOOP:
+            write_loop_node(stream, jf, child);
+            break;
+        case JD_NODE_CATCH:
+            write_catch(stream, jf, child);
+            break;
+        case JD_NODE_CASE:
+            write_case(stream, jf, child);
+            break;
+        case JD_NODE_SYNCHRONIZED:
+            write_synchronized(stream, jf, child);
+            break;
+        default:
+            write_default(stream, jf, child);
+            break;
         }
     }
 }
@@ -822,57 +879,59 @@ void writter_for_anonymous_class(jsource_file *jf, jd_node *node)
     if (node == NULL)
         node = lget_obj_first(jf->blocks);
     FILE *stream = file_output(jf);
-    for (int i = 0; i < node->children->size; ++i) {
+    for (int i = 0; i < node->children->size; ++i)
+    {
         jd_node *child = lget_obj(node->children, i);
-        switch (child->type) {
-            case JD_NODE_CLASS:
-                write_anonymous_class(stream, jf, child);
-                break;
-            case JD_NODE_FIELD:
-                write_field(jf, child);
-                break;
-            case JD_NODE_METHOD:
-                write_method(stream, jf, child);
-                break;
-            case JD_NODE_EXPRESSION:
-                write_expression_node(stream, jf, child);
-                break;
-            case JD_NODE_BASIC_BLOCK:
-                write_basic_block(stream, jf, child);
-                break;
-            case JD_NODE_DELETED:
-                break;
-            case JD_NODE_IF:
-            case JD_NODE_ELSE_IF:
-                write_if_node(stream, jf, child);
-                break;
-            case JD_NODE_SWITCH:
-                write_switch_node(stream, jf, child);
-                break;
-            case JD_NODE_FOR:
-                write_for_loop_node(stream, jf, child);
-                break;
-            case JD_NODE_WHILE:
-                write_while_node(stream, jf, child);
-                break;
-            case JD_NODE_DO_WHILE:
-                write_do_while_node(stream, jf, child);
-                break;
-            case JD_NODE_LOOP:
-                write_loop_node(stream, jf, child);
-                break;
-            case JD_NODE_CATCH:
-                write_catch(stream, jf, child);
-                break;
-            case JD_NODE_CASE:
-                write_case(stream, jf, child);
-                break;
-            case JD_NODE_SYNCHRONIZED:
-                write_synchronized(stream, jf, child);
-                break;
-            default:
-                write_default(stream, jf, child);
-                break;
+        switch (child->type)
+        {
+        case JD_NODE_CLASS:
+            write_anonymous_class(stream, jf, child);
+            break;
+        case JD_NODE_FIELD:
+            write_field(jf, child);
+            break;
+        case JD_NODE_METHOD:
+            write_method(stream, jf, child);
+            break;
+        case JD_NODE_EXPRESSION:
+            write_expression_node(stream, jf, child);
+            break;
+        case JD_NODE_BASIC_BLOCK:
+            write_basic_block(stream, jf, child);
+            break;
+        case JD_NODE_DELETED:
+            break;
+        case JD_NODE_IF:
+        case JD_NODE_ELSE_IF:
+            write_if_node(stream, jf, child);
+            break;
+        case JD_NODE_SWITCH:
+            write_switch_node(stream, jf, child);
+            break;
+        case JD_NODE_FOR:
+            write_for_loop_node(stream, jf, child);
+            break;
+        case JD_NODE_WHILE:
+            write_while_node(stream, jf, child);
+            break;
+        case JD_NODE_DO_WHILE:
+            write_do_while_node(stream, jf, child);
+            break;
+        case JD_NODE_LOOP:
+            write_loop_node(stream, jf, child);
+            break;
+        case JD_NODE_CATCH:
+            write_catch(stream, jf, child);
+            break;
+        case JD_NODE_CASE:
+            write_case(stream, jf, child);
+            break;
+        case JD_NODE_SYNCHRONIZED:
+            write_synchronized(stream, jf, child);
+            break;
+        default:
+            write_default(stream, jf, child);
+            break;
         }
     }
 }

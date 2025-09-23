@@ -4,10 +4,11 @@
 #include "decompiler/structure.h"
 #include "common/endian_x.h"
 
-#define CONCAT_ACCESS_FLAG(access_flag, flag, list, str)        \
-    if (access_flags_contains(access_flag, flag)) {             \
-        str_concat(list, str);                                  \
-    }                                                           \
+#define CONCAT_ACCESS_FLAG(access_flag, flag, list, str) \
+    if (access_flags_contains(access_flag, flag))        \
+    {                                                    \
+        str_concat(list, str);                           \
+    }
 
 #define access_flags_contains(access_flags, flag) ((access_flags & flag) != 0)
 
@@ -34,10 +35,10 @@ void class_create_definations(jsource_file *jf);
 
 void class_create_blocks(jsource_file *jf);
 
-jd_node* class_root_block(jsource_file *jf);
+jd_node *class_root_block(jsource_file *jf);
 
-jd_node* class_body_block(jsource_file *jf);
+jd_node *class_body_block(jsource_file *jf);
 
 void class_import(jsource_file *jf, string path);
 
-#endif //GARLIC_KLASS_H
+#endif // GARLIC_KLASS_H

@@ -8,7 +8,7 @@
 
 #define DEBUG_PE_FILE_PARSER true
 
-static pe_dos_header* init_pe_content(mem_pool *pool, string path)
+static pe_dos_header *init_pe_content(mem_pool *pool, string path)
 {
     FILE *file = fopen(path, "r");
     fseek(file, 0, SEEK_END);
@@ -30,31 +30,35 @@ static void write_dos_header(pe_file *pe)
 {
     printf("DOS HEADER\n");
     pe_dos_header *header = pe->dos_header;
-    printf("\t%-15s: %04x\n", "[magic]",      header->magic);
-    printf("\t%-15s: %04x\n", "[e_cblp]",     header->e_cblp);
-    printf("\t%-15s: %04x\n", "[e_cp]",       header->e_cp);
-    printf("\t%-15s: %04x\n", "[e_crlc]",     header->e_crlc);
-    printf("\t%-15s: %04x\n", "[e_cparhdr]",  header->e_cparhdr);
+    printf("\t%-15s: %04x\n", "[magic]", header->magic);
+    printf("\t%-15s: %04x\n", "[e_cblp]", header->e_cblp);
+    printf("\t%-15s: %04x\n", "[e_cp]", header->e_cp);
+    printf("\t%-15s: %04x\n", "[e_crlc]", header->e_crlc);
+    printf("\t%-15s: %04x\n", "[e_cparhdr]", header->e_cparhdr);
     printf("\t%-15s: %04x\n", "[e_minalloc]", header->e_minalloc);
     printf("\t%-15s: %04x\n", "[e_maxalloc]", header->e_maxalloc);
-    printf("\t%-15s: %04x\n", "[e_ss]",       header->e_ss);
-    printf("\t%-15s: %04x\n", "[e_sp]",       header->e_sp);
-    printf("\t%-15s: %04x\n", "[e_csum]",     header->e_csum);
-    printf("\t%-15s: %04x\n", "[e_ip]",       header->e_ip);
-    printf("\t%-15s: %04x\n", "[e_cs]",       header->e_cs);
-    printf("\t%-15s: %04x\n", "[e_lfarlc]",   header->e_lfarlc);
-    printf("\t%-15s: %04x\n", "[e_ovno]",     header->e_ovno);
+    printf("\t%-15s: %04x\n", "[e_ss]", header->e_ss);
+    printf("\t%-15s: %04x\n", "[e_sp]", header->e_sp);
+    printf("\t%-15s: %04x\n", "[e_csum]", header->e_csum);
+    printf("\t%-15s: %04x\n", "[e_ip]", header->e_ip);
+    printf("\t%-15s: %04x\n", "[e_cs]", header->e_cs);
+    printf("\t%-15s: %04x\n", "[e_lfarlc]", header->e_lfarlc);
+    printf("\t%-15s: %04x\n", "[e_ovno]", header->e_ovno);
     printf("\t%-15s:", "[e_res]");
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 4; ++i)
+    {
         printf(" %04x ", header->e_res[i]);
-        if (i == 3) printf("\n");
+        if (i == 3)
+            printf("\n");
     }
-    printf("\t%-15s: %04x\n", "[e_oemid]",    header->e_oemid);
-    printf("\t%-15s: %04x\n", "[e_oeminfo]",  header->e_oeminfo);
+    printf("\t%-15s: %04x\n", "[e_oemid]", header->e_oemid);
+    printf("\t%-15s: %04x\n", "[e_oeminfo]", header->e_oeminfo);
     printf("\t%-15s:", "[e_res2]");
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 10; ++i)
+    {
         printf(" %04x ", header->e_res2[i]);
-        if (i == 9) printf("\n");
+        if (i == 9)
+            printf("\n");
     }
     printf("\t%-15s: %08x\n", "[e_lfanew]", header->e_lfanew);
 }
@@ -90,22 +94,22 @@ static void write_pe_nt_header(pe_file *pe)
 {
     pe_nt_header *nt_header = pe->nt_header;
     printf("NT HEADER\n");
-    printf("\t%-25s: %08x\n", "[signature]", 
-            nt_header->signature);
-    printf("\t%-25s: %04x\n", "[machine]", 
-            nt_header->machine);
-    printf("\t%-25s: %04x\n", "[number_of_sections]", 
-            nt_header->number_of_sections);
-    printf("\t%-25s: %08x\n", "[time_stamp]", 
-            nt_header->time_stamp);
-    printf("\t%-25s: %08x\n", "[pointer_to_symbol_table]", 
-            nt_header->pointer_to_symbol_table);
-    printf("\t%-25s: %08x\n", "[number_of_symbols]", 
-            nt_header->number_of_symbols);
-    printf("\t%-25s: %04x\n", "[size_of_optional_header]", 
-            nt_header->size_of_optional_header);
-    printf("\t%-25s: %04x\n", "[characteristics]", 
-            nt_header->characteristics);
+    printf("\t%-25s: %08x\n", "[signature]",
+           nt_header->signature);
+    printf("\t%-25s: %04x\n", "[machine]",
+           nt_header->machine);
+    printf("\t%-25s: %04x\n", "[number_of_sections]",
+           nt_header->number_of_sections);
+    printf("\t%-25s: %08x\n", "[time_stamp]",
+           nt_header->time_stamp);
+    printf("\t%-25s: %08x\n", "[pointer_to_symbol_table]",
+           nt_header->pointer_to_symbol_table);
+    printf("\t%-25s: %08x\n", "[number_of_symbols]",
+           nt_header->number_of_symbols);
+    printf("\t%-25s: %04x\n", "[size_of_optional_header]",
+           nt_header->size_of_optional_header);
+    printf("\t%-25s: %04x\n", "[characteristics]",
+           nt_header->characteristics);
 }
 
 static void parse_nt_header(pe_file *pe)
@@ -179,10 +183,12 @@ static void write_optional_header(pe_file *pe)
     printf("\t%-35s: %08x\n", "[number_of_rva_and_sizes]",
            header->number_of_rva_and_sizes);
     printf("\t%-35s:", "[data_directory]");
-    for (int i = 0; i < header->number_of_rva_and_sizes; ++i) {
+    for (int i = 0; i < header->number_of_rva_and_sizes; ++i)
+    {
         pe_data_directory *d = &header->data_directory[i];
         printf(" %08x %08x ", d->virtual_address, d->size);
-        if (i == 15) printf("\n");
+        if (i == 15)
+            printf("\n");
     }
 }
 
@@ -190,9 +196,11 @@ static void write_data_dirctory(pe_file *pe)
 {
     pe_optional_header *header = pe->optional_header;
     printf("DATA DIRECTORY\n");
-    for (int i = 0; i < header->number_of_rva_and_sizes; ++i) {
+    for (int i = 0; i < header->number_of_rva_and_sizes; ++i)
+    {
         pe_data_directory *d = &header->data_directory[i];
-        if (d->size == 0) continue;
+        if (d->size == 0)
+            continue;
         printf("\t[%2d] virtual_address: %08x size: %08x\n", i,
                d->virtual_address, d->size);
     }
@@ -226,13 +234,15 @@ static void parse_nt_optional_header(pe_file *pe)
     jpe_read4(pe, &header->checksum);
     jpe_read2(pe, &header->subsystem);
     jpe_read2(pe, &header->dll_characteristics);
-    if (is32bit(pe)) {
+    if (is32bit(pe))
+    {
         jpe_read4(pe, &header->size_of_stack_reserve);
         jpe_read4(pe, &header->size_of_stack_commit);
         jpe_read4(pe, &header->size_of_heap_reserve);
         jpe_read4(pe, &header->size_of_heap_commit);
     }
-    else {
+    else
+    {
         jpe_read8(pe, &header->size_of_stack_reserve);
         jpe_read8(pe, &header->size_of_stack_commit);
         jpe_read8(pe, &header->size_of_heap_reserve);
@@ -240,8 +250,7 @@ static void parse_nt_optional_header(pe_file *pe)
     }
     jpe_read4(pe, &header->loader_flags); // discard
     jpe_read4(pe, &header->number_of_rva_and_sizes);
-    jpe_read(pe, header->data_directory, sizeof(pe_data_directory)*16);
-
+    jpe_read(pe, header->data_directory, sizeof(pe_data_directory) * 16);
 
 #if DEBUG_PE_FILE_PARSER
     write_optional_header(pe);
@@ -273,8 +282,10 @@ static void write_section_header(pe_section_header *header)
     printf("\t%-25s: %08x\n", "[characteristics]",
            header->characteristics);
     printf("\t%-25s:\n", "[flags]");
-    for (int i = 0; i < 25; ++i) {
-        if (pe_section_has_flag(header, SECTION_HEADER_FLAGS[i])) {
+    for (int i = 0; i < 25; ++i)
+    {
+        if (pe_section_has_flag(header, SECTION_HEADER_FLAGS[i]))
+        {
             printf("\t\t%08x\n", SECTION_HEADER_FLAGS[i]);
         }
     }
@@ -284,10 +295,11 @@ static void parse_section_header(pe_file *pe)
 {
     pe_nt_header *nt_header = pe->nt_header;
 
-    pe->section_headers = make_obj_arr_in(pe_section_header, 
-                    nt_header->number_of_sections, pe->pool);
+    pe->section_headers = make_obj_arr_in(pe_section_header,
+                                          nt_header->number_of_sections, pe->pool);
 
-    for (int i = 0; i < nt_header->number_of_sections; ++i) {
+    for (int i = 0; i < nt_header->number_of_sections; ++i)
+    {
         pe_section_header *section_header = &pe->section_headers[i];
         jpe_read(pe, section_header, sizeof(pe_section_header));
 #if DEBUG_PE_FILE_PARSER
@@ -299,7 +311,8 @@ static void parse_section_header(pe_file *pe)
 static void write_import_table(pe_file *pe)
 {
     printf("IMPORT TABLE\n");
-    for (int i = 0; i < pe->import_table_size; ++i) {
+    for (int i = 0; i < pe->import_table_size; ++i)
+    {
         pe_import_directory *import = &pe->import_table[i];
         string name = &pe->bin->buffer[rva_to_offset(pe, import->name)];
         printf("\t[%2d] %s %08x %08x %08x %08x %08x \n",
@@ -310,12 +323,15 @@ static void write_import_table(pe_file *pe)
                import->forwarder_chain,
                import->name,
                import->first_thunk);
-        for (int j = 0; j < import->trunk_size; ++j) {
+        for (int j = 0; j < import->trunk_size; ++j)
+        {
             pe_import_trunk_data *t = &import->trunks[j];
-            if (t->name->name == NULL) {
+            if (t->name->name == NULL)
+            {
                 printf("\t\t%04x NONAME\n", t->name->hint);
             }
-            else {
+            else
+            {
                 printf("\t\t%04x %s\n", t->name->hint, t->name->name);
             }
         }
@@ -324,21 +340,25 @@ static void write_import_table(pe_file *pe)
 
 static void inline read_import_trunk_data(pe_file *pe, pe_import_trunk_data *data)
 {
-    if (is32bit(pe)) {
+    if (is32bit(pe))
+    {
         jpe_read4(pe, &data->u1.forwarder_string);
     }
-    else {
+    else
+    {
         jpe_read8(pe, &data->u1.forwarder_string);
     }
 }
 
 static inline bool trunk_data_no_name(pe_file *pe, pe_import_trunk_data *data)
 {
-    if (is32bit(pe)) {
-//        return data->u1.forwarder_string & 0x80000000;
+    if (is32bit(pe))
+    {
+        //        return data->u1.forwarder_string & 0x80000000;
         return (u4)data->u1.forwarder_string >> 31;
     }
-    else {
+    else
+    {
         return (u8)data->u1.forwarder_string >> 63;
     }
 }
@@ -359,10 +379,12 @@ static void write_export_table(pe_file *pe)
     printf("\t%-25s: %08x\n", "[address_of_names]", export->address_of_names);
     printf("\t%-25s: %08x\n", "[address_of_name_ordinals]", export->address_of_name_ordinals);
 
-    for (int i = 0; i < export->number_of_functions; ++i) {
+    for (int i = 0; i < export->number_of_functions; ++i)
+    {
         u4 func = export->functions[i];
         int j;
-        for (j = 0; j < export->number_of_names; ++j) {
+        for (j = 0; j < export->number_of_names; ++j)
+        {
             if (export->name_ordinals[j] == i)
                 break;
         }
@@ -372,7 +394,6 @@ static void write_export_table(pe_file *pe)
                export->names[j],
                export->name_ordinals[j],
                &pe->bin->buffer[name_offset]);
-
     }
 }
 
@@ -386,20 +407,20 @@ static void parse_export_table(pe_file *pe)
     set_pe_off_of_rva(pe, export_dir->virtual_address);
 
     pe_export_directory *export = make_obj_in(pe_export_directory, pe->pool);
-    jpe_read(pe, export, sizeof(u4)*10);
+    jpe_read(pe, export, sizeof(u4) * 10);
 
-    export->functions = x_alloc_in(pe->pool, export->number_of_functions*sizeof(u4));
-    export->names = x_alloc_in(pe->pool, export->number_of_names*sizeof(u4));
-    export->name_ordinals = x_alloc_in(pe->pool, export->number_of_names*sizeof(u2));
+    export->functions = x_alloc_in(pe->pool, export->number_of_functions * sizeof(u4));
+    export->names = x_alloc_in(pe->pool, export->number_of_names * sizeof(u4));
+    export->name_ordinals = x_alloc_in(pe->pool, export->number_of_names * sizeof(u2));
 
     set_pe_off_of_rva(pe, export->address_of_functions);
-    jpe_read(pe, export->functions, export->number_of_functions*sizeof(u4));
+    jpe_read(pe, export->functions, export->number_of_functions * sizeof(u4));
 
     set_pe_off_of_rva(pe, export->address_of_names);
-    jpe_read(pe, export->names, export->number_of_names*sizeof(u4));
+    jpe_read(pe, export->names, export->number_of_names * sizeof(u4));
 
     set_pe_off_of_rva(pe, export->address_of_name_ordinals);
-    jpe_read(pe, export->name_ordinals, export->number_of_names*sizeof(u2));
+    jpe_read(pe, export->name_ordinals, export->number_of_names * sizeof(u2));
 
     pe->export_table = export;
 #if 0
@@ -417,31 +438,34 @@ static void parse_import_table(pe_file *pe)
     set_pe_off_of_rva(pe, import_dir->virtual_address);
 
     pe_import_directory *import = make_obj_in(pe_import_directory, pe->pool);
-    jpe_read(pe, import, sizeof(u4)*5);
+    jpe_read(pe, import, sizeof(u4) * 5);
 
-    while (import->name) {
+    while (import->name)
+    {
         pe->import_table_size++;
-        jpe_read(pe, import, sizeof(u4)*5);
+        jpe_read(pe, import, sizeof(u4) * 5);
     }
 
     set_pe_off_of_rva(pe, import_dir->virtual_address);
     pe->import_table = make_obj_arr_in(pe_import_directory,
-                    pe->import_table_size, pe->pool);
+                                       pe->import_table_size, pe->pool);
 
-    for (int i = 0; i < pe->import_table_size; ++i) {
+    for (int i = 0; i < pe->import_table_size; ++i)
+    {
         pe_import_directory *imp = &pe->import_table[i];
-        jpe_read(pe, imp, sizeof(u4)*5);
+        jpe_read(pe, imp, sizeof(u4) * 5);
     }
 
-
-    for (int i = 0; i < pe->import_table_size; ++i) {
+    for (int i = 0; i < pe->import_table_size; ++i)
+    {
         pe_import_directory *imp = &pe->import_table[i];
         pe_import_trunk_data *data = make_obj_in(pe_import_trunk_data, pe->pool);
         u2 trunk_size = 0;
         set_pe_off_of_rva(pe, imp->original_first_thunk);
         read_import_trunk_data(pe, data);
 
-        while (data->u1.ordinal) {
+        while (data->u1.ordinal)
+        {
             trunk_size++;
             read_import_trunk_data(pe, data);
         }
@@ -450,19 +474,23 @@ static void parse_import_table(pe_file *pe)
         imp->trunks = make_obj_arr_in(pe_import_trunk_data,
                                       trunk_size, pe->pool);
         set_pe_off_of_rva(pe, imp->original_first_thunk);
-        for (int j = 0; j < trunk_size; ++j) {
+        for (int j = 0; j < trunk_size; ++j)
+        {
             pe_import_trunk_data *t = &imp->trunks[j];
             read_import_trunk_data(pe, t);
         }
 
-        for (int j = 0; j < trunk_size; ++j) {
+        for (int j = 0; j < trunk_size; ++j)
+        {
             pe_import_trunk_data *t = &imp->trunks[j];
-            if (trunk_data_no_name(pe, t)) {
+            if (trunk_data_no_name(pe, t))
+            {
                 t->name = make_obj_in(pe_import_by_name, pe->pool);
                 t->name->hint = (t->u1.ordinal & 0xFFFFu);
                 t->name->name = NULL;
             }
-            else {
+            else
+            {
                 set_pe_off_of_rva(pe, t->u1.function);
                 t->name = make_obj_in(pe_import_by_name, pe->pool);
                 jpe_read2(pe, &t->name->hint);
@@ -504,7 +532,6 @@ static void parse_clr20_data(pe_file *pe)
     jpe_read(pe, &clr->export_address_table_jumps, sizeof(pe_data_directory));
     jpe_read(pe, &clr->managed_native_header, sizeof(pe_data_directory));
 
-
     printf("\t%-25s: %08x\n", "[cb]", clr->cb);
     printf("\t%-25s: %04x\n", "[major_runtime_version]", clr->major_runtime_version);
     printf("\t%-25s: %04x\n", "[minor_runtime_version]", clr->minor_runtime_version);
@@ -539,7 +566,6 @@ static void parse_pe_metadata(pe_file *pe)
     jpe_read2(pe, &meta_header->streams_count);
     pe->metadata_header = meta_header;
 
-
     printf("METADATA HEADER\n");
     printf("\t%-25s: %08x\n", "[signature]", meta_header->signature);
     printf("\t%-25s: %04x\n", "[major_version]", meta_header->major_version);
@@ -551,26 +577,28 @@ static void parse_pe_metadata(pe_file *pe)
     printf("\t%-25s: %04x\n", "[streams_count]", meta_header->streams_count);
 
     pe_metadata_stream_header *stream_headers = make_obj_arr_in(pe_metadata_stream_header,
-                    meta_header->streams_count, pe->pool);
-    for (int i = 0; i < meta_header->streams_count; ++i) {
+                                                                meta_header->streams_count, pe->pool);
+    for (int i = 0; i < meta_header->streams_count; ++i)
+    {
         pe_metadata_stream_header *h = &stream_headers[i];
         jpe_read4(pe, &h->offset);
         jpe_read4(pe, &h->size);
         string name = &pe->bin->buffer[pe->bin->cur_off];
-        size_t len = strlen(name)+1;
+        size_t len = strlen(name) + 1;
         h->name = x_alloc_in(pe->pool, len);
         jpe_read(pe, h->name, len);
-        if (len%4 != 0)
-            pe->bin->cur_off += 4-(len)%4;
+        if (len % 4 != 0)
+            pe->bin->cur_off += 4 - (len) % 4;
         printf("\t\t[%2d] %08x %08x %s\n", i, h->offset, h->size, h->name);
     }
 
     meta_header->stream_headers = stream_headers;
 }
 
-static pe_metadata_stream_header* get_stream_header(pe_file *pe, string name)
+static pe_metadata_stream_header *get_stream_header(pe_file *pe, string name)
 {
-    for (int i = 0; i < pe->metadata_header->streams_count; ++i) {
+    for (int i = 0; i < pe->metadata_header->streams_count; ++i)
+    {
         pe_metadata_stream_header *h = &pe->metadata_header->stream_headers[i];
         if (strcmp(h->name, name) == 0)
             return h;
@@ -578,9 +606,10 @@ static pe_metadata_stream_header* get_stream_header(pe_file *pe, string name)
     return NULL;
 }
 
-static pe_metadata_table* get_clr_table(pe_file *pe, u8 mask)
+static pe_metadata_table *get_clr_table(pe_file *pe, u8 mask)
 {
-    for (int i = 0; i < pe->meta_tables_size; ++i) {
+    for (int i = 0; i < pe->meta_tables_size; ++i)
+    {
         pe_metadata_table *t = &pe->meta_tables[i];
         if (t->table_name_mask == mask)
             return t;
@@ -590,7 +619,8 @@ static pe_metadata_table* get_clr_table(pe_file *pe, u8 mask)
 
 static u4 clr_table_size(pe_file *pe, u8 mask)
 {
-    for (int i = 0; i < pe->meta_tables_size; ++i) {
+    for (int i = 0; i < pe->meta_tables_size; ++i)
+    {
         pe_metadata_table *t = &pe->meta_tables[i];
         if (t->table_name_mask == mask)
             return t->size;
@@ -632,26 +662,32 @@ static void parse_sharp_tables_header(pe_file *pe)
     printf("\t%-25s: %08llx\n", "[valid]", tables_header->valid);
 
     printf("\t%-25s: %08llx\n", "[sorted]", tables_header->sorted);
-    for (int i = 0; i < 45; ++i) {
+    for (int i = 0; i < 45; ++i)
+    {
         u8 mask_name = pe_meta_table_flags[i];
-        if (mask_name & tables_header->sorted) {
+        if (mask_name & tables_header->sorted)
+        {
             printf("\t\t%08llx\n", mask_name);
         }
     }
 
     u2 table_size = 0;
-    for (int i = 0; i < 45; ++i) {
+    for (int i = 0; i < 45; ++i)
+    {
         u8 mask_name = pe_meta_table_flags[i];
-        if (mask_name & tables_header->valid) {
+        if (mask_name & tables_header->valid)
+        {
             table_size++;
         }
     }
     pe->meta_tables_size = table_size;
     pe->meta_tables = make_obj_arr_in(pe_metadata_table, table_size, pe->pool);
     int idx = 0;
-    for (int i = 0; i < 45; ++i) {
+    for (int i = 0; i < 45; ++i)
+    {
         u8 mask_name = pe_meta_table_flags[i];
-        if (mask_name & tables_header->valid) {
+        if (mask_name & tables_header->valid)
+        {
             pe_metadata_table *t = &pe->meta_tables[idx];
             t->table_name_mask = mask_name;
             jpe_read4(pe, &t->size);
@@ -659,8 +695,6 @@ static void parse_sharp_tables_header(pe_file *pe)
             idx++;
         }
     }
-
-
 }
 
 static inline int meta_string_stream_width(pe_file *pe)
@@ -681,14 +715,16 @@ static inline int meta_blob_stream_width(pe_file *pe)
     return (tables_header->heap_offset_sizes & 0x04) ? 4 : 2;
 }
 
-static u4 pe_table_max_rows(pe_file *pe, int count, ...) {
+static u4 pe_table_max_rows(pe_file *pe, int count, ...)
+{
     va_list ap;
     int i;
     u4 biggest;
     u4 mask_name;
     u4 x;
 
-    if (count == 0) {
+    if (count == 0)
+    {
         return 0;
     }
 
@@ -696,7 +732,8 @@ static u4 pe_table_max_rows(pe_file *pe, int count, ...) {
     mask_name = va_arg(ap, u4);
     biggest = clr_table_size(pe, mask_name);
 
-    for (i = 1; i < count; i++) {
+    for (i = 1; i < count; i++)
+    {
         mask_name = va_arg(ap, u4);
         x = clr_table_size(pe, mask_name);
         biggest = (x > biggest) ? x : biggest;
@@ -753,7 +790,8 @@ static int has_constant_width(pe_file *pe)
     return 2;
 }
 
-static int has_custom_attribute_width(pe_file *pe) {
+static int has_custom_attribute_width(pe_file *pe)
+{
     u4 max = pe_table_max_rows(pe, 19,
                                PE_METATABLE_METHOD,
                                PE_METATABLE_FIELD,
@@ -860,7 +898,8 @@ static void parse_module_table(pe_file *pe)
     int string_width = meta_string_stream_width(pe);
     int guid_width = meta_guid_stream_width(pe);
 
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_module_table *mt = make_obj_in(pe_module_table, pe->pool);
         jpe_read2(pe, &mt->generation);
         jpe_read(pe, &mt->name, string_width);
@@ -886,7 +925,8 @@ static void parse_type_ref_table(pe_file *pe)
 
     int size = resolution_scope_width(pe);
     printf("TYPE REF TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_type_ref_table *tt = make_obj_in(pe_type_ref_table, pe->pool);
         jpe_read(pe, &tt->resolution_scope, size);
         jpe_read(pe, &tt->name, string_width);
@@ -909,7 +949,8 @@ static void parse_type_def_table(pe_file *pe)
 
     printf("TYPE DEF TABLE\n");
     int type_def_or_ref = type_def_or_ref_width(pe);
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_type_def_table *td = make_obj_in(pe_type_def_table, pe->pool);
         jpe_read4(pe, &td->flags);
         jpe_read(pe, &td->type_name, string_width);
@@ -939,7 +980,8 @@ static void parse_field_table(pe_file *pe)
 
     printf("FIELD TABLE\n");
     int type_def_or_ref = type_def_or_ref_width(pe);
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_field_table *ft = make_obj_in(pe_field_table, pe->pool);
         jpe_read2(pe, &ft->flags);
         jpe_read(pe, &ft->name, string_width);
@@ -962,13 +1004,14 @@ static void parse_method_def_table(pe_file *pe)
     int blob_width = meta_blob_stream_width(pe);
 
     printf("METHOD DEF TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_method_def_table *md = make_obj_in(pe_method_def_table, pe->pool);
         jpe_read4(pe, &md->rva);
         jpe_read2(pe, &md->impl_flags);
         jpe_read(pe, &md->name, string_width);
         jpe_read(pe, &md->signature, blob_width);
-        jpe_read(pe, &md->param_list,param_width);
+        jpe_read(pe, &md->param_list, param_width);
         printf("\t%08x %04x %04x %08x %08x\n",
                md->rva,
                md->impl_flags,
@@ -987,7 +1030,8 @@ static void parse_param_table(pe_file *pe)
     int string_width = meta_string_stream_width(pe);
 
     printf("PARAM TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_param_table *pt = make_obj_in(pe_param_table, pe->pool);
         jpe_read2(pe, &pt->flags);
         jpe_read2(pe, &pt->sequence);
@@ -1008,7 +1052,8 @@ static void parse_interface_impl_table(pe_file *pe)
     printf("INTERFACE IMPL TABLE\n");
     int type_def_or_ref = type_def_or_ref_width(pe);
     int typedef_width = clr_table_idx_width(pe, PE_METATABLE_TYPE_DEF);
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_interface_impl_table *ii = make_obj_in(pe_interface_impl_table, pe->pool);
         jpe_read(pe, &ii->class, typedef_width);
         jpe_read(pe, &ii->interface, type_def_or_ref);
@@ -1029,7 +1074,8 @@ static void parse_member_ref_table(pe_file *pe)
     int blob_width = meta_blob_stream_width(pe);
 
     printf("MEMBER REF TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_member_ref_table *mr = make_obj_in(pe_member_ref_table, pe->pool);
         jpe_read(pe, &mr->klass, parent_width);
         jpe_read(pe, &mr->name, string_width);
@@ -1051,7 +1097,8 @@ static void parse_constant_table(pe_file *pe)
     int has_constant = has_constant_width(pe);
 
     printf("CONSTANT TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_constant_table *ct = make_obj_in(pe_constant_table, pe->pool);
         jpe_read1(pe, &ct->type);
         jpe_read1(pe, &ct->padding);
@@ -1076,7 +1123,8 @@ static void parse_custom_attribute_table(pe_file *pe)
     int custom_attribute_type = custom_attribute_type_width(pe);
 
     printf("CUSTOM ATTRIBUTE TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_custom_attribute_table *ct = make_obj_in(pe_custom_attribute_table, pe->pool);
         jpe_read(pe, &ct->parent, has_custom_attribute);
         jpe_read(pe, &ct->type, custom_attribute_type);
@@ -1098,7 +1146,8 @@ static void parse_field_marshal_table(pe_file *pe)
     int has_field_marshall = has_field_marshall_width(pe);
 
     printf("FIELD MARSHAL TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_field_marshal_table *fm = make_obj_in(pe_field_marshal_table, pe->pool);
         jpe_read(pe, &fm->parent, has_field_marshall);
         jpe_read(pe, &fm->native_type, blob_width);
@@ -1118,7 +1167,8 @@ static void parse_decl_security_table(pe_file *pe)
     int has_decl_security = has_decl_security_width(pe);
 
     printf("DECL SECURITY TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_decl_security_table *ds = make_obj_in(pe_decl_security_table, pe->pool);
         jpe_read2(pe, &ds->action);
         jpe_read(pe, &ds->parent, has_decl_security);
@@ -1137,7 +1187,8 @@ static void parse_class_layout_table(pe_file *pe)
         return;
 
     printf("CLASS LAYOUT TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_class_layout_table *cl = make_obj_in(pe_class_layout_table, pe->pool);
         jpe_read2(pe, &cl->packing_size);
         jpe_read4(pe, &cl->class_size);
@@ -1156,7 +1207,8 @@ static void parse_field_layout_table(pe_file *pe)
         return;
 
     printf("FIELD LAYOUT TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_field_layout_table *fl = make_obj_in(pe_field_layout_table, pe->pool);
         jpe_read4(pe, &fl->offset);
         jpe_read(pe, &fl->field, clr_table_idx_width(pe, PE_METATABLE_FIELD));
@@ -1175,7 +1227,8 @@ static void parse_stand_alone_sig_table(pe_file *pe)
     int blob_width = meta_blob_stream_width(pe);
 
     printf("STAND ALONE SIG TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_stand_alone_sig_table *sa = make_obj_in(pe_stand_alone_sig_table, pe->pool);
         jpe_read(pe, &sa->signature, blob_width);
         printf("\t%08x\n",
@@ -1190,7 +1243,8 @@ static void parse_event_map_table(pe_file *pe)
         return;
 
     printf("EVENT MAP TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_event_map_table *em = make_obj_in(pe_event_map_table, pe->pool);
         jpe_read(pe, &em->parent, clr_table_idx_width(pe, PE_METATABLE_TYPE_DEF));
         jpe_read(pe, &em->event_list, clr_table_idx_width(pe, PE_METATABLE_EVENT));
@@ -1210,7 +1264,8 @@ static void parse_event_table(pe_file *pe)
     int type_def_or_ref = type_def_or_ref_width(pe);
 
     printf("EVENT TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_event_table *et = make_obj_in(pe_event_table, pe->pool);
         jpe_read2(pe, &et->event_flags);
         jpe_read(pe, &et->name, string_width);
@@ -1229,7 +1284,8 @@ static void parse_property_map_table(pe_file *pe)
         return;
 
     printf("PROPERTY MAP TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_property_map_table *pm = make_obj_in(pe_property_map_table, pe->pool);
         jpe_read(pe, &pm->parent, clr_table_idx_width(pe, PE_METATABLE_TYPE_DEF));
         jpe_read(pe, &pm->property_list, clr_table_idx_width(pe, PE_METATABLE_PROPERTY));
@@ -1249,7 +1305,8 @@ static void parse_property_table(pe_file *pe)
     int blob_width = meta_blob_stream_width(pe);
 
     printf("PROPERTY TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_property_table *pt = make_obj_in(pe_property_table, pe->pool);
         jpe_read2(pe, &pt->flags);
         jpe_read(pe, &pt->name, string_width);
@@ -1269,7 +1326,8 @@ static void parse_method_semantics_table(pe_file *pe)
 
     printf("METHOD SEMANTICS TABLE\n");
     int has_semantics = has_semantics_width(pe);
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_method_semantics_table *ms = make_obj_in(pe_method_semantics_table, pe->pool);
         jpe_read2(pe, &ms->semantics);
         jpe_read(pe, &ms->method, clr_table_idx_width(pe, PE_METATABLE_METHOD));
@@ -1289,7 +1347,8 @@ static void parse_method_impl_table(pe_file *pe)
 
     printf("METHOD IMPL TABLE\n");
     int method_def_or_ref = method_def_or_ref_width(pe);
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_method_impl_table *mi = make_obj_in(pe_method_impl_table, pe->pool);
         jpe_read(pe, &mi->klass, clr_table_idx_width(pe, PE_METATABLE_TYPE_DEF));
         jpe_read(pe, &mi->method_body, method_def_or_ref);
@@ -1310,7 +1369,8 @@ static void parse_module_ref_table(pe_file *pe)
     int string_width = meta_string_stream_width(pe);
 
     printf("MODULE REF TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_module_ref_table *mr = make_obj_in(pe_module_ref_table, pe->pool);
         jpe_read(pe, &mr->name, string_width);
         printf("\t%08x\n",
@@ -1327,7 +1387,8 @@ static void parse_type_spec_table(pe_file *pe)
     int blob_width = meta_blob_stream_width(pe);
 
     printf("TYPE SPEC TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_type_spec_table *ts = make_obj_in(pe_type_spec_table, pe->pool);
         jpe_read(pe, &ts->signature, blob_width);
         printf("\t%08x\n",
@@ -1344,7 +1405,8 @@ static void parse_impl_map_table(pe_file *pe)
     printf("IMPL MAP TABLE\n");
     int string_width = meta_string_stream_width(pe);
     int member_forwarded = member_forwarded_width(pe);
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_impl_map_table *im = make_obj_in(pe_impl_map_table, pe->pool);
         jpe_read2(pe, &im->mapping_flags);
         jpe_read(pe, &im->member_forwarded, member_forwarded);
@@ -1365,7 +1427,8 @@ static void parse_field_rva_table(pe_file *pe)
         return;
 
     printf("FIELD RVA TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_field_rva_table *fr = make_obj_in(pe_field_rva_table, pe->pool);
         jpe_read4(pe, &fr->rva);
         jpe_read(pe, &fr->field, clr_table_idx_width(pe, PE_METATABLE_FIELD));
@@ -1385,7 +1448,8 @@ static void parse_assembly_table(pe_file *pe)
     int blob_width = meta_blob_stream_width(pe);
 
     printf("ASSEMBLY TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_assembly_table *at = make_obj_in(pe_assembly_table, pe->pool);
         jpe_read4(pe, &at->hash_alg_id);
         jpe_read2(pe, &at->major_version);
@@ -1416,7 +1480,8 @@ static void parse_assembly_processor_table(pe_file *pe)
         return;
 
     printf("ASSEMBLY PROCESSOR TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_assembly_processor_table *ap = make_obj_in(pe_assembly_processor_table, pe->pool);
         jpe_read4(pe, &ap->processor);
         printf("\t%08x\n",
@@ -1431,7 +1496,8 @@ static void parse_assembly_os_table(pe_file *pe)
         return;
 
     printf("ASSEMBLY OS TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_assembly_os_table *aos = make_obj_in(pe_assembly_os_table, pe->pool);
         jpe_read4(pe, &aos->os_platform_id);
         jpe_read4(pe, &aos->os_major_version);
@@ -1453,7 +1519,8 @@ static void parse_assembly_ref_table(pe_file *pe)
     int blob_width = meta_blob_stream_width(pe);
 
     printf("ASSEMBLY REF TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_assembly_ref_table *ar = make_obj_in(pe_assembly_ref_table, pe->pool);
         jpe_read4(pe, &ar->major_version);
         jpe_read4(pe, &ar->minor_version);
@@ -1484,7 +1551,8 @@ static void parse_assembly_ref_processor_table(pe_file *pe)
         return;
 
     printf("ASSEMBLY REF PROCESSOR TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_assembly_ref_processor_table *arp = make_obj_in(pe_assembly_ref_processor_table, pe->pool);
         jpe_read4(pe, &arp->processor);
         jpe_read(pe, &arp->assembly_ref, clr_table_idx_width(pe, PE_METATABLE_ASSEMBLY_REF));
@@ -1501,7 +1569,8 @@ static void parse_assembly_ref_os_table(pe_file *pe)
         return;
 
     printf("ASSEMBLY REF OS TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_assembly_ref_os_table *aros = make_obj_in(pe_assembly_ref_os_table, pe->pool);
         jpe_read4(pe, &aros->os_platform_id);
         jpe_read4(pe, &aros->os_major_version);
@@ -1525,7 +1594,8 @@ static void parse_file_table(pe_file *pe)
     int blob_width = meta_blob_stream_width(pe);
 
     printf("FILE TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_file_table *ft = make_obj_in(pe_file_table, pe->pool);
         jpe_read4(pe, &ft->flags);
         jpe_read(pe, &ft->name, string_width);
@@ -1547,7 +1617,8 @@ static void parse_exported_type_table(pe_file *pe)
     int impl_width = implementation_width(pe);
 
     printf("EXPORTED TYPE TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_exported_type_table *et = make_obj_in(pe_exported_type_table, pe->pool);
         jpe_read4(pe, &et->flags);
         jpe_read4(pe, &et->type_def_id);
@@ -1573,7 +1644,8 @@ static void parse_manifest_resource_table(pe_file *pe)
     int impl_width = implementation_width(pe);
 
     printf("MANIFEST RESOURCE TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_manifest_resource_table *mr = make_obj_in(pe_manifest_resource_table, pe->pool);
         jpe_read4(pe, &mr->offset);
         jpe_read4(pe, &mr->flags);
@@ -1595,7 +1667,8 @@ static void parse_nested_class_table(pe_file *pe)
 
     printf("NESTED CLASS TABLE\n");
     int type_def_width = clr_table_idx_width(pe, PE_METATABLE_TYPE_DEF);
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_nested_class_table *nc = make_obj_in(pe_nested_class_table, pe->pool);
         jpe_read(pe, &nc->nested_class, type_def_width);
         jpe_read(pe, &nc->enclosing_class, type_def_width);
@@ -1615,7 +1688,8 @@ static void parse_generic_param_table(pe_file *pe)
 
     // TODO: error for owner, need fix
     printf("GENERIC PARAM TABLE\n");
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_generic_param_table *gp = make_obj_in(pe_generic_param_table, pe->pool);
         jpe_read2(pe, &gp->number);
         jpe_read2(pe, &gp->flags);
@@ -1639,7 +1713,8 @@ static void parse_generic_param_constraint_table_table(pe_file *pe)
     printf("GENERIC PARAM CONSTRAINT TABLE\n");
     int type_def_or_ref = type_def_or_ref_width(pe);
     int generic_param = clr_table_idx_width(pe, PE_METATABLE_GENERIC_PARAM);
-    for (int i = 0; i < table->size; ++i) {
+    for (int i = 0; i < table->size; ++i)
+    {
         pe_generic_param_constraint_table *gpc = make_obj_in(pe_generic_param_constraint_table, pe->pool);
         jpe_read(pe, &gpc->owner, generic_param);
         jpe_read(pe, &gpc->constraint, type_def_or_ref);
@@ -1649,7 +1724,7 @@ static void parse_generic_param_constraint_table_table(pe_file *pe)
     }
 }
 
-pe_file* init_pe_file(string path)
+pe_file *init_pe_file(string path)
 {
     mem_pool *pool = mem_create_pool();
     pe_file *pe = init_pe_content(pool, path);

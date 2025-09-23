@@ -5,4 +5,4 @@
 
 bool identify_initialize(jd_method *m);
 
-#endif //GARLIC_EXPRESSION_NEW_H
+#endif // GARLIC_EXPRESSION_NEW_H

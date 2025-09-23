@@ -3,4 +3,4 @@
 
 #include "decompiler/structure.h"
 
-#endif //GARLIC_EXPRESSION_INNER_CLASS_H
+#endif // GARLIC_EXPRESSION_INNER_CLASS_H

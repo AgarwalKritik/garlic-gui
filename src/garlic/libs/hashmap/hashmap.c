@@ -5,13 +5,13 @@
 #include "hashmap.h"
 #include "mem_pool.h"
 
-#define FNV32_BASE ((unsigned int) 0x811c9dc5)
-#define FNV32_PRIME ((unsigned int) 0x01000193)
+#define FNV32_BASE ((unsigned int)0x811c9dc5)
+#define FNV32_PRIME ((unsigned int)0x01000193)
 
 unsigned int strhash(const char *str)
 {
 	unsigned int c, hash = FNV32_BASE;
-	while ((c = (unsigned char) *str++))
+	while ((c = (unsigned char)*str++))
 		hash = (hash * FNV32_PRIME) ^ c;
 	return hash;
 }
@@ -19,7 +19,8 @@ unsigned int strhash(const char *str)
 unsigned int strihash(const char *str)
 {
 	unsigned int c, hash = FNV32_BASE;
-	while ((c = (unsigned char) *str++)) {
+	while ((c = (unsigned char)*str++))
+	{
 		if (c >= 'a' && c <= 'z')
 			c -= 'a' - 'A';
 		hash = (hash * FNV32_PRIME) ^ c;
@@ -30,8 +31,9 @@ unsigned int strihash(const char *str)
 unsigned int memhash(const void *buf, size_t len)
 {
 	unsigned int hash = FNV32_BASE;
-	unsigned char *ucbuf = (unsigned char *) buf;
-	while (len--) {
+	unsigned char *ucbuf = (unsigned char *)buf;
+	while (len--)
+	{
 		unsigned int c = *ucbuf++;
 		hash = (hash * FNV32_PRIME) ^ c;
 	}
@@ -41,8 +43,9 @@ unsigned int memhash(const void *buf, size_t len)
 unsigned int memihash(const void *buf, size_t len)
 {
 	unsigned int hash = FNV32_BASE;
-	unsigned char *ucbuf = (unsigned char *) buf;
-	while (len--) {
+	unsigned char *ucbuf = (unsigned char *)buf;
+	while (len--)
+	{
 		unsigned int c = *ucbuf++;
 		if (c >= 'a' && c <= 'z')
 			c -= 'a' - 'A';
@@ -58,8 +61,9 @@ unsigned int memihash(const void *buf, size_t len)
 unsigned int memihash_cont(unsigned int seed, const void *buf, size_t len)
 {
 	unsigned int hash = seed;
-	unsigned char *ucbuf = (unsigned char *) buf;
-	while (len--) {
+	unsigned char *ucbuf = (unsigned char *)buf;
+	while (len--)
+	{
 		unsigned int c = *ucbuf++;
 		if (c >= 'a' && c <= 'z')
 			c -= 'a' - 'A';
@@ -77,17 +81,19 @@ unsigned int memihash_cont(unsigned int seed, const void *buf, size_t len)
 static void alloc_table(struct hashmap *map, unsigned int size)
 {
 	map->tablesize = size;
-    if (map->pool == NULL)
-        map->table = x_alloc(size * sizeof(struct hashmap_entry *));
-    else
-        map->table = x_alloc_in(map->pool, size * sizeof(struct hashmap_entry *));
+	if (map->pool == NULL)
+		map->table = x_alloc(size * sizeof(struct hashmap_entry *));
+	else
+		map->table = x_alloc_in(map->pool, size * sizeof(struct hashmap_entry *));
 
 	/* calculate resize thresholds for new size */
-	map->grow_at = (unsigned int) ((uint64_t) size*HASHMAP_LOAD_FACTOR / 100);
-	if (size <= HASHMAP_INITIAL_SIZE) {
+	map->grow_at = (unsigned int)((uint64_t)size * HASHMAP_LOAD_FACTOR / 100);
+	if (size <= HASHMAP_INITIAL_SIZE)
+	{
 		map->shrink_at = 0;
 	}
-	else {
+	else
+	{
 		/*
 		 * The shrink-threshold must be slightly smaller than
 		 * (grow-threshold / resize-factor) to prevent erratic resizing,
@@ -98,16 +104,16 @@ static void alloc_table(struct hashmap *map, unsigned int size)
 }
 
 static inline int entry_equals(const struct hashmap *map,
-		const struct hashmap_entry *e1, const struct hashmap_entry *e2,
-		const void *keydata)
+							   const struct hashmap_entry *e1, const struct hashmap_entry *e2,
+							   const void *keydata)
 {
 	return (e1 == e2) ||
-        (e1->hash == e2->hash &&
-        !map->cmpfn(e1, e2, keydata));
+		   (e1->hash == e2->hash &&
+			!map->cmpfn(e1, e2, keydata));
 }
 
 static inline unsigned int bucket(const struct hashmap *map,
-		const struct hashmap_entry *key)
+								  const struct hashmap_entry *key)
 {
 	return key->hash & (map->tablesize - 1);
 }
@@ -126,9 +132,11 @@ static void rehash(struct hashmap *map, unsigned int newsize)
 		return;
 
 	alloc_table(map, newsize);
-	for (i = 0; i < oldsize; i++) {
+	for (i = 0; i < oldsize; i++)
+	{
 		struct hashmap_entry *e = oldtable[i];
-		while (e) {
+		while (e)
+		{
 			struct hashmap_entry *next = e->next;
 			unsigned int b = bucket(map, e);
 			e->next = map->table[b];
@@ -139,8 +147,8 @@ static void rehash(struct hashmap *map, unsigned int newsize)
 }
 
 static inline struct hashmap_entry **find_entry_ptr(const struct hashmap *map,
-        const struct hashmap_entry *key,
-                const void *keydata)
+													const struct hashmap_entry *key,
+													const void *keydata)
 {
 	struct hashmap_entry **e = &map->table[bucket(map, key)];
 	while (*e && !entry_equals(map, *e, key, keydata))
@@ -153,36 +161,36 @@ static int always_equal(const void *u1, const void *u2, const void *u3)
 	return 0;
 }
 
-hashmap* hashmap_init(hcmp_fn cmp_fn, size_t initial_size) {
-    hashmap *map = make_obj(hashmap);
-    map->pool = NULL;
-    hashmap_init_internal(map, cmp_fn, initial_size);
-    return map;
+hashmap *hashmap_init(hcmp_fn cmp_fn, size_t initial_size)
+{
+	hashmap *map = make_obj(hashmap);
+	map->pool = NULL;
+	hashmap_init_internal(map, cmp_fn, initial_size);
+	return map;
 }
 
-hashmap* hashmap_init_in(mem_pool *pool, hcmp_fn cmp_fn, size_t initial_size)
+hashmap *hashmap_init_in(mem_pool *pool, hcmp_fn cmp_fn, size_t initial_size)
 {
-    hashmap *map = make_obj_in(hashmap, pool);
-    map->pool = pool;
-    hashmap_init_internal(map, cmp_fn, initial_size);
-    return map;
+	hashmap *map = make_obj_in(hashmap, pool);
+	map->pool = pool;
+	hashmap_init_internal(map, cmp_fn, initial_size);
+	return map;
 }
 
 void hashmap_init_internal(struct hashmap *map, hcmp_fn cmp_fn,
-                           size_t initial_size)
+						   size_t initial_size)
 {
-    mem_pool *pool = map->pool;
+	mem_pool *pool = map->pool;
 	unsigned int size = HASHMAP_INITIAL_SIZE;
 
 	memset(map, 0, sizeof(*map));
 
-    map->pool = pool;
+	map->pool = pool;
 
 	map->cmpfn = cmp_fn ? cmp_fn : always_equal;
 
 	/* calculate initial table size and allocate the table */
-	initial_size = (unsigned int) ((uint64_t) initial_size * 100
-			/ HASHMAP_LOAD_FACTOR);
+	initial_size = (unsigned int)((uint64_t)initial_size * 100 / HASHMAP_LOAD_FACTOR);
 	while (initial_size > size)
 		size <<= HASHMAP_RESIZE_BITS; // default is 64 << 2
 	alloc_table(map, size);
@@ -208,15 +216,15 @@ void hashmap_free(struct hashmap *map, int free_entries)
 }
 
 void *hashmap_get(const struct hashmap *map,
-                  const void *key,
-                  const void *keydata)
+				  const void *key,
+				  const void *keydata)
 {
 	return *find_entry_ptr(map, key, keydata);
 }
 
 void *hashmap_get_next(const struct hashmap *map, const void *entry)
 {
-	struct hashmap_entry *e = ((struct hashmap_entry *) entry)->next;
+	struct hashmap_entry *e = ((struct hashmap_entry *)entry)->next;
 	for (; e; e = e->next)
 		if (entry_equals(map, entry, e, NULL))
 			return e;
@@ -228,7 +236,7 @@ void hashmap_add(struct hashmap *map, void *entry)
 	unsigned int b = bucket(map, entry);
 
 	/* add entry */
-	((struct hashmap_entry *) entry)->next = map->table[b];
+	((struct hashmap_entry *)entry)->next = map->table[b];
 	map->table[b] = entry;
 
 	/* fix size and rehash if appropriate */
@@ -273,8 +281,10 @@ void hashmap_iter_init(struct hashmap *map, struct hashmap_iter *iter)
 void *hashmap_iter_next(struct hashmap_iter *iter)
 {
 	struct hashmap_entry *current = iter->next;
-	for (;;) {
-		if (current) {
+	for (;;)
+	{
+		if (current)
+		{
 			iter->next = current->next;
 			return current;
 		}
@@ -286,18 +296,19 @@ void *hashmap_iter_next(struct hashmap_iter *iter)
 	}
 }
 
-struct pool_entry {
+struct pool_entry
+{
 	struct hashmap_entry ent;
 	size_t len;
 	unsigned char data[0];
 };
 
 static int pool_entry_cmp(const struct pool_entry *e1,
-		const struct pool_entry *e2,
-		const unsigned char *keydata)
+						  const struct pool_entry *e2,
+						  const unsigned char *keydata)
 {
 	return e1->data != keydata &&
-		(e1->len != e2->len || memcmp(e1->data, keydata, e1->len));
+		   (e1->len != e2->len || memcmp(e1->data, keydata, e1->len));
 }
 
 const void *memintern(const void *data, size_t len)
@@ -307,13 +318,14 @@ const void *memintern(const void *data, size_t len)
 
 	/* initialize string pool hashmap */
 	if (!map.tablesize)
-        hashmap_init_internal(&map, (hcmp_fn) pool_entry_cmp, 0);
+		hashmap_init_internal(&map, (hcmp_fn)pool_entry_cmp, 0);
 
 	/* lookup interned string in pool */
 	hashmap_entry_init(&key, memhash(data, len));
 	key.len = len;
 	e = hashmap_get(&map, &key, data);
-	if (!e) {
+	if (!e)
+	{
 		/* not found: create it */
 		FLEX_ALLOC_MEM(e, data, data, len);
 		hashmap_entry_init(e, key.ent.hash);

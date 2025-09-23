@@ -14,7 +14,8 @@ string exp_invokevirtual_to_s(jd_exp *expression)
     size_t new_len = len;
     strcat(result, "(");
 
-    for (int j = 0; j <= invoke->list->len - 2; ++j) {
+    for (int j = 0; j <= invoke->list->len - 2; ++j)
+    {
         string arg_name = exp_to_s(&invoke->list->args[j]);
         new_len = len + strlen(arg_name) + 2;
 
@@ -25,7 +26,7 @@ string exp_invokevirtual_to_s(jd_exp *expression)
         len = new_len;
     }
     strcat(result, ")");
-    result[len-1] = '\0';
+    result[len - 1] = '\0';
     return result;
 }
 
@@ -40,7 +41,8 @@ void exp_invokevirtual_to_stream(FILE *stream,
     expression_to_stream(stream, node, ref_exp);
     fprintf(stream, ".%s(", method_name);
 
-    for (int j = 0; j <= invoke->list->len - 2; ++j) {
+    for (int j = 0; j <= invoke->list->len - 2; ++j)
+    {
         expression_to_stream(stream, node, &invoke->list->args[j]);
         if (j != invoke->list->len - 2)
             fprintf(stream, ", ");

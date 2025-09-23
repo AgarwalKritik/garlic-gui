@@ -4,6 +4,6 @@
 
 #include "decompiler/structure.h"
 
-//void remove_useless_code(jd_method *m);
+// void remove_useless_code(jd_method *m);
 
-#endif //GARLIC_EXPRESSION_REMOVE_USELESS_H
+#endif // GARLIC_EXPRESSION_REMOVE_USELESS_H

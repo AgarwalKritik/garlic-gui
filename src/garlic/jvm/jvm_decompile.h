@@ -9,4 +9,4 @@ void jvm_analyse_class_file_inside(jsource_file *jf);
 
 void jvm_method(jclass_file *jc, jd_method *m, jmethod *jm);
 
-#endif //GARLIC_JVM_DECOMPILE_H
+#endif // GARLIC_JVM_DECOMPILE_H

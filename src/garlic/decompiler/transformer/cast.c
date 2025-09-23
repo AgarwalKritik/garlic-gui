@@ -15,16 +15,18 @@ void exp_cast_to_stream(FILE *stream, jd_node *node, jd_exp *expression)
     // DK-6246854 : Unnecessary checkcast in generated code
     jd_exp_cast *cast = expression->data;
     jd_exp *arg = &cast->list->args[0];
-    if (exp_is_cast(arg)) {
+    if (exp_is_cast(arg))
+    {
         jd_exp_cast *inner = arg->data;
-        if (STR_EQL(cast->class_name, inner->class_name)) {
+        if (STR_EQL(cast->class_name, inner->class_name))
+        {
             expression_to_stream(stream, node, arg);
             return;
         }
     }
-    else {
+    else
+    {
         fprintf(stream, "(%s)", cast->class_name);
         expression_to_stream(stream, node, arg);
     }
-
 }

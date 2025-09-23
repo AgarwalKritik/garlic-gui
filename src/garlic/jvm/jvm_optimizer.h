@@ -5,4 +5,4 @@
 
 void optimize_jvm_method(jd_method *m);
 
-#endif //GARLIC_JVM_OPTIMIZER_H
+#endif // GARLIC_JVM_OPTIMIZER_H

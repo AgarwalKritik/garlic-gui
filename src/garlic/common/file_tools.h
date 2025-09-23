@@ -16,12 +16,13 @@ static inline void make_dir(const char *dir)
     char *p = NULL;
     size_t len;
 
-    snprintf(tmp, sizeof(tmp),"%s",dir);
+    snprintf(tmp, sizeof(tmp), "%s", dir);
     len = strlen(tmp);
     if (tmp[len - 1] == '/')
         tmp[len - 1] = 0;
     for (p = tmp + 1; *p; p++)
-        if (*p == '/') {
+        if (*p == '/')
+        {
             *p = 0;
 #ifdef _WIN32
             mkdir(tmp);
@@ -44,4 +45,4 @@ static inline void mkdir_p(string dir)
         make_dir(dir);
 }
 
-#endif //GARLIC_FILE_TOOLS_H
+#endif // GARLIC_FILE_TOOLS_H

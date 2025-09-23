@@ -12,4 +12,4 @@ void jvm_fields(jsource_file *jf);
 
 void jvm_signatures(jsource_file *jf);
 
-#endif //GARLIC_JVM_CLASS_H
+#endif // GARLIC_JVM_CLASS_H

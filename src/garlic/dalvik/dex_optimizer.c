@@ -24,7 +24,6 @@
 #include "decompiler/expression_return.h"
 #include "decompiler/expression_exception.h"
 
-
 void optimize_dex_method(jd_method *m)
 {
     if (method_is_empty(m))
@@ -42,14 +41,15 @@ void optimize_dex_method(jd_method *m)
 
     bool changed = false;
 
-    do {
+    do
+    {
         changed = identify_logical_operations(m);
 
         changed |= identify_reverse_logical_operation(m);
 
-//        changed |= identify_ternary_operator(m);
+        //        changed |= identify_ternary_operator(m);
 
-//        changed |= identify_ternary_operator_in_condition(m);
+        //        changed |= identify_ternary_operator_in_condition(m);
 
         changed |= identify_initialize(m);
 
@@ -75,7 +75,7 @@ void optimize_dex_method(jd_method *m)
 
     identify_loop_type(m);
 
-//    remove_empty_if_else_of_method(m);
+    //    remove_empty_if_else_of_method(m);
 
     nop_node_last_return(m);
 

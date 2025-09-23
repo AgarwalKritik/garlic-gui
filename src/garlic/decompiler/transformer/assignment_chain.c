@@ -7,7 +7,8 @@ string exp_assignment_chain_to_s(jd_exp *expression)
     size_t len = 1;
     size_t old_len = len;
     string result = x_alloc(len);
-    for (int i = 0; i < assignment_chain->left->size; ++i) {
+    for (int i = 0; i < assignment_chain->left->size; ++i)
+    {
         jd_exp *l = lget_obj(assignment_chain->left, i);
         string s = exp_to_s(l);
         old_len = len;
@@ -34,7 +35,8 @@ void exp_assignment_chain_to_stream(FILE *stream,
 {
     jd_exp_assignment_chain *assignment_chain = expression->data;
 
-    for (int i = 0; i < assignment_chain->left->size; ++i) {
+    for (int i = 0; i < assignment_chain->left->size; ++i)
+    {
         jd_exp *l = lget_obj(assignment_chain->left, i);
         expression_to_stream(stream, node, l);
         fprintf(stream, " = ");

@@ -3,6 +3,6 @@
 
 #include "parser/pe/pe.h"
 
-pe_file* init_pe_file(string path);
+pe_file *init_pe_file(string path);
 
 #endif // GARLIC_PE_METADATA_H

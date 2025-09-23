@@ -7,4 +7,4 @@ void optimize_enum_constructor(jd_method *m);
 
 void optimize_enum_class(jsource_file *jf);
 
-#endif //GARLIC_EXPRESSION_ENUM_H
+#endif // GARLIC_EXPRESSION_ENUM_H

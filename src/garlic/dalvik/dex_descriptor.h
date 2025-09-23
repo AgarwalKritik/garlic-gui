@@ -5,4 +5,4 @@
 
 void dex_method_descriptor(jd_method *m);
 
-#endif //GARLIC_DEX_DESCRIPTOR_H
+#endif // GARLIC_DEX_DESCRIPTOR_H

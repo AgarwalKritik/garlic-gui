@@ -8,7 +8,8 @@
 #define TRIE_SPLIT_CHAR '/'
 #define TRIE_SPLIT_STR "/"
 
-jd_trie_node* trie_create_node(char *str) {
+jd_trie_node *trie_create_node(char *str)
+{
     jd_trie_node *node = make_obj(jd_trie_node);
     node->segment = str_dup(str);
     node->child = NULL;
@@ -18,7 +19,7 @@ jd_trie_node* trie_create_node(char *str) {
 
 static void tire_travel_merge(jd_trie_node *dst, jd_trie_node *node)
 {
-    if(node == NULL)
+    if (node == NULL)
         return;
     if (node->is_leaf)
         trie_insert(dst, node->full);
@@ -36,7 +37,8 @@ void tire_merge(jd_trie_node *dst_root, jd_trie_node *src_root)
     tire_travel_merge(dst_root, src_root);
 }
 
-void trie_insert(jd_trie_node *root, string path) {
+void trie_insert(jd_trie_node *root, string path)
+{
     char *token;
     char *copy = str_dup(path);
     char *saveptr;
@@ -45,22 +47,28 @@ void trie_insert(jd_trie_node *root, string path) {
 
     bool add_new_leaf = false;
     jd_trie_node *current_node = NULL;
-    while(token != NULL) {
+    while (token != NULL)
+    {
         current_node = current_level->child;
         jd_trie_node *prev = NULL;
 
-        while(current_node != NULL &&
-                strcmp(current_node->segment, token) != 0) {
+        while (current_node != NULL &&
+               strcmp(current_node->segment, token) != 0)
+        {
             prev = current_node;
             current_node = current_node->next;
         }
 
-        if(current_node == NULL) {
+        if (current_node == NULL)
+        {
             current_node = trie_create_node(token);
             add_new_leaf = true;
-            if(prev == NULL) {
+            if (prev == NULL)
+            {
                 current_level->child = current_node;
-            } else {
+            }
+            else
+            {
                 prev->next = current_node;
             }
         }
@@ -68,18 +76,22 @@ void trie_insert(jd_trie_node *root, string path) {
         current_level = current_node;
         token = strtok_r(NULL, TRIE_SPLIT_STR, &saveptr);
     }
-    if (add_new_leaf) {
+    if (add_new_leaf)
+    {
         current_node->is_leaf = true;
         current_node->full = path;
     }
 }
 
-int trie_search(jd_trie_node *root, string path) {
-    const char* current_path = path;
+int trie_search(jd_trie_node *root, string path)
+{
+    const char *current_path = path;
     jd_trie_node *current_node = root->child;
 
-    while (*current_path != '\0' && current_node != NULL) {
-        if (*current_path == TRIE_SPLIT_CHAR) {
+    while (*current_path != '\0' && current_node != NULL)
+    {
+        if (*current_path == TRIE_SPLIT_CHAR)
+        {
             ++current_path;
             continue;
         }
@@ -87,28 +99,33 @@ int trie_search(jd_trie_node *root, string path) {
         jd_trie_node *node = current_node;
         int matched = 0;
         size_t segment_length = 0;
-        while (node != NULL) {
-            const char* end = strchr(current_path, TRIE_SPLIT_CHAR);
+        while (node != NULL)
+        {
+            const char *end = strchr(current_path, TRIE_SPLIT_CHAR);
             segment_length = (end ? end - current_path : strlen(current_path));
 
             if (strncmp(node->segment, current_path, segment_length) == 0 &&
-                node->segment[segment_length] == '\0') {
+                node->segment[segment_length] == '\0')
+            {
                 matched = 1;
                 break;
             }
             node = node->next;
         }
 
-        if (!matched) {
+        if (!matched)
+        {
             return 0;
         }
 
-        if (node) {
+        if (node)
+        {
             current_node = node->child;
             current_path += segment_length;
         }
 
-        if (*current_path == TRIE_SPLIT_CHAR) {
+        if (*current_path == TRIE_SPLIT_CHAR)
+        {
             ++current_path;
         }
     }
@@ -118,11 +135,13 @@ int trie_search(jd_trie_node *root, string path) {
 
 void trie_leaf_to_stream(jd_trie_node *node, FILE *stream)
 {
-    if(node == NULL)
+    if (node == NULL)
         return;
-    if (node->is_leaf) {
+    if (node->is_leaf)
+    {
         fprintf(stream, "import ");
-        for (int i = 0; i < strlen(node->full); ++i) {
+        for (int i = 0; i < strlen(node->full); ++i)
+        {
             unsigned char c = node->full[i];
             if (c == '/')
                 fprintf(stream, ".");

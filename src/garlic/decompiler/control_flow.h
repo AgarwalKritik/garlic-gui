@@ -12,41 +12,41 @@
 
 void cfg_create(jd_method *m);
 
-jd_bblock* block_by_id(jd_method *m, int block_id);
+jd_bblock *block_by_id(jd_method *m, int block_id);
 
-jd_bblock* block_handler_equals_offset(jd_method *m, uint32_t offset);
+jd_bblock *block_handler_equals_offset(jd_method *m, uint32_t offset);
 
-jd_bblock* block_handler_equals_ins(jd_method *m, jd_ins *ins);
+jd_bblock *block_handler_equals_ins(jd_method *m, jd_ins *ins);
 
-jd_bblock* block_start_offset(jd_method *m, uint32_t offset);
+jd_bblock *block_start_offset(jd_method *m, uint32_t offset);
 
-jd_bblock* block_contains_idx(jd_method *m, int idx);
+jd_bblock *block_contains_idx(jd_method *m, int idx);
 
-jd_bblock* exp_block(jd_exp *exp);
+jd_bblock *exp_block(jd_exp *exp);
 
-jd_bblock* block_closest_finally(jd_method *m, jd_bblock *e);
+jd_bblock *block_closest_finally(jd_method *m, jd_bblock *e);
 
-jd_bblock* block_closest_handler(jd_method *m, jd_bblock *block);
+jd_bblock *block_closest_handler(jd_method *m, jd_bblock *block);
 
-jd_bblock* block_by_offset(jd_method *m, uint32_t offset);
+jd_bblock *block_by_offset(jd_method *m, uint32_t offset);
 
-jd_bblock* block_exception_exit(jd_method *m);
+jd_bblock *block_exception_exit(jd_method *m);
 
-jd_bblock* block_enter(jd_method *m);
+jd_bblock *block_enter(jd_method *m);
 
 bool ins_is_handler_start(jd_method *m, jd_ins *ins);
 
 bool ins_is_try_end(jd_method *m, jd_ins *ins);
 
-jd_bblock* block_parent_exception(jd_method *m, jd_bblock *block);
+jd_bblock *block_parent_exception(jd_method *m, jd_bblock *block);
 
-jd_edge* create_link_edge(jd_bblock *source, jd_bblock *target);
+jd_edge *create_link_edge(jd_bblock *source, jd_bblock *target);
 
 bool basic_block_id_comparator(const jd_bblock *a, const jd_bblock *b);
 
 void basic_block_clear_visited_flag(jd_method *m);
 
-jd_bblock* dup_basic_block(jd_method *m, jd_bblock *src);
+jd_bblock *dup_basic_block(jd_method *m, jd_bblock *src);
 
 string list_block_id_join(list_object *list, string delimiter);
 
@@ -64,19 +64,21 @@ void cfg_remove_exception_block(jd_method *m);
 
 void cfg_unlink_blocks(jd_bblock *source, jd_bblock *target);
 
-jd_bblock* make_goto_basic_block(jd_method *m,
+jd_bblock *make_goto_basic_block(jd_method *m,
                                  jd_support_type type,
                                  uint32_t offset);
 
-jd_bblock* make_dalvik_goto_block(jd_method *m, uint32_t offset);
+jd_bblock *make_dalvik_goto_block(jd_method *m, uint32_t offset);
 
-list_object* compute_scc(jd_method *m);
+list_object *compute_scc(jd_method *m);
 
 static inline bool basic_block_contains_exp(jd_bblock *block, jd_exp *exp)
 {
-    if (block->source == JD_NODE_EXCEPTION) {
+    if (block->source == JD_NODE_EXCEPTION)
+    {
         jd_node *exception_node = block->data;
-        for (int i = 0; i < exception_node->children->size; ++i) {
+        for (int i = 0; i < exception_node->children->size; ++i)
+        {
             jd_node *child = lget_obj(exception_node->children, i);
             if (node_contains_expression(child, exp))
                 return true;
@@ -108,4 +110,4 @@ static inline bool basic_block_has_effect_expression(jd_bblock *source,
     return false;
 }
 
-#endif //GARLIC_CONTROL_FLOW_H
+#endif // GARLIC_CONTROL_FLOW_H

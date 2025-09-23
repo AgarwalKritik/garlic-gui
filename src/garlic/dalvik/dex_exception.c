@@ -66,11 +66,11 @@ static void dex_handler_of_catch_all(jd_method *m,
     e->end_pc = te_ins->offset;
     e->catch_type_index = 0;
     DEBUG_EXCEPTION_PRINT("[meta exception]: "
-                            "try: %d -> %d, handler: %d, type: %d\n",
-                            e->try_start, 
-                            e->try_end, 
-                            e->handler_start, 
-                            e->catch_type_index);
+                          "try: %d -> %d, handler: %d, type: %d\n",
+                          e->try_start,
+                          e->try_end,
+                          e->handler_start,
+                          e->catch_type_index);
     ladd_obj(m->cfg_exceptions, e);
 }
 
@@ -78,14 +78,17 @@ void dex_method_exception_init(jd_method *m, encoded_method *em)
 {
     dex_code_item *code_item = em->code;
     m->cfg_exceptions = linit_object();
-    for (int i = 0; i < code_item->tries_size; ++i) {
+    for (int i = 0; i < code_item->tries_size; ++i)
+    {
         dex_try_item *try = &code_item->tries[i];
-        for (int j = 0; j < code_item->handlers->size; ++j) {
+        for (int j = 0; j < code_item->handlers->size; ++j)
+        {
             encoded_catch_handler *ch = &code_item->handlers->list[j];
             if (ch->handler_off != try->handler_off)
                 continue;
 
-            for (int k = 0; k < abs(ch->size); ++k) {
+            for (int k = 0; k < abs(ch->size); ++k)
+            {
                 encoded_type_addr_pair *pair = &ch->handlers[k];
                 dex_handler_pair(m, try, pair);
             }
@@ -105,7 +108,8 @@ void dex_method_exception_edge(jd_method *m)
     cfg_create(m);
 
     if (m->cfg_exceptions == NULL ||
-        m->cfg_exceptions->size == 0) {
+        m->cfg_exceptions->size == 0)
+    {
         m->mix_exceptions = linit_object();
         return;
     }

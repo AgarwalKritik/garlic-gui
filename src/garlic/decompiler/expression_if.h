@@ -9,4 +9,4 @@ void identify_boolean_in_if(jd_method *m);
 
 void identify_if_break_or_if_continue(jd_method *m);
 
-#endif //GARLIC_EXPRESSION_IF_H
+#endif // GARLIC_EXPRESSION_IF_H

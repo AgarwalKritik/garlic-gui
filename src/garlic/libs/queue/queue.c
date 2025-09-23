@@ -73,4 +73,3 @@ void queue_add_object(queue_object *queue, object element)
     queue->tail = entry;
     queue->size++;
 }
-

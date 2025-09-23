@@ -20,7 +20,8 @@
 
 static inline bool exp_is_assert(jd_exp *e)
 {
-    if (exp_is_put_static(e)) {
+    if (exp_is_put_static(e))
+    {
         jd_exp_put_static *put_static = e->data;
         if (STR_EQL(put_static->name, "$assertionsDisabled"))
             return true;
@@ -34,7 +35,8 @@ void identify_assert(jd_method *m)
     if (!method_is_jvm(m))
         return;
 
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *outer_if = lget_obj(m->nodes, i);
         if (node_is_not_if(outer_if))
             continue;
@@ -47,7 +49,7 @@ void identify_assert(jd_method *m)
         if (outer_if_expression == NULL)
             continue;
         if ((outer_if_expression != NULL &&
-            !if_expression_is_assert(outer_if_expression)) ||
+             !if_expression_is_assert(outer_if_expression)) ||
             fnode == NULL)
             continue;
         jd_node *inner_if = child_of_type(fnode, JD_NODE_IF);
@@ -67,17 +69,19 @@ void identify_assert(jd_method *m)
         outer_if_node_first->parent = parent;
         ldel_obj(parent->children, outer_if);
         ldel_obj(m->nodes, outer_if);
-        i --;
+        i--;
 
         DEBUG_PRINT("[assert finded] exp: %d\n", outer_if_expression->idx);
     }
 
     if (!method_is_clinit(m))
         return;
-    
-    for (int i = 0; i < m->expressions->size; ++i) {
+
+    for (int i = 0; i < m->expressions->size; ++i)
+    {
         jd_exp *exp = lget_obj(m->expressions, i);
-        if (exp_is_assert(exp)) {
+        if (exp_is_assert(exp))
+        {
             DEBUG_PRINT("[assert nopped] exp: %d\n", exp->idx);
             exp_mark_nopped(exp);
         }

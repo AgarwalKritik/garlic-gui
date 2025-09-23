@@ -6,16 +6,17 @@
 #include "jvm_ins.h"
 #include "decompiler/control_flow.h"
 
-
-static jd_mix_exception* find_mix_exception(jd_method *m, jd_exc *ex)
+static jd_mix_exception *find_mix_exception(jd_method *m, jd_exc *ex)
 {
     jd_mix_exception *result = NULL;
-    for (int i = 0; i < m->mix_exceptions->size; ++i) {
+    for (int i = 0; i < m->mix_exceptions->size; ++i)
+    {
         jd_mix_exception *e = lget_obj(m->mix_exceptions, i);
         if (e->finally == NULL)
             continue;
         if (e->finally->start_offset == ex->handler_start &&
-            e->finally->end_offset == ex->handler_end) {
+            e->finally->end_offset == ex->handler_end)
+        {
             result = e;
             break;
         }
@@ -28,12 +29,15 @@ static void nop_instructions(jd_ins *from, jd_ins *to)
     if (from == NULL || to == NULL)
         return;
 
-    while (from->offset <= to->offset) {
-        if (ins_is_nopped(from)) {
+    while (from->offset <= to->offset)
+    {
+        if (ins_is_nopped(from))
+        {
             from = from->next;
             continue;
         }
-        else {
+        else
+        {
             ins_mark_nopped(from);
             from = from->next;
         }
@@ -51,17 +55,24 @@ static void reverse_compare_instruction(jd_method *m, jd_mix_exception *ex)
     jd_ins *try_start = get_ins(m, try->start_idx);
     jd_ins *try_end = get_ins(m, try->end_idx);
 
-    if (jvm_ins_is_athrow(finally_end)) finally_end = finally_end->prev;
-    if (jvm_ins_is_load(finally_end)) finally_end = finally_end->prev;
+    if (jvm_ins_is_athrow(finally_end))
+        finally_end = finally_end->prev;
+    if (jvm_ins_is_load(finally_end))
+        finally_end = finally_end->prev;
 
-    if (jvm_ins_is_unconditional_jump(try_end)) try_end = try_end->prev;
-    if (jvm_ins_is_return(try_end)) try_end = try_end->prev;
-    if (jvm_ins_is_store(finally_start)) finally_start = finally_start->next;
-    if (jvm_ins_is_store(try_start)) try_start = try_start->next;
+    if (jvm_ins_is_unconditional_jump(try_end))
+        try_end = try_end->prev;
+    if (jvm_ins_is_return(try_end))
+        try_end = try_end->prev;
+    if (jvm_ins_is_store(finally_start))
+        finally_start = finally_start->next;
+    if (jvm_ins_is_store(try_start))
+        try_start = try_start->next;
 
     int instruction_count = 0;
     jd_ins *cnt_ins = finally_end;
-    while (cnt_ins != NULL && cnt_ins->offset >= finally_start->offset) {
+    while (cnt_ins != NULL && cnt_ins->offset >= finally_start->offset)
+    {
         cnt_ins = cnt_ins->prev;
         instruction_count++;
     }
@@ -73,7 +84,8 @@ static void reverse_compare_instruction(jd_method *m, jd_mix_exception *ex)
     int counting = 0;
     while (finally_end_cmp != NULL &&
            try_end_cmp != NULL &&
-           finally_end_cmp->offset >= finally_start->offset) {
+           finally_end_cmp->offset >= finally_start->offset)
+    {
         if (try_end_cmp->offset < try->start_offset)
             break;
         int result = jvm_ins_compares(finally_end_cmp, try_end_cmp);
@@ -106,11 +118,11 @@ static void reverse_compare_instruction(jd_method *m, jd_mix_exception *ex)
         jd_range *catch_range = lget_obj(ex->catches, i);
         jd_ins *catch_start = get_ins(m, catch_range->start_idx);
         jd_ins *catch_end = get_ins(m, catch_range->end_idx);
-        if (jvm_ins_is_unconditional_jump(catch_end)) 
+        if (jvm_ins_is_unconditional_jump(catch_end))
             catch_end = catch_end->prev;
-        if (jvm_ins_is_return(catch_end)) 
+        if (jvm_ins_is_return(catch_end))
             catch_end = catch_end->prev;
-        if (jvm_ins_is_store(catch_start)) 
+        if (jvm_ins_is_store(catch_start))
             catch_start = catch_start->next;
 
         finally_end_cmp = finally_end;
@@ -121,7 +133,8 @@ static void reverse_compare_instruction(jd_method *m, jd_mix_exception *ex)
         while (finally_end_cmp != NULL &&
                finally_end_cmp->offset >= finally_start->offset &&
                catch_end_cmp != NULL &&
-               catch_end_cmp->offset >= catch_start->offset) {
+               catch_end_cmp->offset >= catch_start->offset)
+        {
             int result = jvm_ins_compares(finally_end_cmp, catch_end_cmp);
             if (!result)
                 break;
@@ -134,10 +147,11 @@ static void reverse_compare_instruction(jd_method *m, jd_mix_exception *ex)
 
             finally_end_cmp = finally_end_cmp->prev;
             catch_end_cmp = catch_end_cmp->prev;
-            inner_counting ++;
+            inner_counting++;
         }
 
-        if (inner_counting == instruction_count) {
+        if (inner_counting == instruction_count)
+        {
             DEBUG_EXCEPTION_PRINT("\nfinally block: %d -> %d, "
                                   "catch block: %d -> %d matched, "
                                   "catch: %d -> %d will be nopped, "
@@ -157,12 +171,14 @@ static void reverse_compare_instruction(jd_method *m, jd_mix_exception *ex)
 
 static void inline_finally_block(jd_method *m)
 {
-    buble_sort_cfg_exception(m, (list_cmp_fn) handler_contains_cmp);
-    buble_sort_cfg_exception(m, (list_cmp_fn) try_contains_cmp);
+    buble_sort_cfg_exception(m, (list_cmp_fn)handler_contains_cmp);
+    buble_sort_cfg_exception(m, (list_cmp_fn)try_contains_cmp);
 
-    for (int i = 0; i < m->cfg_exceptions->size; ++i) {
+    for (int i = 0; i < m->cfg_exceptions->size; ++i)
+    {
         jd_exc *exception = lget_obj(m->cfg_exceptions, i);
-        if (exception->catch_type_index > 0) continue;
+        if (exception->catch_type_index > 0)
+            continue;
 
         jd_mix_exception *mix_ex = find_mix_exception(m, exception);
         if (mix_ex == NULL)

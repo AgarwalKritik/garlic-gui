@@ -8,38 +8,41 @@
 
 void make_logic_not(jd_exp *expression)
 {
-    if (exp_is_operator(expression)) {
+    if (exp_is_operator(expression))
+    {
         jd_exp_operator *exp_operator = expression->data;
-        switch (exp_operator->operator) {
-            case JD_OP_EQ:
-                exp_operator->operator = JD_OP_NE;
-                break;
-            case JD_OP_NE:
-                exp_operator->operator = JD_OP_EQ;
-                break;
-            case JD_OP_LT:
-                exp_operator->operator = JD_OP_GE;
-                break;
-            case JD_OP_LE:
-                exp_operator->operator = JD_OP_GT;
-                break;
-            case JD_OP_GT:
-                exp_operator->operator = JD_OP_LE;
-                break;
-            case JD_OP_GE:
-                exp_operator->operator = JD_OP_LT;
-                break;
-            case JD_OP_LOGICAL_AND:
-                exp_operator->operator = JD_OP_LOGICAL_OR;
-                break;
-            case JD_OP_LOGICAL_OR:
-                exp_operator->operator = JD_OP_LOGICAL_AND;
-                break;
-            default:
-                break;
+        switch (exp_operator->operator)
+        {
+        case JD_OP_EQ:
+            exp_operator->operator = JD_OP_NE;
+            break;
+        case JD_OP_NE:
+            exp_operator->operator = JD_OP_EQ;
+            break;
+        case JD_OP_LT:
+            exp_operator->operator = JD_OP_GE;
+            break;
+        case JD_OP_LE:
+            exp_operator->operator = JD_OP_GT;
+            break;
+        case JD_OP_GT:
+            exp_operator->operator = JD_OP_LE;
+            break;
+        case JD_OP_GE:
+            exp_operator->operator = JD_OP_LT;
+            break;
+        case JD_OP_LOGICAL_AND:
+            exp_operator->operator = JD_OP_LOGICAL_OR;
+            break;
+        case JD_OP_LOGICAL_OR:
+            exp_operator->operator = JD_OP_LOGICAL_AND;
+            break;
+        default:
+            break;
         }
     }
-    else {
+    else
+    {
         jd_exp_operator *op = make_obj(jd_exp_operator);
         op->operator = JD_OP_LOGICAL_NOT;
         op->list = make_exp_list(1);
@@ -52,12 +55,14 @@ void make_logic_not(jd_exp *expression)
 bool identify_logical_operations(jd_method *m)
 {
     bool find_short_logical_operator = false;
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_atomic(node))
             continue;
 
-        for (int j = 0; j < node->children->size; ++j) {
+        for (int j = 0; j < node->children->size; ++j)
+        {
             jd_node *child = lget_obj(node->children, j);
             if (!node_is_basic_block(child))
                 continue;
@@ -74,13 +79,10 @@ bool identify_logical_operations(jd_method *m)
             jd_exp *current_true_exp = exp_of_offset(m, true_offset);
             jd_exp *current_false_exp = exp->ins->next->expression;
 
-            for (int k = 0; k < 2; ++k) {
-                jd_bblock *next = k == 0 ?
-                                  exp_block(current_true_exp) :
-                                  exp_block(current_false_exp);
-                jd_bblock *other = k == 0 ?
-                                   exp_block(current_false_exp) :
-                                   exp_block(current_true_exp);
+            for (int k = 0; k < 2; ++k)
+            {
+                jd_bblock *next = k == 0 ? exp_block(current_true_exp) : exp_block(current_false_exp);
+                jd_bblock *other = k == 0 ? exp_block(current_false_exp) : exp_block(current_true_exp);
 
                 int negate = k == 1;
 
@@ -117,7 +119,8 @@ bool identify_logical_operations(jd_method *m)
                 next_if_exp->expression->data = op;
 
                 jd_exp *first = &op->list->args[0];
-                if (other == next_f) {
+                if (other == next_f)
+                {
                     op->operator = JD_OP_LOGICAL_OR;
                     if (negate)
                         make_logic_not(if_exp->expression);
@@ -125,7 +128,8 @@ bool identify_logical_operations(jd_method *m)
                            if_exp->expression,
                            sizeof(jd_exp));
                 }
-                else {
+                else
+                {
                     op->operator = JD_OP_LOGICAL_AND;
                     if (!negate)
                         make_logic_not(if_exp->expression);
@@ -134,20 +138,21 @@ bool identify_logical_operations(jd_method *m)
                            sizeof(jd_exp));
                 }
 
-                       compute_dominates_block(m, basic_block);
-                       compute_dominates_block(m, next_block);
+                compute_dominates_block(m, basic_block);
+                compute_dominates_block(m, next_block);
                 cfg_unlink_blocks(basic_block, other);
 
-                for (int l = 0; l < basic_block->dominates->size; ++l) {
+                for (int l = 0; l < basic_block->dominates->size; ++l)
+                {
                     jd_bblock *tmp = lget_obj(basic_block->dominates, l);
                     ladd_obj_no_dup(next_block->dominates, tmp);
                 }
 
-//                if (original_next_f != next_f) {
-//                    jd_exp_goto *goto_exp = next_false_exp->data;
-//                    next_if_exp->goto_offset = goto_exp->goto_offset;
-//                    exp_mark_nopped(next_false_exp);
-//                }
+                //                if (original_next_f != next_f) {
+                //                    jd_exp_goto *goto_exp = next_false_exp->data;
+                //                    next_if_exp->goto_offset = goto_exp->goto_offset;
+                //                    exp_mark_nopped(next_false_exp);
+                //                }
 
                 find_short_logical_operator = true;
                 exp_mark_nopped(exp);
@@ -161,12 +166,14 @@ bool identify_logical_operations(jd_method *m)
 bool identify_reverse_logical_operation(jd_method *m)
 {
     bool find_short_logical_operator = false;
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_atomic(node))
             continue;
 
-        for (int j = 0; j < node->children->size; ++j) {
+        for (int j = 0; j < node->children->size; ++j)
+        {
             jd_node *child = lget_obj(node->children, j);
             if (!node_is_basic_block(child))
                 continue;
@@ -186,13 +193,10 @@ bool identify_reverse_logical_operation(jd_method *m)
             jd_exp *current_true_exp = exp_of_offset(m, if_exp->offset);
             jd_exp *current_false_exp = ins->next->expression;
 
-            for (int k = 0; k < 2; ++k) {
-                jd_bblock *next = k == 0 ?
-                                  exp_block(current_true_exp) :
-                                  exp_block(current_false_exp);
-                jd_bblock *other = k == 0 ?
-                                   exp_block(current_false_exp) :
-                                   exp_block(current_true_exp);
+            for (int k = 0; k < 2; ++k)
+            {
+                jd_bblock *next = k == 0 ? exp_block(current_true_exp) : exp_block(current_false_exp);
+                jd_bblock *other = k == 0 ? exp_block(current_false_exp) : exp_block(current_true_exp);
 
                 int negate = k == 1;
 
@@ -217,7 +221,6 @@ bool identify_reverse_logical_operation(jd_method *m)
                 if (other != next_f)
                     continue;
 
-
                 jd_exp_operator *op = make_obj(jd_exp_operator);
                 op->list = make_exp_list(2);
                 memcpy(&op->list->args[1], if_exp->expression, sizeof(jd_exp));
@@ -225,7 +228,8 @@ bool identify_reverse_logical_operation(jd_method *m)
                 if_exp->expression->data = op;
                 jd_bblock *next_block = exp_block(next_exp);
 
-                if (other == next_f) {
+                if (other == next_f)
+                {
                     op->operator = JD_OP_LOGICAL_OR;
                     if (negate)
                         make_logic_not(if_exp->expression);
@@ -233,7 +237,8 @@ bool identify_reverse_logical_operation(jd_method *m)
                            next_if_exp->expression,
                            sizeof(jd_exp));
                 }
-                else {
+                else
+                {
                     op->operator = JD_OP_LOGICAL_AND;
                     if (!negate)
                         make_logic_not(if_exp->expression);
@@ -242,7 +247,8 @@ bool identify_reverse_logical_operation(jd_method *m)
                            sizeof(jd_exp));
                 }
 
-                for (int l = 0; l < next_block->dominates->size; ++l) {
+                for (int l = 0; l < next_block->dominates->size; ++l)
+                {
                     jd_bblock *tmp = lget_obj(next_block->dominates, l);
                     ladd_obj_no_dup(basic_block->dominates, tmp);
                 }
@@ -251,7 +257,6 @@ bool identify_reverse_logical_operation(jd_method *m)
                 exp_mark_nopped(next_exp);
             }
         }
-
     }
 
     return find_short_logical_operator;
@@ -279,7 +284,8 @@ void identify_cmp_after_if(jd_method *m)
     // ifgt == if v1 > v2
     // ifle == if v1 <= v2
     // ifgt == if v1 >= v2
-    for (int i = 0; i < m->expressions->size - 1; ++i) {
+    for (int i = 0; i < m->expressions->size - 1; ++i)
+    {
         jd_exp *exp = lget_obj(m->expressions, i);
         jd_ins *ins = exp->ins;
         jd_ins_fn *fn = ins->fn;
@@ -293,15 +299,18 @@ void identify_cmp_after_if(jd_method *m)
         jd_exp_operator *operator_exp = other->data;
 
         jd_exp *right = NULL;
-        if (exp_is_store(exp)) {
+        if (exp_is_store(exp))
+        {
             jd_exp_store *store = exp->data;
             right = &store->list->args[1];
         }
-        else if (exp_is_assignment(exp)) {
+        else if (exp_is_assignment(exp))
+        {
             jd_exp_assignment *assignment = exp->data;
             right = assignment->right;
         }
-        else {
+        else
+        {
             abort();
         }
         jd_exp_operator *right_exp = right->data;
@@ -310,36 +319,37 @@ void identify_cmp_after_if(jd_method *m)
         exp_mark_nopped(exp);
         i += 1;
 
-//        switch (ins->next->code) {
-//            case INS_IFNE:
-//                operator_exp->operator = JD_OP_NE;
-//                break;
-//            case INS_IFEQ:
-//                operator_exp->operator = JD_OP_EQ;
-//                break;
-//            case INS_IFLT:
-//                operator_exp->operator = JD_OP_LT;
-//                break;
-//            case INS_IFGT:
-//                operator_exp->operator = JD_OP_GT;
-//                break;
-//            case INS_IFLE:
-//                operator_exp->operator = JD_OP_LE;
-//                break;
-//            case INS_IFGE:
-//                operator_exp->operator = JD_OP_GE;
-//                break;
-//            default:
-//                fprintf(stderr, "unknown if compare: %d\n", ins->code);
-//                break;
-//        }
+        //        switch (ins->next->code) {
+        //            case INS_IFNE:
+        //                operator_exp->operator = JD_OP_NE;
+        //                break;
+        //            case INS_IFEQ:
+        //                operator_exp->operator = JD_OP_EQ;
+        //                break;
+        //            case INS_IFLT:
+        //                operator_exp->operator = JD_OP_LT;
+        //                break;
+        //            case INS_IFGT:
+        //                operator_exp->operator = JD_OP_GT;
+        //                break;
+        //            case INS_IFLE:
+        //                operator_exp->operator = JD_OP_LE;
+        //                break;
+        //            case INS_IFGE:
+        //                operator_exp->operator = JD_OP_GE;
+        //                break;
+        //            default:
+        //                fprintf(stderr, "unknown if compare: %d\n", ins->code);
+        //                break;
+        //        }
     }
 }
 
 bool identify_logical_with_assignment(jd_method *m)
 {
     bool find_short_logical_with_assignment = false;
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_atomic(node))
             continue;
@@ -365,13 +375,10 @@ bool identify_logical_with_assignment(jd_method *m)
             jd_exp *current_true_exp = exp_of_offset(m, if_exp->offset);
             jd_exp *current_false_exp = ins->next->expression;
 
-            for (int k = 0; k < 2; ++k) {
-                jd_bblock *next = k == 0 ?
-                                  exp_block(current_true_exp) :
-                                  exp_block(current_false_exp);
-                jd_bblock *other = k == 0 ?
-                                   exp_block(current_false_exp) :
-                                   exp_block(current_true_exp);
+            for (int k = 0; k < 2; ++k)
+            {
+                jd_bblock *next = k == 0 ? exp_block(current_true_exp) : exp_block(current_false_exp);
+                jd_bblock *other = k == 0 ? exp_block(current_false_exp) : exp_block(current_true_exp);
 
                 if (next == basic_block || next == NULL)
                     continue;
@@ -394,33 +401,37 @@ bool identify_logical_with_assignment(jd_method *m)
                 if (next_valid_exp(m, exp->idx + 1) == next_exp)
                     continue;
 
-
                 jd_exp *condition = next_if_exp->expression;
                 bool is_logical_not = false;
-                if (exp_is_operator(condition)) {
+                if (exp_is_operator(condition))
+                {
                     jd_exp_operator *op = condition->data;
                     jd_exp *op_left = &op->list->args[0];
                     jd_exp *op_right = &op->list->args[1];
                     if (exp_is_local_variable(op_left) ||
                         exp_is_get_field(op_left) ||
                         exp_is_get_static(op_left) ||
-                        exp_is_array_load(op_left)) {
+                        exp_is_array_load(op_left))
+                    {
                         is_logical_not = true;
                     }
                     if (exp_is_local_variable(op_right) ||
                         exp_is_get_field(op_right) ||
                         exp_is_get_static(op_right) ||
-                        exp_is_array_load(op_right)) {
+                        exp_is_array_load(op_right))
+                    {
                         is_logical_not = true;
                     }
                 }
                 else if (exp_is_local_variable(condition) ||
                          exp_is_get_field(condition) ||
                          exp_is_get_static(condition) ||
-                         exp_is_array_load(condition)) {
+                         exp_is_array_load(condition))
+                {
                     is_logical_not = true;
                 }
-                if (!is_logical_not) {
+                if (!is_logical_not)
+                {
                     continue;
                 }
 
@@ -428,16 +439,20 @@ bool identify_logical_with_assignment(jd_method *m)
                 int next_idx = next_exp->idx + 1;
                 jd_exp *_iterator_exp = next_valid_exp(m, next_idx);
                 while (_iterator_exp != NULL &&
-                       exp_is_save(_iterator_exp)) {
+                       exp_is_save(_iterator_exp))
+                {
                     jd_exp *left = exp_saved_left(_iterator_exp);
                     jd_exp *value = exp_saved_value(_iterator_exp);
 
-                    if (chain == NULL) {
+                    if (chain == NULL)
+                    {
                         chain = make_obj(jd_exp_assignment_chain);
                         chain->left = linit_object();
                         ladd_obj(chain->left, left);
                         chain->right = value;
-                    } else {
+                    }
+                    else
+                    {
                         ladd_obj(chain->left, left);
                     }
                     exp_mark_nopped(_iterator_exp);
@@ -449,17 +464,20 @@ bool identify_logical_with_assignment(jd_method *m)
                         break;
                 }
 
-                if (_iterator_exp == next_exp && chain != NULL) {
+                if (_iterator_exp == next_exp && chain != NULL)
+                {
                     jd_exp_if *t_next_if_exp = next_exp->data;
                     jd_exp *t_condition = t_next_if_exp->expression;
-                    if (exp_is_operator(t_condition)) {
+                    if (exp_is_operator(t_condition))
+                    {
                         jd_exp_operator *op = t_condition->data;
                         jd_exp *op_left = &op->list->args[0];
                         jd_exp *op_right = &op->list->args[1];
                         if (exp_is_local_variable(op_left) ||
                             exp_is_get_field(op_left) ||
                             exp_is_get_static(op_left) ||
-                            exp_is_array_load(op_left)) {
+                            exp_is_array_load(op_left))
+                        {
                             op_left->type = JD_EXPRESSION_ASSIGNMENT_CHAIN;
                             op_left->data = chain;
                             find_short_logical_with_assignment = true;
@@ -467,7 +485,8 @@ bool identify_logical_with_assignment(jd_method *m)
                         if (exp_is_local_variable(op_right) ||
                             exp_is_get_field(op_right) ||
                             exp_is_get_static(op_right) ||
-                            exp_is_array_load(op_right)) {
+                            exp_is_array_load(op_right))
+                        {
                             op_right->type = JD_EXPRESSION_ASSIGNMENT_CHAIN;
                             op_right->data = chain;
                             find_short_logical_with_assignment = true;
@@ -476,7 +495,8 @@ bool identify_logical_with_assignment(jd_method *m)
                     else if (exp_is_local_variable(t_condition) ||
                              exp_is_get_field(t_condition) ||
                              exp_is_get_static(t_condition) ||
-                             exp_is_array_load(t_condition)) {
+                             exp_is_array_load(t_condition))
+                    {
                         t_condition->type = JD_EXPRESSION_ASSIGNMENT_CHAIN;
                         t_condition->data = chain;
                         find_short_logical_with_assignment = true;

@@ -17,4 +17,4 @@ string annotation_to_s(jclass_file *jc, annotation *ano);
 
 string jvm_method_parameter_annotation(jd_method *m, int index);
 
-#endif //GARLIC_JVM_ANNOTATION_H
+#endif // GARLIC_JVM_ANNOTATION_H

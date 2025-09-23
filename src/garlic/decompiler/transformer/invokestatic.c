@@ -14,7 +14,8 @@ string exp_invokestatic_to_s(jd_exp *expression)
     strcat(s, ".");
     strcat(s, method_name);
     strcat(s, "(");
-    for (int j = 0; j <= invoke->list->len - 1; ++j) {
+    for (int j = 0; j <= invoke->list->len - 1; ++j)
+    {
         string arg_name = exp_to_s(&invoke->list->args[j]);
         new_len = len + strlen(arg_name) + 2;
         s = x_realloc(s, len, new_len);
@@ -36,7 +37,8 @@ void exp_invokestatic_to_stream(FILE *stream,
     string method_name = invoke->method_name;
     string class_name = invoke->class_name;
     fprintf(stream, "%s.%s(", class_name, method_name);
-    for (int j = 0; j <= invoke->list->len - 1; ++j) {
+    for (int j = 0; j <= invoke->list->len - 1; ++j)
+    {
         expression_to_stream(stream, node, &invoke->list->args[j]);
         if (j != invoke->list->len - 1)
             fprintf(stream, ", ");

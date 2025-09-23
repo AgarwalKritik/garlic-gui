@@ -14,5 +14,4 @@ void add_basic_blocks_to_node(jd_method *m,
                               jd_node *node,
                               list_object *blocks);
 
-
-#endif //GARLIC_EXPRESSION_BRANCHES_H
+#endif // GARLIC_EXPRESSION_BRANCHES_H

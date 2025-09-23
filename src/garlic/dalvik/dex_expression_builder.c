@@ -39,10 +39,10 @@ static void dex_build_assignment(jd_exp *exp, jd_dex_ins *ins)
         abort();
     jd_val *val = ins->stack_out->local_vars[slot];
     left->data = val;
-    val->stack_var->def_count ++;
+    val->stack_var->def_count++;
 }
 
-jd_exp* get_store_right(jd_exp *store)
+jd_exp *get_store_right(jd_exp *store)
 {
     jd_exp_store *exp_store = store->data;
     return &exp_store->list->args[1];
@@ -52,7 +52,7 @@ static void dex_local_variable_exp(jd_exp *exp, jd_val *val)
 {
     exp->type = JD_EXPRESSION_LOCAL_VARIABLE;
     exp->data = val;
-    val->stack_var->use_count ++;
+    val->stack_var->use_count++;
 }
 
 static void dex_move_expression(jd_exp *exp, jd_dex_ins *ins)
@@ -71,7 +71,8 @@ static void dex_return_expression(jd_exp *exp, jd_dex_ins *ins)
     exp->type = JD_EXPRESSION_RETURN;
     jd_exp_return *exp_return = make_obj(jd_exp_return);
     exp->data = exp_return;
-    if (!dex_ins_is_return_void(ins)) {
+    if (!dex_ins_is_return_void(ins))
+    {
         exp_return->list = make_exp_list(1);
         jd_exp *rval_exp = &exp_return->list->args[0];
         rval_exp->ins = ins;
@@ -97,7 +98,8 @@ static void dex_const_expression(jd_exp *exp, jd_dex_ins *ins)
 
 static void dex_monitor_expression(jd_exp *exp, jd_dex_ins *ins)
 {
-    if (dex_ins_is_monitor_enter(ins)) {
+    if (dex_ins_is_monitor_enter(ins))
+    {
         exp->type = JD_EXPRESSION_MONITOR_ENTER;
         exp->data = make_obj(jd_exp_monitorenter);
         jd_exp_monitorenter *menter = exp->data;
@@ -107,7 +109,8 @@ static void dex_monitor_expression(jd_exp *exp, jd_dex_ins *ins)
         jd_val *val = ins->stack_in->local_vars[slot];
         dex_local_variable_exp(e, val);
     }
-    else {
+    else
+    {
         exp->type = JD_EXPRESSION_MONITOR_EXIT;
         exp->data = make_obj(jd_exp_monitorexit);
         jd_exp_monitorexit *mexit = exp->data;
@@ -197,16 +200,15 @@ static void dex_new_array_expression(jd_exp *exp, jd_dex_ins *ins)
     jd_exp *count_exp = &new_array->list->args[0];
     count_exp->type = JD_EXPRESSION_STACK_VAR;
     dex_local_variable_exp(count_exp, val);
-
 }
 
 static void dex_filled_new_array_expression(jd_exp *exp, jd_dex_ins *ins)
 {
-//    dex_build_assignment(exp, ins);
-//    jd_exp *right = get_store_right(exp);
+    //    dex_build_assignment(exp, ins);
+    //    jd_exp *right = get_store_right(exp);
 
-//    right->type = JD_EXPRESSION_NEW_ARRAY;
-//    right->data = make_obj(jd_exp_new_array);
+    //    right->type = JD_EXPRESSION_NEW_ARRAY;
+    //    right->data = make_obj(jd_exp_new_array);
     jd_exp_new_array *new_array = make_obj(jd_exp_new_array);
 
     jd_meta_dex *meta = dex_ins_meta(ins);
@@ -220,7 +222,8 @@ static void dex_filled_new_array_expression(jd_exp *exp, jd_dex_ins *ins)
         return;
 
     new_array->list = make_exp_list(size);
-    for (int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i)
+    {
         jd_exp *count_exp = &new_array->list->args[i];
         count_exp->type = JD_EXPRESSION_STACK_VAR;
         u8 slot = dex_ins_parameter(ins, i + 2);
@@ -231,7 +234,8 @@ static void dex_filled_new_array_expression(jd_exp *exp, jd_dex_ins *ins)
     jd_ins *next = ins->next;
     if (next != NULL && (dex_ins_is_move_result(next) ||
                          dex_ins_is_move_result_wide(next) ||
-                         dex_ins_is_move_result_object(next))) {
+                         dex_ins_is_move_result_object(next)))
+    {
 
         dex_build_assignment(exp, next);
         jd_exp *right = get_store_right(exp);
@@ -239,7 +243,8 @@ static void dex_filled_new_array_expression(jd_exp *exp, jd_dex_ins *ins)
         right->type = JD_EXPRESSION_NEW_ARRAY;
         right->data = new_array;
     }
-    else {
+    else
+    {
         exp->type = JD_EXPRESSION_NEW_ARRAY;
         exp->data = new_array;
     }
@@ -259,9 +264,11 @@ static void dex_filled_new_array_range_expression(jd_exp *exp, jd_dex_ins *ins)
     u2 start_index = dex_ins_parameter(ins, 2);
     u2 count = start_index + u_a - 1;
     u2 param_size = count - start_index + 1;
-    if (param_size > 0) {
+    if (param_size > 0)
+    {
         new_array->list = make_exp_list(param_size);
-        for (int i = start_index; i <= count; ++i) {
+        for (int i = start_index; i <= count; ++i)
+        {
             jd_exp *count_exp = &new_array->list->args[i - start_index];
             count_exp->type = JD_EXPRESSION_STACK_VAR;
             jd_val *val = ins->stack_out->local_vars[i];
@@ -272,7 +279,8 @@ static void dex_filled_new_array_range_expression(jd_exp *exp, jd_dex_ins *ins)
     jd_ins *next = ins->next;
     if (next != NULL && (dex_ins_is_move_result(next) ||
                          dex_ins_is_move_result_wide(next) ||
-                         dex_ins_is_move_result_object(next))) {
+                         dex_ins_is_move_result_object(next)))
+    {
 
         dex_build_assignment(exp, next);
         jd_exp *right = get_store_right(exp);
@@ -280,7 +288,8 @@ static void dex_filled_new_array_range_expression(jd_exp *exp, jd_dex_ins *ins)
         right->type = JD_EXPRESSION_NEW_ARRAY;
         right->data = new_array;
     }
-    else {
+    else
+    {
         exp->type = JD_EXPRESSION_NEW_ARRAY;
         exp->data = new_array;
     }
@@ -294,10 +303,12 @@ static void dex_fill_array_data_expression(jd_exp *exp, jd_dex_ins *ins)
     jd_exp_new_array *new_array = exp->data;
     s4 offset = (s4)dex_ins_parameter(ins, 1);
     // TODO: check instruction is copy
-    if (ins_is_duplicate(ins)) {
+    if (ins_is_duplicate(ins))
+    {
         offset = offset + ins->old_offset;
     }
-    else {
+    else
+    {
         offset = offset + ins->offset;
     }
     //    offset = offset + ins->old_offset;
@@ -314,7 +325,8 @@ static void dex_fill_array_data_expression(jd_exp *exp, jd_dex_ins *ins)
     new_array->list = make_exp_list(size);
     u1 *params = &payload_ins->param[4];
 
-    for (int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i)
+    {
         jd_exp *count_exp = &new_array->list->args[i];
         count_exp->type = JD_EXPRESSION_CONST;
         jd_exp_const *const_exp = make_obj(jd_exp_const);
@@ -325,63 +337,72 @@ static void dex_fill_array_data_expression(jd_exp *exp, jd_dex_ins *ins)
         const_val->data->primitive = make_obj(jd_primitive_union);
         jd_primitive_union *primitive = const_val->data->primitive;
 
-        if (stack_val_is_int(val)) {
+        if (stack_val_is_int(val))
+        {
             const_val->type = JD_VAR_INT_T;
             int int_value = 0;
             memcpy(&int_value, params, element_size);
             primitive->int_val = int_value;
             const_val->data->cname = (string)g_str_int;
         }
-        else if (stack_val_is_long(val)) {
+        else if (stack_val_is_long(val))
+        {
             const_val->type = JD_VAR_LONG_T;
             long long_val = 0;
             memcpy(&long_val, params, element_size);
             primitive->long_val = long_val;
             const_val->data->cname = (string)g_str_long;
         }
-        else if (stack_val_is_float(val)) {
+        else if (stack_val_is_float(val))
+        {
             const_val->type = JD_VAR_FLOAT_T;
             float fvalue = 0;
             memcpy(&fvalue, params, element_size);
             primitive->float_val = fvalue;
             const_val->data->cname = (string)g_str_float;
         }
-        else if (stack_val_is_double(val)) {
+        else if (stack_val_is_double(val))
+        {
             const_val->type = JD_VAR_DOUBLE_T;
             double dval = 0;
             memcpy(&dval, params, element_size);
             primitive->double_val = dval;
             const_val->data->cname = (string)g_str_double;
         }
-        else if (stack_val_is_boolean(val)) {
+        else if (stack_val_is_boolean(val))
+        {
             const_val->type = JD_VAR_INT_T;
             int int_value = 0;
             memcpy(&int_value, params, element_size);
             primitive->int_val = int_value;
             const_val->data->cname = (string)g_str_boolean;
         }
-        else if (stack_val_is_byte(val)) {
+        else if (stack_val_is_byte(val))
+        {
             const_val->type = JD_VAR_INT_T;
             int int_value = 0;
             memcpy(&int_value, params, element_size);
             primitive->int_val = int_value;
             const_val->data->cname = (string)g_str_byte;
         }
-        else if (stack_val_is_short(val)) {
+        else if (stack_val_is_short(val))
+        {
             const_val->type = JD_VAR_INT_T;
             int int_value = 0;
             memcpy(&int_value, params, element_size);
             primitive->int_val = int_value;
             const_val->data->cname = (string)g_str_short;
         }
-        else if (stack_val_is_char(val)) {
+        else if (stack_val_is_char(val))
+        {
             const_val->type = JD_VAR_INT_T;
             int int_value = 0;
             memcpy(&int_value, params, element_size);
             primitive->int_val = int_value;
             const_val->data->cname = (string)g_str_char;
         }
-        else {
+        else
+        {
             const_val->type = JD_VAR_REFERENCE_T;
             const_val->data->cname = (string)g_str_Object;
         }
@@ -426,7 +447,8 @@ static void dex_switch_expression(jd_exp *exp, jd_dex_ins *ins)
 
     switch_exp->targets = linit_object();
     DEBUG_PRINT("[switch]: %d -> %s\n", ins->offset, ins->name);
-    for (int i = 0; i < ins->targets->size; ++i) {
+    for (int i = 0; i < ins->targets->size; ++i)
+    {
         jd_dex_ins *target_ins = lget_obj(ins->targets, i);
         if (target_ins->offset == switch_exp->default_offset)
             continue;
@@ -468,24 +490,25 @@ static void dex_cmp_expression(jd_exp *exp, jd_dex_ins *ins)
     dex_local_variable_exp(left_cmp, locals[slot_a]);
     dex_local_variable_exp(right_cmp, locals[slot_b]);
 
-    switch (ins->code) {
-        case DEX_INS_CMPL_FLOAT:
-            compare->operator = JD_OP_LT;
-            break;
-        case DEX_INS_CMPG_FLOAT:
-            compare->operator = JD_OP_GT;
-            break;
-        case DEX_INS_CMPL_DOUBLE:
-            compare->operator = JD_OP_LT;
-            break;
-        case DEX_INS_CMPG_DOUBLE:
-            compare->operator = JD_OP_GT;
-            break;
-        case DEX_INS_CMP_LONG:
-            compare->operator = JD_OP_EQ;
-            break;
-        default:
-            break;
+    switch (ins->code)
+    {
+    case DEX_INS_CMPL_FLOAT:
+        compare->operator = JD_OP_LT;
+        break;
+    case DEX_INS_CMPG_FLOAT:
+        compare->operator = JD_OP_GT;
+        break;
+    case DEX_INS_CMPL_DOUBLE:
+        compare->operator = JD_OP_LT;
+        break;
+    case DEX_INS_CMPG_DOUBLE:
+        compare->operator = JD_OP_GT;
+        break;
+    case DEX_INS_CMP_LONG:
+        compare->operator = JD_OP_EQ;
+        break;
+    default:
+        break;
     }
 }
 
@@ -528,8 +551,10 @@ static void dex_ifz_expression(jd_exp *exp, jd_dex_ins *ins)
     u1 slot = dex_ins_parameter(ins, 0);
     jd_val *left_val = ins->stack_out->local_vars[slot];
 
-    if (stack_val_is_boolean(left_val)) {
-        if (ins->code == DEX_INS_IF_EQZ) {
+    if (stack_val_is_boolean(left_val))
+    {
+        if (ins->code == DEX_INS_IF_EQZ)
+        {
             condition->type = JD_EXPRESSION_SINGLE_OPERATOR;
             jd_exp_single_operator *sop = make_obj(jd_exp_single_operator);
             sop->operator = JD_OP_LOGICAL_NOT;
@@ -538,7 +563,8 @@ static void dex_ifz_expression(jd_exp *exp, jd_dex_ins *ins)
             dex_local_variable_exp(single_op_exp, left_val);
             condition->data = sop;
         }
-        else {
+        else
+        {
             condition->type = JD_EXPRESSION_SINGLE_LIST;
             jd_exp_single_list *single_list = make_obj(jd_exp_single_list);
             single_list->list = make_exp_list(1);
@@ -547,7 +573,8 @@ static void dex_ifz_expression(jd_exp *exp, jd_dex_ins *ins)
             condition->data = single_list;
         }
     }
-    else {
+    else
+    {
         condition->ins = ins;
         condition->type = JD_EXPRESSION_OPERATOR;
         condition->data = make_obj(jd_exp_operator);
@@ -559,7 +586,8 @@ static void dex_ifz_expression(jd_exp *exp, jd_dex_ins *ins)
 
         jd_exp *right = &exp_operator->list->args[1];
         right->type = JD_EXPRESSION_CONST;
-        if (left_val->type == JD_VAR_REFERENCE_T) {
+        if (left_val->type == JD_VAR_REFERENCE_T)
+        {
             jd_exp_const *const_exp = make_obj(jd_exp_const);
             right->data = const_exp;
             jd_val *val = stack_make_primitive_val(JD_VAR_NULL_T);
@@ -568,7 +596,8 @@ static void dex_ifz_expression(jd_exp *exp, jd_dex_ins *ins)
             const_exp->val = val;
             right->data = const_exp;
         }
-        else {
+        else
+        {
             jd_exp_const *const_exp = make_obj(jd_exp_const);
             right->data = const_exp;
             const_exp->val = stack_create_empty_val();
@@ -580,27 +609,28 @@ static void dex_ifz_expression(jd_exp *exp, jd_dex_ins *ins)
             const_val->data->cname = (string)g_str_int;
         }
 
-        switch (ins->code) {
-            case DEX_INS_IF_EQZ:
-                exp_operator->operator = JD_OP_EQ;
-                break;
-            case DEX_INS_IF_NEZ:
-                exp_operator->operator = JD_OP_NE;
-                break;
-            case DEX_INS_IF_LTZ:
-                exp_operator->operator = JD_OP_LT;
-                break;
-            case DEX_INS_IF_GEZ:
-                exp_operator->operator = JD_OP_GE;
-                break;
-            case DEX_INS_IF_GTZ:
-                exp_operator->operator = JD_OP_GT;
-                break;
-            case DEX_INS_IF_LEZ:
-                exp_operator->operator = JD_OP_LE;
-                break;
-            default:
-                break;
+        switch (ins->code)
+        {
+        case DEX_INS_IF_EQZ:
+            exp_operator->operator = JD_OP_EQ;
+            break;
+        case DEX_INS_IF_NEZ:
+            exp_operator->operator = JD_OP_NE;
+            break;
+        case DEX_INS_IF_LTZ:
+            exp_operator->operator = JD_OP_LT;
+            break;
+        case DEX_INS_IF_GEZ:
+            exp_operator->operator = JD_OP_GE;
+            break;
+        case DEX_INS_IF_GTZ:
+            exp_operator->operator = JD_OP_GT;
+            break;
+        case DEX_INS_IF_LEZ:
+            exp_operator->operator = JD_OP_LE;
+            break;
+        default:
+            break;
         }
     }
 }
@@ -756,8 +786,10 @@ static void dex_static_put_expression(jd_exp *exp, jd_dex_ins *ins)
 static bool is_nested_inner_class(dex_class_def *cf, jsource_file *jf)
 {
     jsource_file *parent = jf;
-    while (parent != NULL) {
-        if (parent->jclass == cf) {
+    while (parent != NULL)
+    {
+        if (parent->jclass == cf)
+        {
             return true;
         }
         parent = parent->parent;
@@ -783,10 +815,12 @@ static void dex_invoke_expression(jd_exp *exp, jd_dex_ins *ins)
     invoke->method_name = name;
 
     u1 real_param_size = param_size;
-    for (int i = 0; i < param_size; ++i) {
+    for (int i = 0; i < param_size; ++i)
+    {
         u2 slot = dex_ins_parameter(ins, i + 2);
         jd_val *val = ins->stack_in->local_vars[slot];
-        if (stack_val_is_wide(val)) {
+        if (stack_val_is_wide(val))
+        {
             real_param_size--;
             i++;
         }
@@ -796,16 +830,19 @@ static void dex_invoke_expression(jd_exp *exp, jd_dex_ins *ins)
     invoke->list = make_exp_list(param_size);
 
     int increase = 2;
-    for (int i = 0; i < param_size; ++i) {
+    for (int i = 0; i < param_size; ++i)
+    {
         u2 slot = dex_ins_parameter(ins, i + increase);
         jd_val *val = ins->stack_in->local_vars[slot];
-        if (dex_ins_is_invoke_static(ins)) {
+        if (dex_ins_is_invoke_static(ins))
+        {
             jd_exp *arg = &invoke->list->args[i];
             dex_local_variable_exp(arg, val);
         }
-        else {
+        else
+        {
             jd_exp *list_args = invoke->list->args;
-            jd_exp *arg = i == 0 ? &list_args[param_size-1] : &list_args[i-1];
+            jd_exp *arg = i == 0 ? &list_args[param_size - 1] : &list_args[i - 1];
             dex_local_variable_exp(arg, val);
         }
 
@@ -816,7 +853,8 @@ static void dex_invoke_expression(jd_exp *exp, jd_dex_ins *ins)
     jd_ins *next = ins->next;
     if (next != NULL && (dex_ins_is_move_result(next) ||
                          dex_ins_is_move_result_wide(next) ||
-                         dex_ins_is_move_result_object(next))) {
+                         dex_ins_is_move_result_object(next)))
+    {
         dex_build_assignment(exp, next);
         jd_exp *right = get_store_right(exp);
         right->ins = ins;
@@ -824,20 +862,23 @@ static void dex_invoke_expression(jd_exp *exp, jd_dex_ins *ins)
         right->type = JD_EXPRESSION_INVOKE;
         right->data = invoke;
     }
-    else {
+    else
+    {
         exp->type = JD_EXPRESSION_INVOKE;
         exp->data = invoke;
     }
 
     jd_exp_lambda *lambda_exp = NULL;
     if (dex_ins_is_invoke_direct(ins) &&
-        STR_EQL(invoke->method_name, g_str_init)) {
+        STR_EQL(invoke->method_name, g_str_init))
+    {
         dex_class_def *cf = hget_u4obj(meta->synthetic_classes_map,
                                        method_id->class_idx);
 
         if (cf != NULL &&
             !is_nested_inner_class(cf, jf) &&
-            dex_class_is_anonymous_class(meta, cf)) {
+            dex_class_is_anonymous_class(meta, cf))
+        {
             jsource_file *_inner = dex_class_inside(dex, cf, jf);
             _inner->parent = ins->method->jfile;
             _inner->source = _inner->parent->source;
@@ -849,7 +890,8 @@ static void dex_invoke_expression(jd_exp *exp, jd_dex_ins *ins)
         cf = hget_u4obj(meta->class_type_id_map, method_id->class_idx);
         if (cf != NULL &&
             !is_nested_inner_class(cf, jf) &&
-            dex_class_is_anonymous_class(meta, cf)) {
+            dex_class_is_anonymous_class(meta, cf))
+        {
             jsource_file *parent = ins->method->jfile;
             jsource_file *_inner = dex_inner_class(dex, parent, cf);
             jd_exp_anonymous *anonymous_exp = make_obj(jd_exp_anonymous);
@@ -857,11 +899,13 @@ static void dex_invoke_expression(jd_exp *exp, jd_dex_ins *ins)
             anonymous_exp->jfile = _inner;
             string cname = NULL;
 
-            if (cf->interfaces != NULL) {
+            if (cf->interfaces != NULL)
+            {
                 dex_type_item *item = &cf->interfaces->list[0];
                 cname = dex_str_of_type_id(meta, item->type_idx);
             }
-            else {
+            else
+            {
                 cname = dex_str_of_type_id(meta, cf->superclass_idx);
             }
 
@@ -891,9 +935,11 @@ static void dex_invoke_range_expression(jd_exp *exp, jd_dex_ins *ins)
     u2 param_size = count - start_index + 1;
 
     u1 real_param_size = param_size;
-    for (int i = start_index; i <= count; ++i) {
+    for (int i = start_index; i <= count; ++i)
+    {
         jd_val *val = ins->stack_in->local_vars[i];
-        if (stack_val_is_wide(val)) {
+        if (stack_val_is_wide(val))
+        {
             real_param_size--;
             i++;
         }
@@ -905,26 +951,32 @@ static void dex_invoke_range_expression(jd_exp *exp, jd_dex_ins *ins)
 
     // TODO: not tested for invoke-range
     int increase = 0;
-    for (int i = 0; i < param_size; ++i) {
+    for (int i = 0; i < param_size; ++i)
+    {
         jd_val *val = ins->stack_in->local_vars[i + start_index + increase];
-        if (dex_ins_is_invoke_static_range(ins)) {
+        if (dex_ins_is_invoke_static_range(ins))
+        {
             jd_exp *arg = &invoke->list->args[i];
             dex_local_variable_exp(arg, val);
         }
-        else {
+        else
+        {
             jd_exp *arg;
-            if (i == 0) {
+            if (i == 0)
+            {
                 // v1, v2, v3, v4, v5, v6, count = 5, start_index = 2
                 // object reference
-                arg = &list_args[param_size-1];
+                arg = &list_args[param_size - 1];
             }
-            else {
-                arg = &list_args[i-1];
+            else
+            {
+                arg = &list_args[i - 1];
             }
             dex_local_variable_exp(arg, val);
         }
 
-        if (stack_val_is_wide(val)) {
+        if (stack_val_is_wide(val))
+        {
             increase++;
         }
     }
@@ -932,7 +984,8 @@ static void dex_invoke_range_expression(jd_exp *exp, jd_dex_ins *ins)
     jd_ins *next = ins->next;
     if (next != NULL && (dex_ins_is_move_result(next) ||
                          dex_ins_is_move_result_wide(next) ||
-                         dex_ins_is_move_result_object(next))) {
+                         dex_ins_is_move_result_object(next)))
+    {
         dex_build_assignment(exp, next);
         jd_exp *right = get_store_right(exp);
         right->ins = ins;
@@ -940,18 +993,21 @@ static void dex_invoke_range_expression(jd_exp *exp, jd_dex_ins *ins)
         right->type = JD_EXPRESSION_INVOKE;
         right->data = invoke;
     }
-    else {
+    else
+    {
         exp->type = JD_EXPRESSION_INVOKE;
         exp->data = invoke;
     }
 
     jd_exp_lambda *lambda_exp = NULL;
     if (dex_ins_is_invoke_direct(ins) &&
-        STR_EQL(invoke->method_name, g_str_init)) {
+        STR_EQL(invoke->method_name, g_str_init))
+    {
         dex_class_def *cf = hget_u4obj(meta->synthetic_classes_map,
                                        method_id->class_idx);
         jd_dex *dex = ins->method->meta;
-        if (cf != NULL && dex_class_is_anonymous_class(meta, cf)) {
+        if (cf != NULL && dex_class_is_anonymous_class(meta, cf))
+        {
             jsource_file *_inner = dex_class_inside(dex, cf, jf);
             lambda_exp = dex_lambda(_inner, invoke);
             if (lambda_exp != NULL)
@@ -959,7 +1015,8 @@ static void dex_invoke_range_expression(jd_exp *exp, jd_dex_ins *ins)
         }
 
         cf = hget_u4obj(meta->class_type_id_map, method_id->class_idx);
-        if (cf != NULL && dex_class_is_anonymous_class(meta, cf)) {
+        if (cf != NULL && dex_class_is_anonymous_class(meta, cf))
+        {
             jsource_file *parent = ins->method->jfile;
             jsource_file *_inner = dex_inner_class(dex, parent, cf);
             jd_exp_anonymous *anonymous_exp = make_obj(jd_exp_anonymous);
@@ -967,11 +1024,13 @@ static void dex_invoke_range_expression(jd_exp *exp, jd_dex_ins *ins)
             anonymous_exp->jfile = _inner;
             string cname = NULL;
 
-            if (cf->interfaces != NULL) {
+            if (cf->interfaces != NULL)
+            {
                 dex_type_item *item = &cf->interfaces->list[0];
                 cname = dex_str_of_type_id(meta, item->type_idx);
             }
-            else {
+            else
+            {
                 cname = dex_str_of_type_id(meta, cf->superclass_idx);
             }
 
@@ -994,19 +1053,20 @@ static void dex_single_operator_expression(jd_exp *exp, jd_dex_ins *ins)
     u2 slot = dex_ins_parameter(ins, 1);
     dex_local_variable_exp(first, ins->stack_out->local_vars[slot]);
 
-    switch (ins->code) {
-        case DEX_INS_NEG_INT:
-        case DEX_INS_NEG_LONG:
-        case DEX_INS_NEG_DOUBLE:
-        case DEX_INS_NEG_FLOAT:
-            op->operator = JD_OP_NEG;
-            break;
-        case DEX_INS_NOT_INT:
-        case DEX_INS_NOT_LONG:
-            op->operator = JD_OP_NOT;
-            break;
-        default:
-            break;
+    switch (ins->code)
+    {
+    case DEX_INS_NEG_INT:
+    case DEX_INS_NEG_LONG:
+    case DEX_INS_NEG_DOUBLE:
+    case DEX_INS_NEG_FLOAT:
+        op->operator = JD_OP_NEG;
+        break;
+    case DEX_INS_NOT_INT:
+    case DEX_INS_NOT_LONG:
+        op->operator = JD_OP_NOT;
+        break;
+    default:
+        break;
     }
 }
 
@@ -1024,38 +1084,39 @@ static void dex_cast_expression(jd_exp *exp, jd_dex_ins *ins)
     right->type = JD_EXPRESSION_CAST;
     right->data = cast_exp;
 
-    switch(ins->code) {
-        case DEX_INS_INT_TO_LONG:
-        case DEX_INS_FLOAT_TO_LONG:
-        case DEX_INS_DOUBLE_TO_LONG:
-            cast_exp->class_name = (string)g_str_long;
-            break;
-        case DEX_INS_INT_TO_FLOAT:
-        case DEX_INS_LONG_TO_FLOAT:
-        case DEX_INS_DOUBLE_TO_FLOAT:
-            cast_exp->class_name = (string)g_str_float;
-            break;
-        case DEX_INS_INT_TO_DOUBLE:
-        case DEX_INS_LONG_TO_DOUBLE:
-        case DEX_INS_FLOAT_TO_DOUBLE:
-            cast_exp->class_name = (string)g_str_double;
-            break;
-        case DEX_INS_LONG_TO_INT:
-        case DEX_INS_FLOAT_TO_INT:
-        case DEX_INS_DOUBLE_TO_INT:
-            cast_exp->class_name = (string)g_str_int;
-            break;
-        case DEX_INS_INT_TO_BYTE:
-            cast_exp->class_name = (string)g_str_byte;
-            break;
-        case DEX_INS_INT_TO_CHAR:
-            cast_exp->class_name = (string)g_str_char;
-            break;
-        case DEX_INS_INT_TO_SHORT:
-            cast_exp->class_name = (string)g_str_short;
-            break;
-        default:
-            break;
+    switch (ins->code)
+    {
+    case DEX_INS_INT_TO_LONG:
+    case DEX_INS_FLOAT_TO_LONG:
+    case DEX_INS_DOUBLE_TO_LONG:
+        cast_exp->class_name = (string)g_str_long;
+        break;
+    case DEX_INS_INT_TO_FLOAT:
+    case DEX_INS_LONG_TO_FLOAT:
+    case DEX_INS_DOUBLE_TO_FLOAT:
+        cast_exp->class_name = (string)g_str_float;
+        break;
+    case DEX_INS_INT_TO_DOUBLE:
+    case DEX_INS_LONG_TO_DOUBLE:
+    case DEX_INS_FLOAT_TO_DOUBLE:
+        cast_exp->class_name = (string)g_str_double;
+        break;
+    case DEX_INS_LONG_TO_INT:
+    case DEX_INS_FLOAT_TO_INT:
+    case DEX_INS_DOUBLE_TO_INT:
+        cast_exp->class_name = (string)g_str_int;
+        break;
+    case DEX_INS_INT_TO_BYTE:
+        cast_exp->class_name = (string)g_str_byte;
+        break;
+    case DEX_INS_INT_TO_CHAR:
+        cast_exp->class_name = (string)g_str_char;
+        break;
+    case DEX_INS_INT_TO_SHORT:
+        cast_exp->class_name = (string)g_str_short;
+        break;
+    default:
+        break;
     }
 }
 
@@ -1114,8 +1175,8 @@ static void dex_invoke_polymorphic_expression(jd_exp *exp, jd_dex_ins *ins)
     dex_invoke_expression(exp, ins);
 }
 
-static void dex_invoke_polymorphic_range_expression(jd_exp *exp, 
-        jd_dex_ins *ins)
+static void dex_invoke_polymorphic_range_expression(jd_exp *exp,
+                                                    jd_dex_ins *ins)
 {
     dex_invoke_range_expression(exp, ins);
 }
@@ -1132,277 +1193,279 @@ static void dex_invoke_custom_range_expression(jd_exp *exp, jd_dex_ins *ins)
 
 void dex_build_expression(jd_exp *exp, jd_dex_ins *ins)
 {
-    if (ins_is_unreached(ins)) {
+    if (ins_is_unreached(ins))
+    {
         build_empty_expression(exp, ins);
         return;
     }
 
-    switch(ins->code) {
-        case DEX_INS_NOP:
-            build_empty_expression(exp, ins);
-            break;
-        case DEX_INS_MOVE:
-        case DEX_INS_MOVE_FROM16:
-        case DEX_INS_MOVE_16:
-        case DEX_INS_MOVE_WIDE:
-        case DEX_INS_MOVE_WIDE_16:
-        case DEX_INS_MOVE_OBJECT:
-        case DEX_INS_MOVE_OBJECT_FROM16:
-        case DEX_INS_MOVE_OBJECT_16:
-            dex_move_expression(exp, ins);
-            break;
-        case DEX_INS_MOVE_RESULT:
-        case DEX_INS_MOVE_RESULT_WIDE:
-        case DEX_INS_MOVE_RESULT_OBJECT:
-        case DEX_INS_MOVE_EXCEPTION:
-            build_empty_expression(exp, ins);
-            break;
-        case DEX_INS_RETURN_VOID:
-        case DEX_INS_RETURN:
-        case DEX_INS_RETURN_WIDE:
-        case DEX_INS_RETURN_OBJECT:
-            dex_return_expression(exp, ins);
-            break;
-        case DEX_INS_CONST_4:
-        case DEX_INS_CONST_16:
-        case DEX_INS_CONST:
-        case DEX_INS_CONST_HIGH16:
-        case DEX_INS_CONST_WIDE_16:
-        case DEX_INS_CONST_WIDE_32:
-        case DEX_INS_CONST_WIDE:
-        case DEX_INS_CONST_WIDE_HIGH16:
-        case DEX_INS_CONST_STRING:
-        case DEX_INS_CONST_STRING_JUMBO:
-        case DEX_INS_CONST_CLASS:
-            dex_const_expression(exp, ins);
-            break;
-        case DEX_INS_MONITOR_ENTER:
-        case DEX_INS_MONITOR_EXIT:
-            dex_monitor_expression(exp, ins);
-            break;
-        case DEX_INS_CHECK_CAST:
-            dex_check_cast_expression(exp, ins);
-            break;
-        case DEX_INS_INSTANCE_OF:
-            dex_instance_of_expression(exp, ins);
-            break;
-        case DEX_INS_ARRAY_LENGTH:
-            dex_array_length_expression(exp, ins);
-            break;
-        case DEX_INS_NEW_INSTANCE:
-            dex_new_instance_expression(exp, ins);
-            break;
-        case DEX_INS_NEW_ARRAY:
-            dex_new_array_expression(exp, ins);
-            break;
-        case DEX_INS_FILLED_NEW_ARRAY:
-            dex_filled_new_array_expression(exp, ins);
-            break;
-        case DEX_INS_FILLED_NEW_ARRAY_RANGE:
-            dex_filled_new_array_range_expression(exp, ins);
-            break;
-        case DEX_INS_FILL_ARRAY_DATA:
-            dex_fill_array_data_expression(exp, ins);
-            break;
-        case DEX_INS_THROW:
-            dex_throw_expression(exp, ins);
-            break;
-        case DEX_INS_GOTO:
-        case DEX_INS_GOTO_16:
-        case DEX_INS_GOTO_32:
-            dex_goto_expression(exp, ins);
-            break;
-        case DEX_INS_PACKED_SWITCH:
-        case DEX_INS_SPARSE_SWITCH:
-            dex_switch_expression(exp, ins);
-            break;
-        case DEX_INS_CMPL_FLOAT:
-        case DEX_INS_CMPG_FLOAT:
-        case DEX_INS_CMPL_DOUBLE:
-        case DEX_INS_CMPG_DOUBLE:
-        case DEX_INS_CMP_LONG:
-            dex_cmp_expression(exp, ins);
-            break;
-        case DEX_INS_IF_EQ:
-        case DEX_INS_IF_NE:
-        case DEX_INS_IF_LT:
-        case DEX_INS_IF_GE:
-        case DEX_INS_IF_GT:
-        case DEX_INS_IF_LE:
-            dex_if_expression(exp, ins);
-            break;
-        case DEX_INS_IF_EQZ:
-        case DEX_INS_IF_NEZ:
-        case DEX_INS_IF_LTZ:
-        case DEX_INS_IF_GEZ:
-        case DEX_INS_IF_GTZ:
-        case DEX_INS_IF_LEZ:
-            dex_ifz_expression(exp, ins);
-            break;
-        case DEX_INS_AGET:
-        case DEX_INS_AGET_WIDE:
-        case DEX_INS_AGET_OBJECT:
-        case DEX_INS_AGET_BOOLEAN:
-        case DEX_INS_AGET_BYTE:
-        case DEX_INS_AGET_CHAR:
-        case DEX_INS_AGET_SHORT:
-            dex_array_get_expression(exp, ins);
-            break;
-        case DEX_INS_APUT:
-        case DEX_INS_APUT_WIDE:
-        case DEX_INS_APUT_OBJECT:
-        case DEX_INS_APUT_BOOLEAN:
-        case DEX_INS_APUT_BYTE:
-        case DEX_INS_APUT_CHAR:
-        case DEX_INS_APUT_SHORT:
-            dex_array_put_expression(exp, ins);
-            break;
-        case DEX_INS_IGET:
-        case DEX_INS_IGET_WIDE:
-        case DEX_INS_IGET_OBJECT:
-        case DEX_INS_IGET_BOOLEAN:
-        case DEX_INS_IGET_BYTE:
-        case DEX_INS_IGET_CHAR:
-        case DEX_INS_IGET_SHORT:
-            dex_instance_get_expression(exp, ins);
-            break;
-        case DEX_INS_IPUT:
-        case DEX_INS_IPUT_WIDE:
-        case DEX_INS_IPUT_OBJECT:
-        case DEX_INS_IPUT_BOOLEAN:
-        case DEX_INS_IPUT_BYTE:
-        case DEX_INS_IPUT_CHAR:
-        case DEX_INS_IPUT_SHORT:
-            dex_instance_put_expression(exp, ins);
-            break;
-        case DEX_INS_SGET:
-        case DEX_INS_SGET_WIDE:
-        case DEX_INS_SGET_OBJECT:
-        case DEX_INS_SGET_BOOLEAN:
-        case DEX_INS_SGET_BYTE:
-        case DEX_INS_SGET_CHAR:
-        case DEX_INS_SGET_SHORT:
-            dex_static_get_expression(exp, ins);
-            break;
-        case DEX_INS_SPUT:
-        case DEX_INS_SPUT_WIDE:
-        case DEX_INS_SPUT_OBJECT:
-        case DEX_INS_SPUT_BOOLEAN:
-        case DEX_INS_SPUT_BYTE:
-        case DEX_INS_SPUT_CHAR:
-        case DEX_INS_SPUT_SHORT:
-            dex_static_put_expression(exp, ins);
-            break;
-        case DEX_INS_INVOKE_VIRTUAL:
-        case DEX_INS_INVOKE_SUPER:
-        case DEX_INS_INVOKE_DIRECT:
-        case DEX_INS_INVOKE_STATIC:
-        case DEX_INS_INVOKE_INTERFACE:
-            dex_invoke_expression(exp, ins);
-            break;
-        case DEX_INS_INVOKE_VIRTUAL_RANGE:
-        case DEX_INS_INVOKE_SUPER_RANGE:
-        case DEX_INS_INVOKE_DIRECT_RANGE:
-        case DEX_INS_INVOKE_STATIC_RANGE:
-        case DEX_INS_INVOKE_INTERFACE_RANGE:
-            dex_invoke_range_expression(exp, ins);
-            break;
-        case DEX_INS_NEG_INT:
-        case DEX_INS_NOT_INT:
-        case DEX_INS_NEG_LONG:
-        case DEX_INS_NOT_LONG:
-        case DEX_INS_NEG_FLOAT:
-        case DEX_INS_NEG_DOUBLE:
-            dex_single_operator_expression(exp, ins);
-            break;
-        case DEX_INS_INT_TO_LONG:
-        case DEX_INS_INT_TO_FLOAT:
-        case DEX_INS_INT_TO_DOUBLE:
-        case DEX_INS_LONG_TO_INT:
-        case DEX_INS_LONG_TO_FLOAT:
-        case DEX_INS_LONG_TO_DOUBLE:
-        case DEX_INS_FLOAT_TO_INT:
-        case DEX_INS_FLOAT_TO_LONG:
-        case DEX_INS_FLOAT_TO_DOUBLE:
-        case DEX_INS_DOUBLE_TO_INT:
-        case DEX_INS_DOUBLE_TO_LONG:
-        case DEX_INS_DOUBLE_TO_FLOAT:
-        case DEX_INS_INT_TO_BYTE:
-        case DEX_INS_INT_TO_CHAR:
-        case DEX_INS_INT_TO_SHORT:
-            dex_cast_expression(exp, ins);
-            break;
-        case DEX_INS_ADD_INT_2ADDR:
-        case DEX_INS_SUB_INT_2ADDR:
-        case DEX_INS_MUL_INT_2ADDR:
-        case DEX_INS_DIV_INT_2ADDR:
-        case DEX_INS_REM_INT_2ADDR:
-        case DEX_INS_AND_INT_2ADDR:
-        case DEX_INS_OR_INT_2ADDR:
-        case DEX_INS_XOR_INT_2ADDR:
-        case DEX_INS_SHL_INT_2ADDR:
-        case DEX_INS_SHR_INT_2ADDR:
-        case DEX_INS_USHR_INT_2ADDR:
-        case DEX_INS_ADD_LONG_2ADDR:
-        case DEX_INS_SUB_LONG_2ADDR:
-        case DEX_INS_MUL_LONG_2ADDR:
-        case DEX_INS_DIV_LONG_2ADDR:
-        case DEX_INS_REM_LONG_2ADDR:
-        case DEX_INS_AND_LONG_2ADDR:
-        case DEX_INS_OR_LONG_2ADDR:
-        case DEX_INS_XOR_LONG_2ADDR:
-        case DEX_INS_SHL_LONG_2ADDR:
-        case DEX_INS_SHR_LONG_2ADDR:
-        case DEX_INS_USHR_LONG_2ADDR:
-        case DEX_INS_ADD_FLOAT_2ADDR:
-        case DEX_INS_SUB_FLOAT_2ADDR:
-        case DEX_INS_MUL_FLOAT_2ADDR:
-        case DEX_INS_DIV_FLOAT_2ADDR:
-        case DEX_INS_REM_FLOAT_2ADDR:
-        case DEX_INS_ADD_DOUBLE_2ADDR:
-        case DEX_INS_SUB_DOUBLE_2ADDR:
-        case DEX_INS_MUL_DOUBLE_2ADDR:
-        case DEX_INS_DIV_DOUBLE_2ADDR:
-        case DEX_INS_REM_DOUBLE_2ADDR:
-            dex_binop_2addr_expression(exp, ins);
-            break;
-        case DEX_INS_ADD_INT_LIT16:
-        case DEX_INS_RSUB_INT:
-        case DEX_INS_MUL_INT_LIT16:
-        case DEX_INS_DIV_INT_LIT16:
-        case DEX_INS_REM_INT_LIT16:
-        case DEX_INS_AND_INT_LIT16:
-        case DEX_INS_OR_INT_LIT16:
-        case DEX_INS_XOR_INT_LIT16:
-        case DEX_INS_ADD_INT_LIT8:
-        case DEX_INS_RSUB_INT_LIT8:
-        case DEX_INS_MUL_INT_LIT8:
-        case DEX_INS_DIV_INT_LIT8:
-        case DEX_INS_REM_INT_LIT8:
-        case DEX_INS_AND_INT_LIT8:
-        case DEX_INS_OR_INT_LIT8:
-        case DEX_INS_XOR_INT_LIT8:
-            dex_binop_lit_expression(exp, ins);
-            break;
-        case DEX_INS_INVOKE_POLYMORPHIC:
-            dex_invoke_polymorphic_expression(exp, ins);
-            break;
-        case DEX_INS_INVOKE_POLYMORPHIC_RANGE:
-            dex_invoke_polymorphic_range_expression(exp, ins);
-            break;
-        case DEX_INS_INVOKE_CUSTOM:
-            dex_invoke_custom_expression(exp, ins);
-            break;
-        case DEX_INS_INVOKE_CUSTOM_RANGE:
-            dex_invoke_custom_range_expression(exp, ins);
-            break;
-        case DEX_INS_COPY_BASIC_BLOCK:
-        case DEX_INS_COPY_BASIC_BLOCK_GOTO:
-            dex_copy_block(ins);
-            break;
-        default:
-            build_empty_expression(exp, ins);
-            break;
+    switch (ins->code)
+    {
+    case DEX_INS_NOP:
+        build_empty_expression(exp, ins);
+        break;
+    case DEX_INS_MOVE:
+    case DEX_INS_MOVE_FROM16:
+    case DEX_INS_MOVE_16:
+    case DEX_INS_MOVE_WIDE:
+    case DEX_INS_MOVE_WIDE_16:
+    case DEX_INS_MOVE_OBJECT:
+    case DEX_INS_MOVE_OBJECT_FROM16:
+    case DEX_INS_MOVE_OBJECT_16:
+        dex_move_expression(exp, ins);
+        break;
+    case DEX_INS_MOVE_RESULT:
+    case DEX_INS_MOVE_RESULT_WIDE:
+    case DEX_INS_MOVE_RESULT_OBJECT:
+    case DEX_INS_MOVE_EXCEPTION:
+        build_empty_expression(exp, ins);
+        break;
+    case DEX_INS_RETURN_VOID:
+    case DEX_INS_RETURN:
+    case DEX_INS_RETURN_WIDE:
+    case DEX_INS_RETURN_OBJECT:
+        dex_return_expression(exp, ins);
+        break;
+    case DEX_INS_CONST_4:
+    case DEX_INS_CONST_16:
+    case DEX_INS_CONST:
+    case DEX_INS_CONST_HIGH16:
+    case DEX_INS_CONST_WIDE_16:
+    case DEX_INS_CONST_WIDE_32:
+    case DEX_INS_CONST_WIDE:
+    case DEX_INS_CONST_WIDE_HIGH16:
+    case DEX_INS_CONST_STRING:
+    case DEX_INS_CONST_STRING_JUMBO:
+    case DEX_INS_CONST_CLASS:
+        dex_const_expression(exp, ins);
+        break;
+    case DEX_INS_MONITOR_ENTER:
+    case DEX_INS_MONITOR_EXIT:
+        dex_monitor_expression(exp, ins);
+        break;
+    case DEX_INS_CHECK_CAST:
+        dex_check_cast_expression(exp, ins);
+        break;
+    case DEX_INS_INSTANCE_OF:
+        dex_instance_of_expression(exp, ins);
+        break;
+    case DEX_INS_ARRAY_LENGTH:
+        dex_array_length_expression(exp, ins);
+        break;
+    case DEX_INS_NEW_INSTANCE:
+        dex_new_instance_expression(exp, ins);
+        break;
+    case DEX_INS_NEW_ARRAY:
+        dex_new_array_expression(exp, ins);
+        break;
+    case DEX_INS_FILLED_NEW_ARRAY:
+        dex_filled_new_array_expression(exp, ins);
+        break;
+    case DEX_INS_FILLED_NEW_ARRAY_RANGE:
+        dex_filled_new_array_range_expression(exp, ins);
+        break;
+    case DEX_INS_FILL_ARRAY_DATA:
+        dex_fill_array_data_expression(exp, ins);
+        break;
+    case DEX_INS_THROW:
+        dex_throw_expression(exp, ins);
+        break;
+    case DEX_INS_GOTO:
+    case DEX_INS_GOTO_16:
+    case DEX_INS_GOTO_32:
+        dex_goto_expression(exp, ins);
+        break;
+    case DEX_INS_PACKED_SWITCH:
+    case DEX_INS_SPARSE_SWITCH:
+        dex_switch_expression(exp, ins);
+        break;
+    case DEX_INS_CMPL_FLOAT:
+    case DEX_INS_CMPG_FLOAT:
+    case DEX_INS_CMPL_DOUBLE:
+    case DEX_INS_CMPG_DOUBLE:
+    case DEX_INS_CMP_LONG:
+        dex_cmp_expression(exp, ins);
+        break;
+    case DEX_INS_IF_EQ:
+    case DEX_INS_IF_NE:
+    case DEX_INS_IF_LT:
+    case DEX_INS_IF_GE:
+    case DEX_INS_IF_GT:
+    case DEX_INS_IF_LE:
+        dex_if_expression(exp, ins);
+        break;
+    case DEX_INS_IF_EQZ:
+    case DEX_INS_IF_NEZ:
+    case DEX_INS_IF_LTZ:
+    case DEX_INS_IF_GEZ:
+    case DEX_INS_IF_GTZ:
+    case DEX_INS_IF_LEZ:
+        dex_ifz_expression(exp, ins);
+        break;
+    case DEX_INS_AGET:
+    case DEX_INS_AGET_WIDE:
+    case DEX_INS_AGET_OBJECT:
+    case DEX_INS_AGET_BOOLEAN:
+    case DEX_INS_AGET_BYTE:
+    case DEX_INS_AGET_CHAR:
+    case DEX_INS_AGET_SHORT:
+        dex_array_get_expression(exp, ins);
+        break;
+    case DEX_INS_APUT:
+    case DEX_INS_APUT_WIDE:
+    case DEX_INS_APUT_OBJECT:
+    case DEX_INS_APUT_BOOLEAN:
+    case DEX_INS_APUT_BYTE:
+    case DEX_INS_APUT_CHAR:
+    case DEX_INS_APUT_SHORT:
+        dex_array_put_expression(exp, ins);
+        break;
+    case DEX_INS_IGET:
+    case DEX_INS_IGET_WIDE:
+    case DEX_INS_IGET_OBJECT:
+    case DEX_INS_IGET_BOOLEAN:
+    case DEX_INS_IGET_BYTE:
+    case DEX_INS_IGET_CHAR:
+    case DEX_INS_IGET_SHORT:
+        dex_instance_get_expression(exp, ins);
+        break;
+    case DEX_INS_IPUT:
+    case DEX_INS_IPUT_WIDE:
+    case DEX_INS_IPUT_OBJECT:
+    case DEX_INS_IPUT_BOOLEAN:
+    case DEX_INS_IPUT_BYTE:
+    case DEX_INS_IPUT_CHAR:
+    case DEX_INS_IPUT_SHORT:
+        dex_instance_put_expression(exp, ins);
+        break;
+    case DEX_INS_SGET:
+    case DEX_INS_SGET_WIDE:
+    case DEX_INS_SGET_OBJECT:
+    case DEX_INS_SGET_BOOLEAN:
+    case DEX_INS_SGET_BYTE:
+    case DEX_INS_SGET_CHAR:
+    case DEX_INS_SGET_SHORT:
+        dex_static_get_expression(exp, ins);
+        break;
+    case DEX_INS_SPUT:
+    case DEX_INS_SPUT_WIDE:
+    case DEX_INS_SPUT_OBJECT:
+    case DEX_INS_SPUT_BOOLEAN:
+    case DEX_INS_SPUT_BYTE:
+    case DEX_INS_SPUT_CHAR:
+    case DEX_INS_SPUT_SHORT:
+        dex_static_put_expression(exp, ins);
+        break;
+    case DEX_INS_INVOKE_VIRTUAL:
+    case DEX_INS_INVOKE_SUPER:
+    case DEX_INS_INVOKE_DIRECT:
+    case DEX_INS_INVOKE_STATIC:
+    case DEX_INS_INVOKE_INTERFACE:
+        dex_invoke_expression(exp, ins);
+        break;
+    case DEX_INS_INVOKE_VIRTUAL_RANGE:
+    case DEX_INS_INVOKE_SUPER_RANGE:
+    case DEX_INS_INVOKE_DIRECT_RANGE:
+    case DEX_INS_INVOKE_STATIC_RANGE:
+    case DEX_INS_INVOKE_INTERFACE_RANGE:
+        dex_invoke_range_expression(exp, ins);
+        break;
+    case DEX_INS_NEG_INT:
+    case DEX_INS_NOT_INT:
+    case DEX_INS_NEG_LONG:
+    case DEX_INS_NOT_LONG:
+    case DEX_INS_NEG_FLOAT:
+    case DEX_INS_NEG_DOUBLE:
+        dex_single_operator_expression(exp, ins);
+        break;
+    case DEX_INS_INT_TO_LONG:
+    case DEX_INS_INT_TO_FLOAT:
+    case DEX_INS_INT_TO_DOUBLE:
+    case DEX_INS_LONG_TO_INT:
+    case DEX_INS_LONG_TO_FLOAT:
+    case DEX_INS_LONG_TO_DOUBLE:
+    case DEX_INS_FLOAT_TO_INT:
+    case DEX_INS_FLOAT_TO_LONG:
+    case DEX_INS_FLOAT_TO_DOUBLE:
+    case DEX_INS_DOUBLE_TO_INT:
+    case DEX_INS_DOUBLE_TO_LONG:
+    case DEX_INS_DOUBLE_TO_FLOAT:
+    case DEX_INS_INT_TO_BYTE:
+    case DEX_INS_INT_TO_CHAR:
+    case DEX_INS_INT_TO_SHORT:
+        dex_cast_expression(exp, ins);
+        break;
+    case DEX_INS_ADD_INT_2ADDR:
+    case DEX_INS_SUB_INT_2ADDR:
+    case DEX_INS_MUL_INT_2ADDR:
+    case DEX_INS_DIV_INT_2ADDR:
+    case DEX_INS_REM_INT_2ADDR:
+    case DEX_INS_AND_INT_2ADDR:
+    case DEX_INS_OR_INT_2ADDR:
+    case DEX_INS_XOR_INT_2ADDR:
+    case DEX_INS_SHL_INT_2ADDR:
+    case DEX_INS_SHR_INT_2ADDR:
+    case DEX_INS_USHR_INT_2ADDR:
+    case DEX_INS_ADD_LONG_2ADDR:
+    case DEX_INS_SUB_LONG_2ADDR:
+    case DEX_INS_MUL_LONG_2ADDR:
+    case DEX_INS_DIV_LONG_2ADDR:
+    case DEX_INS_REM_LONG_2ADDR:
+    case DEX_INS_AND_LONG_2ADDR:
+    case DEX_INS_OR_LONG_2ADDR:
+    case DEX_INS_XOR_LONG_2ADDR:
+    case DEX_INS_SHL_LONG_2ADDR:
+    case DEX_INS_SHR_LONG_2ADDR:
+    case DEX_INS_USHR_LONG_2ADDR:
+    case DEX_INS_ADD_FLOAT_2ADDR:
+    case DEX_INS_SUB_FLOAT_2ADDR:
+    case DEX_INS_MUL_FLOAT_2ADDR:
+    case DEX_INS_DIV_FLOAT_2ADDR:
+    case DEX_INS_REM_FLOAT_2ADDR:
+    case DEX_INS_ADD_DOUBLE_2ADDR:
+    case DEX_INS_SUB_DOUBLE_2ADDR:
+    case DEX_INS_MUL_DOUBLE_2ADDR:
+    case DEX_INS_DIV_DOUBLE_2ADDR:
+    case DEX_INS_REM_DOUBLE_2ADDR:
+        dex_binop_2addr_expression(exp, ins);
+        break;
+    case DEX_INS_ADD_INT_LIT16:
+    case DEX_INS_RSUB_INT:
+    case DEX_INS_MUL_INT_LIT16:
+    case DEX_INS_DIV_INT_LIT16:
+    case DEX_INS_REM_INT_LIT16:
+    case DEX_INS_AND_INT_LIT16:
+    case DEX_INS_OR_INT_LIT16:
+    case DEX_INS_XOR_INT_LIT16:
+    case DEX_INS_ADD_INT_LIT8:
+    case DEX_INS_RSUB_INT_LIT8:
+    case DEX_INS_MUL_INT_LIT8:
+    case DEX_INS_DIV_INT_LIT8:
+    case DEX_INS_REM_INT_LIT8:
+    case DEX_INS_AND_INT_LIT8:
+    case DEX_INS_OR_INT_LIT8:
+    case DEX_INS_XOR_INT_LIT8:
+        dex_binop_lit_expression(exp, ins);
+        break;
+    case DEX_INS_INVOKE_POLYMORPHIC:
+        dex_invoke_polymorphic_expression(exp, ins);
+        break;
+    case DEX_INS_INVOKE_POLYMORPHIC_RANGE:
+        dex_invoke_polymorphic_range_expression(exp, ins);
+        break;
+    case DEX_INS_INVOKE_CUSTOM:
+        dex_invoke_custom_expression(exp, ins);
+        break;
+    case DEX_INS_INVOKE_CUSTOM_RANGE:
+        dex_invoke_custom_range_expression(exp, ins);
+        break;
+    case DEX_INS_COPY_BASIC_BLOCK:
+    case DEX_INS_COPY_BASIC_BLOCK_GOTO:
+        dex_copy_block(ins);
+        break;
+    default:
+        build_empty_expression(exp, ins);
+        break;
     }
 }
 
@@ -1410,7 +1473,8 @@ static void dex_copy_block(jd_dex_ins *copy)
 {
     list_object *list = copy->extra;
     jd_method *m = copy->method;
-    for (int i = 0; i < list->size; ++i) {
+    for (int i = 0; i < list->size; ++i)
+    {
         jd_dex_ins *ins = lget_obj(list, i);
         jd_exp *exp = make_obj(jd_exp);
         exp->idx = m->expressions->size;
@@ -1431,13 +1495,15 @@ void dex_instruction_to_expression(jd_method *m)
     m->lambdas = linit_object();
     m->declarations = bitset_create();
 
-    for (int i = 0; i < m->instructions->size; ++i) {
+    for (int i = 0; i < m->instructions->size; ++i)
+    {
         jd_dex_ins *ins = get_ins(m, i);
 
         if (ins->expression != NULL)
             continue;
 
-        if (ins_is_copy_block(ins) ) {
+        if (ins_is_copy_block(ins))
+        {
             // dex_copy_block(ins);
         }
 

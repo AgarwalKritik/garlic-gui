@@ -11,7 +11,8 @@
 static inline bool basic_block_is_single_enter(jd_bblock *block)
 {
     int count = 0;
-    for (int i = 0; i < block->in->size; ++i) {
+    for (int i = 0; i < block->in->size; ++i)
+    {
         jd_edge *edge = lget_obj(block->in, i);
         jd_bblock *source = edge->source_block;
         if (!basic_block_is_normal_live(source))
@@ -30,7 +31,8 @@ static inline bool basic_block_is_single_enter(jd_bblock *block)
 
 static int switch_key_by_offset(jd_exp_switch *exp_switch, uint32_t offset)
 {
-    for (int i = 0; i < exp_switch->targets->size; ++i) {
+    for (int i = 0; i < exp_switch->targets->size; ++i)
+    {
         jd_switch_param *param = lget_obj(exp_switch->targets, i);
         if (param->offset == offset)
             return param->ikey;
@@ -41,8 +43,10 @@ static int switch_key_by_offset(jd_exp_switch *exp_switch, uint32_t offset)
 static void buble_sort_basic_blocks(list_object *blocks)
 {
     int size = blocks->size;
-    for (int i = 0; i < size - 1; ++i) {
-        for (int j = 0; j < size - 1-i; ++j) {
+    for (int i = 0; i < size - 1; ++i)
+    {
+        for (int j = 0; j < size - 1 - i; ++j)
+        {
             jd_bblock *b1 = lget_obj(blocks, j);
             jd_bblock *b2 = lget_obj(blocks, j + 1);
             if (b1->ub->nblock->start_idx - b2->ub->nblock->start_idx > 0)
@@ -54,7 +58,8 @@ static void buble_sort_basic_blocks(list_object *blocks)
 static int basic_blocks_max_idx(list_object *blocks)
 {
     int max_idx = -1;
-    for (int i = 0; i < blocks->size; ++i) {
+    for (int i = 0; i < blocks->size; ++i)
+    {
         jd_bblock *basic_block = lget_obj(blocks, i);
         jd_nblock *nblock = basic_block->ub->nblock;
         if (max_idx < nblock->end_idx)
@@ -65,7 +70,8 @@ static int basic_blocks_max_idx(list_object *blocks)
 
 static bool case_target_exist(jd_switch *sw, jd_exp *target_exp)
 {
-    for (int i = 0; i < sw->cases->size; ++i) {
+    for (int i = 0; i < sw->cases->size; ++i)
+    {
         jd_case *c = lget_obj(sw->cases, i);
         if (c->start_idx == target_exp->idx)
             return true;
@@ -75,7 +81,8 @@ static bool case_target_exist(jd_switch *sw, jd_exp *target_exp)
 
 static bool node_is_loop_start(jd_method *m, jd_node *node)
 {
-    for (int i = 0; i < m->loops->size; ++i) {
+    for (int i = 0; i < m->loops->size; ++i)
+    {
         jd_loop *loop = lget_obj(m->loops, i);
         jd_node *n = loop->node;
         if (n->start_idx == node->start_idx &&
@@ -96,10 +103,12 @@ static bool node_is_continue_or_break(jd_method *m, jd_exp *exp, jd_node *t)
 {
     bool is_loop = false;
     jd_node *loop_node = NULL;
-    for (int i = 0; i < m->loops->size; ++i) {
+    for (int i = 0; i < m->loops->size; ++i)
+    {
         jd_loop *loop = lget_obj(m->loops, i);
         jd_node *n = loop->node;
-        if (n->start_idx == t->start_idx) {
+        if (n->start_idx == t->start_idx)
+        {
             is_loop = true;
             loop_node = n;
             break;
@@ -125,11 +134,14 @@ static bool node_is_continue_or_break(jd_method *m, jd_exp *exp, jd_node *t)
 
 static bool block_is_loop_condition(jd_method *m, jd_node *n, jd_bblock *b)
 {
-    if (node_is_loop(n)) {
+    if (node_is_loop(n))
+    {
         jd_loop *loop = NULL;
-        for (int i = 0; i < m->loops->size; ++i) {
+        for (int i = 0; i < m->loops->size; ++i)
+        {
             jd_loop *l = lget_obj(m->loops, i);
-            if (l->node == n) {
+            if (l->node == n)
+            {
                 loop = l;
                 break;
             }
@@ -141,22 +153,24 @@ static bool block_is_loop_condition(jd_method *m, jd_node *n, jd_bblock *b)
 
 static bool branch_exist(jd_method *m, jd_bblock *block)
 {
-//    jd_node *n = block->node;
-//    jd_node *parent = n->parent;
-//    if (parent != NULL &&
-//        node_is_if(parent) &&
-//        lget_obj_first(parent->children) == n) {
-//        return true;
-//    }
+    //    jd_node *n = block->node;
+    //    jd_node *parent = n->parent;
+    //    if (parent != NULL &&
+    //        node_is_if(parent) &&
+    //        lget_obj_first(parent->children) == n) {
+    //        return true;
+    //    }
 
-    for (int i = 0; i < m->branches->size; ++i) {
+    for (int i = 0; i < m->branches->size; ++i)
+    {
         jd_if_branch *branch = lget_obj(m->branches, i);
         jd_node *node = branch->node;
 
         if (branch->start_block == block)
             return true;
 
-        for (int j = 0; j < node->children->size; ++j) {
+        for (int j = 0; j < node->children->size; ++j)
+        {
             jd_node *c = lget_obj(node->children, j);
             if (c->type == JD_NODE_BASIC_BLOCK && c == block->node)
                 return true;
@@ -177,7 +191,8 @@ static bool switch_exist(jd_method *m, jd_bblock *block)
     jd_node *parent = n->parent;
     if (parent != NULL &&
         node_is_switch(parent) &&
-        lget_obj_first(parent->children) == n) {
+        lget_obj_first(parent->children) == n)
+    {
         return true;
     }
     return false;
@@ -186,7 +201,8 @@ static bool switch_exist(jd_method *m, jd_bblock *block)
 static int switch_max_idx(jd_switch *sw)
 {
     int max_idx = sw->start_idx;
-    for (int i = 0; i < sw->cases->size; ++i) {
+    for (int i = 0; i < sw->cases->size; ++i)
+    {
         jd_case *c = lget_obj(sw->cases, i);
         if (c->start_idx == 0)
             continue;
@@ -198,7 +214,8 @@ static int switch_max_idx(jd_switch *sw)
 
 static void remove_single_true_node(jd_method *m)
 {
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_not_if(node) && node_is_not_else_if(node))
             continue;
@@ -215,7 +232,8 @@ static void remove_single_true_node(jd_method *m)
 
         size_t index = lfind_object(node->children, if_true_node);
         ldel_obj(node->children, if_true_node);
-        for (int j = 0; j < if_true_node->children->size; ++j) {
+        for (int j = 0; j < if_true_node->children->size; ++j)
+        {
             jd_node *child = lget_obj(if_true_node->children, j);
             ladd_obj_at(node->children, child, index + j);
             child->parent = node;
@@ -226,7 +244,8 @@ static void remove_single_true_node(jd_method *m)
 static void remove_single_false_node(jd_method *m)
 {
     // TODO: there are lots of magic number here, need explain
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_not_if(node) && node_is_not_else_if(node))
             continue;
@@ -235,7 +254,8 @@ static void remove_single_false_node(jd_method *m)
             continue;
         size_t index = lfind_object(node->children, if_false_node);
         ldel_obj(node->children, if_false_node);
-        for (int j = 0; j < if_false_node->children->size; ++j) {
+        for (int j = 0; j < if_false_node->children->size; ++j)
+        {
             jd_node *child = lget_obj(if_false_node->children, j);
             ladd_obj_at(node->children, child, index + j);
             child->parent = node;
@@ -252,7 +272,8 @@ static void remove_single_node_of_if_branch(jd_method *m)
 
 void remove_empty_if_else_of_method(jd_method *m)
 {
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *if_node = lget_obj(m->nodes, i);
         if (node_is_not_if(if_node))
             continue;
@@ -265,32 +286,37 @@ void remove_empty_if_else_of_method(jd_method *m)
         if (else_node == NULL)
             continue;
 
-        if (node_valid_children_count(else_node) == 0) {
+        if (node_valid_children_count(else_node) == 0)
+        {
             ldel_obj(parent->children, else_node);
         }
 
-        if (node_valid_children_count(if_node) == 1) {
-             ldel_obj(parent->children, else_node);
-             for (int j = 0; j < else_node->children->size; ++j) {
-                 jd_node *c = lget_obj(else_node->children, j);
-                 ladd_obj(if_node->children, c);
-                 c->parent = if_node;
-             }
-             jd_exp *if_exp = get_exp(m, if_node->end_idx);
-             if (!exp_is_if(if_exp)) {
-                 DEBUG_PRINT("[remove empty if error] -------->\n");
-                 continue;
-             }
-             jd_exp_if *exp_if = if_exp->data;
-             jd_exp *condition = exp_if->expression;
-             make_logic_not(condition);
-         }
+        if (node_valid_children_count(if_node) == 1)
+        {
+            ldel_obj(parent->children, else_node);
+            for (int j = 0; j < else_node->children->size; ++j)
+            {
+                jd_node *c = lget_obj(else_node->children, j);
+                ladd_obj(if_node->children, c);
+                c->parent = if_node;
+            }
+            jd_exp *if_exp = get_exp(m, if_node->end_idx);
+            if (!exp_is_if(if_exp))
+            {
+                DEBUG_PRINT("[remove empty if error] -------->\n");
+                continue;
+            }
+            jd_exp_if *exp_if = if_exp->data;
+            jd_exp *condition = exp_if->expression;
+            make_logic_not(condition);
+        }
     }
 }
 
 void identify_else_if_of_method(jd_method *m)
 {
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_not_if(node) && node_is_not_else_if(node))
             continue;
@@ -307,10 +333,10 @@ void identify_else_if_of_method(jd_method *m)
             first_child != last_child)
             continue;
 
-//        jd_exp *exp = get_exp(m, first_child->start_idx);
+        //        jd_exp *exp = get_exp(m, first_child->start_idx);
         jd_exp *exp = next_valid_exp(m, first_child->start_idx);
-//        if (exp_is_nopped(exp))
-//            exp = next_valid_exp(m, exp->idx);
+        //        if (exp_is_nopped(exp))
+        //            exp = next_valid_exp(m, exp->idx);
         if (!exp_is_if(exp))
             continue;
 
@@ -328,7 +354,8 @@ void identify_else_if_of_method(jd_method *m)
         ldel_obj(if_true_node->children, first_child);
         ldel_obj(m->nodes, first_child);
         i--;
-        for (int j = 0; j < first_child->children->size; ++j) {
+        for (int j = 0; j < first_child->children->size; ++j)
+        {
             jd_node *b = lget_obj(first_child->children, j);
             ladd_obj(if_true_node->children, b);
             b->parent = if_true_node;
@@ -338,7 +365,8 @@ void identify_else_if_of_method(jd_method *m)
 
 void identify_else_of_method(jd_method *m)
 {
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_not_if(node) && node_is_not_else_if(node))
             continue;
@@ -359,12 +387,13 @@ void identify_else_of_method(jd_method *m)
     }
 }
 
-static jd_node* basic_blocks_to_node(list_object *blocks)
+static jd_node *basic_blocks_to_node(list_object *blocks)
 {
     jd_node *node = make_obj(jd_node);
-    int32_t min_start_idx   = -1;
-    int32_t max_end_idx     = -1;
-    for (int i = 0; i < blocks->size; ++i) {
+    int32_t min_start_idx = -1;
+    int32_t max_end_idx = -1;
+    for (int i = 0; i < blocks->size; ++i)
+    {
         jd_bblock *basic_block = lget_obj(blocks, i);
         jd_node *n = basic_block->node;
         if (max_end_idx == -1 || max_end_idx < n->end_idx)
@@ -384,7 +413,8 @@ void add_basic_blocks_to_node(jd_method *m,
                               list_object *blocks,
                               jd_bblock *skip)
 {
-    for (int i = 0; i < blocks->size; ++i) {
+    for (int i = 0; i < blocks->size; ++i)
+    {
         jd_bblock *block = lget_obj(blocks, i);
         jd_node *n = block->node;
         if (block == skip)
@@ -392,19 +422,21 @@ void add_basic_blocks_to_node(jd_method *m,
         if (!node_is_ancestor_of(parent, n))
             continue;
 
-        if (n->parent != parent) {
+        if (n->parent != parent)
+        {
             while (n->parent != NULL &&
-                    n->parent != parent) {
-                    n = n->parent;
-                    DEBUG_PRINT("parent_id: %d -> %s, "
-                                "current: %d -> %s, "
-                                "child_id: %d -> %s\n",
-                                parent->node_id,
-                                node_name(parent),
-                                node->node_id,
-                                node_name(node),
-                                n->node_id,
-                                node_name(n));
+                   n->parent != parent)
+            {
+                n = n->parent;
+                DEBUG_PRINT("parent_id: %d -> %s, "
+                            "current: %d -> %s, "
+                            "child_id: %d -> %s\n",
+                            parent->node_id,
+                            node_name(parent),
+                            node->node_id,
+                            node_name(node),
+                            n->node_id,
+                            node_name(n));
             }
             if (n == node)
                 continue;
@@ -417,7 +449,7 @@ void add_basic_blocks_to_node(jd_method *m,
     node->parent = parent;
 }
 
-static jd_node* if_branch_to_node(jd_method *m,
+static jd_node *if_branch_to_node(jd_method *m,
                                   jd_node *parent,
                                   jd_if_branch *branch)
 {
@@ -438,7 +470,8 @@ static jd_node* if_branch_to_node(jd_method *m,
     ldel_obj(parent->children, block->node);
     ldel_obj(m->nodes, block->node);
 
-    for (int i = nb->start_idx; i < nb->end_idx ; ++i) {
+    for (int i = nb->start_idx; i < nb->end_idx; ++i)
+    {
         jd_exp *e = get_exp(m, i);
         if (exp_is_nopped(e) || exp_is_empty(e))
             continue;
@@ -453,8 +486,8 @@ static jd_node* if_branch_to_node(jd_method *m,
     last_exp_node->parent = if_node;
     ladd_obj(if_node->children, last_exp_node);
 
-
-    if (!is_list_empty(branch->true_blocks)) {
+    if (!is_list_empty(branch->true_blocks))
+    {
         if_true_node = basic_blocks_to_node(branch->true_blocks);
         if_true_node->type = JD_NODE_IF_TRUE;
         if_true_node->children = linit_object();
@@ -472,7 +505,8 @@ static jd_node* if_branch_to_node(jd_method *m,
         ladd_obj(m->nodes, if_true_node);
     }
 
-    if (!is_list_empty(branch->false_blocks)) {
+    if (!is_list_empty(branch->false_blocks))
+    {
         if_false_node = basic_blocks_to_node(branch->false_blocks);
         if_false_node->type = JD_NODE_IF_FALSE;
         if_false_node->children = linit_object();
@@ -497,7 +531,7 @@ static jd_node* if_branch_to_node(jd_method *m,
     return if_node;
 }
 
-static jd_node* switch_to_node(jd_method *m, jd_node *parent, jd_switch *sw)
+static jd_node *switch_to_node(jd_method *m, jd_node *parent, jd_switch *sw)
 {
     jd_node *switch_node = make_obj(jd_node);
     switch_node->type = JD_NODE_SWITCH;
@@ -518,9 +552,8 @@ static jd_node* switch_to_node(jd_method *m, jd_node *parent, jd_switch *sw)
     ldel_obj(parent->children, block->node);
     ldel_obj(m->nodes, block->node);
 
-
-
-    for (int i = nb->start_idx; i < nb->end_idx; ++i) {
+    for (int i = nb->start_idx; i < nb->end_idx; ++i)
+    {
         jd_exp *e = get_exp(m, i);
         if (exp_is_nopped(e) || exp_is_empty(e))
             continue;
@@ -531,8 +564,8 @@ static jd_node* switch_to_node(jd_method *m, jd_node *parent, jd_switch *sw)
     jd_node *last_exp_node = create_expression_node(m, last);
     ladd_obj(switch_node->children, last_exp_node);
 
-
-    for (int i = 0; i < sw->cases->size; ++i) {
+    for (int i = 0; i < sw->cases->size; ++i)
+    {
         jd_case *c = lget_obj(sw->cases, i);
         if (c->blocks == NULL)
             continue;
@@ -560,12 +593,13 @@ static bool identify_branches_recursive(jd_method *m, jd_node *node);
 static void debug_switch_target_offset(jd_method *m, jd_exp *exp, jd_ins *ins)
 {
     jd_exp_switch *exp_switch = exp->data;
-    for (int i = 0; i < ins->targets->size; ++i) {
+    for (int i = 0; i < ins->targets->size; ++i)
+    {
         jd_ins *target_start_ins = lget_obj(ins->targets, i);
         uint32_t jump_off = target_start_ins->offset;
         int key = switch_key_by_offset(exp_switch, jump_off);
-        printf("target_start_ins: %d offset: %d\n", 
-                key, target_start_ins->offset);
+        printf("target_start_ins: %d offset: %d\n",
+               key, target_start_ins->offset);
     }
 }
 
@@ -590,7 +624,8 @@ static bool identify_switch_branches(jd_method *m, jd_node *node, jd_bblock *b)
     jd_bblock *dominates_block = NULL;
 
     int default_block_after_switch = 0;
-    for (int j = 0; j < end_ins->targets->size; ++j) {
+    for (int j = 0; j < end_ins->targets->size; ++j)
+    {
         jd_ins *target_start_ins = lget_obj(end_ins->targets, j);
         jd_exp *target_start_exp = target_start_ins->expression;
         jd_bblock *target = exp_block(target_start_exp);
@@ -611,7 +646,8 @@ static bool identify_switch_branches(jd_method *m, jd_node *node, jd_bblock *b)
         uint32_t jump_off = target_start_ins->offset;
         case_block->key = switch_key_by_offset(exp_switch, jump_off);
 
-        if (target_start_ins->offset < end_ins->offset) {
+        if (target_start_ins->offset < end_ins->offset)
+        {
             DEBUG_PRINT("[switch] case b jump "
                         "goto_offset %d < switch end ins "
                         "goto_offset %d, empty it\n",
@@ -628,7 +664,8 @@ static bool identify_switch_branches(jd_method *m, jd_node *node, jd_bblock *b)
         case_block->start_idx = target_start_exp->idx;
         case_block->block = target;
         compute_dominates_block(m, target);
-        for (int k = 0; k < target->dominates->size; ++k) {
+        for (int k = 0; k < target->dominates->size; ++k)
+        {
             dominates_block = lget_obj(target->dominates, k);
             if (!basic_block_is_normal_live(dominates_block))
                 continue;
@@ -640,14 +677,16 @@ static bool identify_switch_branches(jd_method *m, jd_node *node, jd_bblock *b)
         ladd_obj(sw->cases, case_block);
     }
 
-    if (!default_block_after_switch && default_block != NULL) {
+    if (!default_block_after_switch && default_block != NULL)
+    {
         jd_case *default_case = make_obj(jd_case);
         default_case->blocks = linit_object();
         default_case->block = default_block;
         default_case->start_idx = default_block->ub->nblock->start_idx;
         default_case->is_default = 1;
         compute_dominates_block(m, default_block);
-        for (int k = 0; k < default_block->dominates->size; ++k) {
+        for (int k = 0; k < default_block->dominates->size; ++k)
+        {
             dominates_block = lget_obj(default_block->dominates, k);
             if (!basic_block_is_normal_live(dominates_block))
                 continue;
@@ -675,7 +714,7 @@ static bool identify_switch_branches(jd_method *m, jd_node *node, jd_bblock *b)
     return true;
 }
 
-static jd_if_branch* make_if_branch(jd_bblock *block)
+static jd_if_branch *make_if_branch(jd_bblock *block)
 {
     jd_node *node = block->node;
     jd_if_branch *branch = make_obj(jd_if_branch);
@@ -708,7 +747,7 @@ static bool identify_if_branches(jd_method *m, jd_node *node, jd_bblock *block)
     jd_bblock *false_block = next_exp->block;
 
     jd_node *true_node = true_block->node;
-//    jd_node *false_node = false_block->node;
+    //    jd_node *false_node = false_block->node;
 
     if (true_block == false_block)
         return false;
@@ -717,18 +756,20 @@ static bool identify_if_branches(jd_method *m, jd_node *node, jd_bblock *block)
     branch->if_start_idx = exp->idx;
 
     jd_bblock *dom_block = NULL;
-    if (false_block != NULL) {
+    if (false_block != NULL)
+    {
         compute_dominates_block(m, false_block);
     }
 
-    if (false_block != NULL
-        && basic_block_is_single_enter(false_block)
-        ) {
-        for (int j = 0; j < false_block->dominates->size; ++j) {
+    if (false_block != NULL && basic_block_is_single_enter(false_block))
+    {
+        for (int j = 0; j < false_block->dominates->size; ++j)
+        {
             dom_block = lget_obj(false_block->dominates, j);
             if (!basic_block_is_normal_live(dom_block))
                 continue;
-            if (node_contains_block_v2(node, dom_block)) {
+            if (node_contains_block_v2(node, dom_block))
+            {
                 ladd_obj_no_dup(branch->false_blocks, dom_block);
                 ladd_obj_no_dup(branch->blocks, dom_block);
             }
@@ -741,13 +782,16 @@ static bool identify_if_branches(jd_method *m, jd_node *node, jd_bblock *block)
     if (true_block != NULL &&
         basic_block_is_single_enter(true_block) &&
         !node_is_continue_or_break(m, exp, true_node) &&
-        !if_exp_is_copy_if_true_block(exp)) {
+        !if_exp_is_copy_if_true_block(exp))
+    {
 
-        for (int j = 0; j < true_block->dominates->size; ++j) {
+        for (int j = 0; j < true_block->dominates->size; ++j)
+        {
             dom_block = lget_obj(true_block->dominates, j);
             if (!basic_block_is_normal_live(dom_block))
                 continue;
-            if (node_contains_block_v2(node, dom_block)) {
+            if (node_contains_block_v2(node, dom_block))
+            {
                 ladd_obj_no_dup(branch->true_blocks, dom_block);
                 ladd_obj_no_dup(branch->blocks, dom_block);
             }
@@ -757,7 +801,8 @@ static bool identify_if_branches(jd_method *m, jd_node *node, jd_bblock *block)
     jd_node *if_node = if_branch_to_node(m, node, branch);
     ladd_obj(m->branches, branch);
 
-    for (int j = 0; j < if_node->children->size; ++j) {
+    for (int j = 0; j < if_node->children->size; ++j)
+    {
         jd_node *child = lget_obj(if_node->children, j);
         if (node_is_atomic(child))
             continue;
@@ -770,7 +815,8 @@ static bool identify_branches_recursive(jd_method *m, jd_node *node)
 {
     bool founded = false;
     bool result = false;
-    do {
+    do
+    {
         founded = false;
         for (int i = 0; i < node->children->size; ++i)
         {
@@ -786,11 +832,13 @@ static bool identify_branches_recursive(jd_method *m, jd_node *node)
 
             jd_exp *end_exp = lget_obj(m->expressions, child->end_idx);
 
-            if (exp_is_if(end_exp) && !exp_is_nopped(end_exp)) {
+            if (exp_is_if(end_exp) && !exp_is_nopped(end_exp))
+            {
                 founded = identify_if_branches(m, node, basic_block);
             }
 
-            if (exp_is_switch(end_exp) && !exp_is_nopped(end_exp)) {
+            if (exp_is_switch(end_exp) && !exp_is_nopped(end_exp))
+            {
                 if (switch_exist(m, basic_block))
                     continue;
                 founded = identify_switch_branches(m, node, basic_block);
@@ -810,12 +858,14 @@ static void identify_if_and_switch(jd_method *m)
 {
     m->switches = linit_object();
     m->branches = linit_object();
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_atomic(node))
             continue;
         bool founded = identify_branches_recursive(m, node);
-        if (founded) {
+        if (founded)
+        {
             i--;
         }
     }
@@ -833,5 +883,3 @@ void identify_branches(jd_method *m)
 
     remove_single_node_of_if_branch(m);
 }
-
-

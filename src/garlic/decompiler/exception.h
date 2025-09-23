@@ -16,8 +16,7 @@ void flatten_exceptions(jd_method *m);
 
 void pullin_block_jump_into_exception_try_block(jd_method *m);
 
-jd_exc* closest_exception_of(jd_method *m, uint32_t offset);
-
+jd_exc *closest_exception_of(jd_method *m, uint32_t offset);
 
 // exception sort
 
@@ -49,15 +48,19 @@ static inline int try_end_cmp(jd_exc *e1, jd_exc *e2)
 static inline int try_contains_cmp(jd_exc *e1, jd_exc *e2)
 {
     return e1->try_start <= e2->try_start &&
-           e1->try_end >= e2->try_end ? -1 : 1;
+                   e1->try_end >= e2->try_end
+               ? -1
+               : 1;
 }
 
 static inline int handler_contains_cmp(jd_exc *e1, jd_exc *e2)
 {
     return e1->handler_start <= e2->handler_start &&
-           e1->handler_end >= e2->handler_end ? -1 : 1;
+                   e1->handler_end >= e2->handler_end
+               ? -1
+               : 1;
 }
 
 void buble_sort_cfg_exception(jd_method *m, list_cmp_fn fn);
 
-#endif //GARLIC_EXCEPTION_H
+#endif // GARLIC_EXCEPTION_H

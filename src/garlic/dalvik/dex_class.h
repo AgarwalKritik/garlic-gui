@@ -22,4 +22,4 @@ void dex_class_import(jsource_file *jf);
 
 void dex_fields(jsource_file *jf);
 
-#endif //GARLIC_DEX_CLASS_H
+#endif // GARLIC_DEX_CLASS_H

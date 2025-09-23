@@ -8,6 +8,6 @@
 
 void jvm_collect_descriptor(jsource_file *jf);
 
-jd_descriptor* jvm_descriptor(jsource_file *jf, u2 index);
+jd_descriptor *jvm_descriptor(jsource_file *jf, u2 index);
 
-#endif //GARLIC_JVM_DESCRIPTOR_H
+#endif // GARLIC_JVM_DESCRIPTOR_H

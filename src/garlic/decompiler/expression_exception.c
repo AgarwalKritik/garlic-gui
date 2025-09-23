@@ -3,7 +3,8 @@
 
 void optimize_synchronized_variable(jd_method *m)
 {
-    for (int i = 0; i < m->expressions->size; ++i) {
+    for (int i = 0; i < m->expressions->size; ++i)
+    {
         jd_exp *e = lget_obj(m->expressions, i);
         if (exp_is_nopped(e))
             continue;
@@ -14,44 +15,52 @@ void optimize_synchronized_variable(jd_method *m)
 
 void optimize_exception_block(jd_method *m)
 {
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (!node_is_exception(node))
             continue;
 
         jd_node *parent = node->parent;
         int index = lfind_object(parent->children, node);
-        for (int j = 0; j < node->children->size; ++j) {
+        for (int j = 0; j < node->children->size; ++j)
+        {
             jd_node *child = lget_obj(node->children, j);
             ladd_obj_at(parent->children, child, index + j);
             child->parent = parent;
         }
         ldel_obj(m->nodes, node);
         ldel_obj(parent->children, node);
-        i --;
+        i--;
     }
 }
 
 void identify_empty_exception_blocks(jd_method *m)
 {
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (!node_is_exception(node))
             continue;
 
         bool has_expression = false;
-        for (int j = 0; j < node->children->size; ++j) {
+        for (int j = 0; j < node->children->size; ++j)
+        {
             jd_node *child = lget_obj(node->children, j);
-            for (int k = child->start_idx; k <= child->end_idx; ++k) {
+            for (int k = child->start_idx; k <= child->end_idx; ++k)
+            {
                 jd_exp *e = get_exp(m, k);
-                if (!exp_is_nopped(e)) {
+                if (!exp_is_nopped(e))
+                {
                     has_expression = true;
                 }
             }
-            if (has_expression) break;
+            if (has_expression)
+                break;
         }
 
-        if (!has_expression) {
+        if (!has_expression)
+        {
             ldel_obj(m->nodes, node);
             i--;
         }

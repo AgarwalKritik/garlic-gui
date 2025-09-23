@@ -7,4 +7,4 @@ void identify_do_while_structure_loop(jd_method *m);
 
 void identify_loop_type(jd_method *m);
 
-#endif //GARLIC_EXPRESSION_LOOP_TYPE_H
+#endif // GARLIC_EXPRESSION_LOOP_TYPE_H

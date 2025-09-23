@@ -19,4 +19,3 @@ void exp_iinc_to_stream(FILE *stream, jd_node *node, jd_exp *expression)
     fprintf(stream, " += ");
     expression_to_stream(stream, node, value_exp);
 }
-

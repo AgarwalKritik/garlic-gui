@@ -9,48 +9,49 @@
 #define LAMBDA_CLASS_NAME "java/lang/invoke/LambdaMetafactory"
 #define STRING_CONCAT_CLASS_NAME "java/lang/invoke/StringConcatFactory"
 
-static jd_method_sig* get_method_sig(jclass_file *jc,
+static jd_method_sig *get_method_sig(jclass_file *jc,
                                      jconst_method_handle *handle)
 {
-    switch (handle->reference_kind) {
-        case 5: // REF_invokeVirtual
-        case 6: // REF_invokeStatic
-        case 7: // REF_invokeSpecial
-        case 8: // REF_newInvokeSpecial
-        case 9: // REF_invokeInterface -> CONSTANT_InterfaceMethodref_info
-        {
-            u2 reference_index = handle->reference_index;
-            jcp_info *method_ref_info = pool_item(jc, reference_index);
-            jconst_methodref *method_ref = method_ref_info->info->methodref;
+    switch (handle->reference_kind)
+    {
+    case 5: // REF_invokeVirtual
+    case 6: // REF_invokeStatic
+    case 7: // REF_invokeSpecial
+    case 8: // REF_newInvokeSpecial
+    case 9: // REF_invokeInterface -> CONSTANT_InterfaceMethodref_info
+    {
+        u2 reference_index = handle->reference_index;
+        jcp_info *method_ref_info = pool_item(jc, reference_index);
+        jconst_methodref *method_ref = method_ref_info->info->methodref;
 
-            u2 class_index = method_ref->class_index;
-            u2 nt_index = method_ref->name_and_type_index;
-            jcp_info *class_info = pool_item(jc, class_index);
-            jcp_info *name_info = pool_item(jc, nt_index);
-            jconst_name_and_type *name_type = name_info->info->name_and_type;
-            jcp_info *name = pool_item(jc, name_type->name_index);
-            jconst_utf8 *name_utf8 = name->info->utf8;
+        u2 class_index = method_ref->class_index;
+        u2 nt_index = method_ref->name_and_type_index;
+        jcp_info *class_info = pool_item(jc, class_index);
+        jcp_info *name_info = pool_item(jc, nt_index);
+        jconst_name_and_type *name_type = name_info->info->name_and_type;
+        jcp_info *name = pool_item(jc, name_type->name_index);
+        jconst_utf8 *name_utf8 = name->info->utf8;
 
-            u2 d = name_type->descriptor_index;
-            jd_descriptor *descriptor = jvm_descriptor(jc->jfile, d);
+        u2 d = name_type->descriptor_index;
+        jd_descriptor *descriptor = jvm_descriptor(jc->jfile, d);
 
-            jd_method_sig *method_sig = make_obj(jd_method_sig);
-            size_t len = be16toh(name_utf8->length);
-            method_sig->name = x_alloc(len + 1);
-            memcpy(method_sig->name, name_utf8->bytes, len);
-            method_sig->name[len] = '\0';
-            method_sig->kind = handle->reference_kind;
-            method_sig->class_name = get_class_name(jc, class_info);
-            method_sig->descriptor = descriptor;
+        jd_method_sig *method_sig = make_obj(jd_method_sig);
+        size_t len = be16toh(name_utf8->length);
+        method_sig->name = x_alloc(len + 1);
+        memcpy(method_sig->name, name_utf8->bytes, len);
+        method_sig->name[len] = '\0';
+        method_sig->kind = handle->reference_kind;
+        method_sig->class_name = get_class_name(jc, class_info);
+        method_sig->descriptor = descriptor;
 
-            return method_sig;
-        }
-        default:
-            return NULL;
+        return method_sig;
+    }
+    default:
+        return NULL;
     }
 }
 
-jclass_bootstrap_method* get_bootstrap_method_attr(jd_ins *ins)
+jclass_bootstrap_method *get_bootstrap_method_attr(jd_ins *ins)
 {
     jclass_file *jc = ins->method->meta;
     jattr_bootstrap_methods *bootstrap_methods_attr = NULL;
@@ -58,11 +59,12 @@ jclass_bootstrap_method* get_bootstrap_method_attr(jd_ins *ins)
     jcp_info *info = pool_item(ins->method->meta, index);
     jconst_invoke_dynamic *dynamic = info->info->invoke_dynamic;
 
-    for (int i = 0; i < be16toh(jc->attributes_count); ++i) {
+    for (int i = 0; i < be16toh(jc->attributes_count); ++i)
+    {
         jattr *attr = &jc->attributes[i];
         if (!STR_EQL(attr->name, "BootstrapMethods"))
             continue;
-        bootstrap_methods_attr = (jattr_bootstrap_methods*)attr->info;
+        bootstrap_methods_attr = (jattr_bootstrap_methods *)attr->info;
     }
     if (bootstrap_methods_attr == NULL)
         return NULL;
@@ -71,7 +73,7 @@ jclass_bootstrap_method* get_bootstrap_method_attr(jd_ins *ins)
     return &bootstrap_methods_attr->bootstrap_methods[method_index];
 }
 
-jd_method_sig* get_method_sig_of_ins(jd_ins *ins)
+jd_method_sig *get_method_sig_of_ins(jd_ins *ins)
 {
     jd_method *m = ins->method;
     jclass_bootstrap_method *attr = get_bootstrap_method_attr(ins);
@@ -103,9 +105,11 @@ bool method_sig_is_str_concat(jd_method_sig *method_sig)
            STR_EQL(method_sig->class_name, STRING_CONCAT_CLASS_NAME);
 }
 
-static inline int next_marker(string str, int start) {
+static inline int next_marker(string str, int start)
+{
     int i = start;
-    while (i < strlen(str)) {
+    while (i < strlen(str))
+    {
         if (str[i] == '\x01' || str[i] == '\x02')
             return i;
         ++i;
@@ -113,22 +117,24 @@ static inline int next_marker(string str, int start) {
     return -1;
 }
 
-static int get_concat_exp_size(string pattern, 
-                            int constants_num, int args_num)
+static int get_concat_exp_size(string pattern,
+                               int constants_num, int args_num)
 {
     if (constants_num > 1)
         return strlen(pattern);
 
     int size = 0;
     int i = 0;
-    while (i < strlen(pattern)) {
+    while (i < strlen(pattern))
+    {
         int next_marker_index = next_marker(pattern, i);
-        if (next_marker_index == -1) {
-            size ++;
+        if (next_marker_index == -1)
+        {
+            size++;
             break;
         }
         if (i < next_marker_index)
-            size ++;
+            size++;
         i = next_marker_index + 1;
     }
     return size + args_num;
@@ -145,11 +151,13 @@ void identify_string_concat_expression(jd_method *m, jd_exp *exp)
         return;
 
     jd_exp *invoke = NULL;
-    if (exp_is_assignment(exp)) {
+    if (exp_is_assignment(exp))
+    {
         jd_exp_assignment *assignment = exp->data;
         invoke = assignment->right;
     }
-    else {
+    else
+    {
         invoke = exp;
     }
     jd_exp_reader *reader = invoke->data;
@@ -166,17 +174,20 @@ void identify_string_concat_expression(jd_method *m, jd_exp *exp)
     exp_concat->list = make_exp_list(list_size);
     int exp_index = 0;
 
-    if (constants_num == 1) {
+    if (constants_num == 1)
+    {
         // constants_num == 1
         // means that the first argument is a constant string with patten
         // and marker always be '\x01'
         int i = 0;
         int argument_index = 0;
-        while (i < argument_len) {
+        while (i < argument_len)
+        {
             int next_marker_index = next_marker(pattern, i);
 
             if (next_marker_index == -1 &&
-                argument_index >= args_list->len) {
+                argument_index >= args_list->len)
+            {
                 string tmp = sub_str(pattern, i, argument_len);
 
                 jd_exp *concat_item = &exp_concat->list->args[exp_index];
@@ -187,7 +198,8 @@ void identify_string_concat_expression(jd_method *m, jd_exp *exp)
                 break;
             }
             size_t len = next_marker_index - i + 1;
-            if (len > 1) {
+            if (len > 1)
+            {
                 string tmp = sub_str(pattern, i, next_marker_index - 1);
                 jd_exp *concat_item = &exp_concat->list->args[exp_index];
                 build_string_exp(concat_item, tmp);
@@ -199,24 +211,29 @@ void identify_string_concat_expression(jd_method *m, jd_exp *exp)
             memcpy(&exp_concat->list->args[exp_index], arg, sizeof(jd_exp));
 
             exp_index++;
-            argument_index ++;
+            argument_index++;
             i = next_marker_index + 1;
         }
     }
-    else {
+    else
+    {
         int i = 0;
         int argument_index = 0;
         int constant_index = 1;
 
-        while (i < argument_len) {
+        while (i < argument_len)
+        {
             int next_marker_index = next_marker(pattern, i);
             char marker = pattern[next_marker_index];
-            if (marker == '\x01') {
+            if (marker == '\x01')
+            {
                 jd_exp *arg = &args_list->args[argument_index];
                 jd_exp *concat_item = &exp_concat->list->args[exp_index];
                 memcpy(concat_item, arg, sizeof(jd_exp));
                 argument_index++;
-            } else {
+            }
+            else
+            {
                 u2 _index = b_method->bootstrap_arguments[constant_index];
                 jcp_info *_arg_info = pool_item(m->meta, _index);
                 string str = _arg_info->readable;
@@ -231,10 +248,9 @@ void identify_string_concat_expression(jd_method *m, jd_exp *exp)
 
     invoke->type = JD_EXPRESSION_STRING_CONCAT;
     invoke->data = exp_concat;
-
 }
 
-jd_lambda* identify_lambda_expression(jd_method *m, jd_exp *exp)
+jd_lambda *identify_lambda_expression(jd_method *m, jd_exp *exp)
 {
     if (!exp_is_invokedynamic(exp))
         return NULL;

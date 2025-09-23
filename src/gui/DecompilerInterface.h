@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QPointer>
 
 class DecompilerInterface : public QObject
 {
@@ -10,6 +11,7 @@ class DecompilerInterface : public QObject
 
 public:
     explicit DecompilerInterface(QObject *parent = nullptr);
+    ~DecompilerInterface();
 
     void decompileFile(const QString &inputPath);
     QString getOutputDirectory() const;

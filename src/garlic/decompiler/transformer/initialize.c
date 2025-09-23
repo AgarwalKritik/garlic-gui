@@ -9,9 +9,11 @@ string exp_initialize_to_s(jd_exp *expression)
     memset(result, 0, size);
     snprintf(result, size, "new %s", initialize->class_name);
     strcat(result, "(");
-    if (initialize->list->len > 0) {
+    if (initialize->list->len > 0)
+    {
         size_t old_size = size;
-        for (int i = 0; i < initialize->list->len; ++i) {
+        for (int i = 0; i < initialize->list->len; ++i)
+        {
             string s = exp_to_s(&initialize->list->args[i]);
             size = size + strlen(s) + 2;
             result = x_realloc(result, old_size, size);
@@ -26,15 +28,16 @@ string exp_initialize_to_s(jd_exp *expression)
     return result;
 }
 
-
 void exp_initialize_to_stream(FILE *stream, jd_node *node, jd_exp *expression)
 {
     jd_exp_initialize *initialize = expression->data;
     fprintf(stream, "new %s(", initialize->class_name);
 
     jd_exp_list *list = initialize->list;
-    if (list->len > 0) {
-        for (int i = 0; i < initialize->list->len; ++i) {
+    if (list->len > 0)
+    {
+        for (int i = 0; i < initialize->list->len; ++i)
+        {
             expression_to_stream(stream, node, &list->args[i]);
             if (i != list->len - 1)
                 fprintf(stream, ", ");

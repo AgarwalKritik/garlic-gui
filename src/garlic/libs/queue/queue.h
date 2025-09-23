@@ -7,16 +7,18 @@
 #include "types.h"
 #include "mem_pool.h"
 
-typedef struct queue_entry {
-    object              data;
+typedef struct queue_entry
+{
+    object data;
     struct queue_entry *next;
     struct queue_entry *prev;
 } queue_entry;
 
-typedef struct {
-    queue_entry    *head;
-    queue_entry    *tail;
-    size_t          size;
+typedef struct
+{
+    queue_entry *head;
+    queue_entry *tail;
+    size_t size;
 } queue_object;
 
 void queue_clear_object(queue_object *queue);
@@ -28,6 +30,4 @@ object queue_peek_object(queue_object *queue);
 object queue_remove_object(queue_object *queue, object element);
 bool queue_empty(queue_object *queue);
 
-
-
-#endif //GARLIC_QUEUE_H
+#endif // GARLIC_QUEUE_H

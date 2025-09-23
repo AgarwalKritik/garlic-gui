@@ -5,4 +5,4 @@
 
 bool identify_array_initialize(jd_method *m);
 
-#endif //GARLIC_EXPRESSION_ARRAY_H
+#endif // GARLIC_EXPRESSION_ARRAY_H

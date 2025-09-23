@@ -5,8 +5,8 @@
 
 bool match_dex_debug(jd_method *m, jd_dex_ins *ins, jd_val *val, int slot)
 {
-//    if (ins == NULL)
-//        return false;
+    //    if (ins == NULL)
+    //        return false;
 
     jd_dex *dex = m->meta;
     jd_meta_dex *meta = dex->meta;
@@ -19,16 +19,19 @@ bool match_dex_debug(jd_method *m, jd_dex_ins *ins, jd_val *val, int slot)
     if (debug_info == NULL)
         return false;
 
-    if (ins == NULL) {
+    if (ins == NULL)
+    {
         int max = m->max_locals;
         int start = max - m->desc->list->size;
-        for (int i = 0; i < debug_info->parameters_size; ++i) {
+        for (int i = 0; i < debug_info->parameters_size; ++i)
+        {
             u4 name_idx = debug_info->parameter_name[i];
             if (name_idx == NO_INDEX)
                 continue;
             int s = slot - start;
             s = method_is_member(m) ? s - 1 : s;
-            if (s == i) {
+            if (s == i)
+            {
                 string name = dex_str_of_idx(meta, name_idx);
                 val->name = name;
                 return true;
@@ -44,13 +47,15 @@ bool match_dex_debug(jd_method *m, jd_dex_ins *ins, jd_val *val, int slot)
     if (next != NULL && dex_ins_is_check_cast(next))
         next = next->next;
 
-    for (int i = 0; i < debug_info->dbg_size; ++i) {
+    for (int i = 0; i < debug_info->dbg_size; ++i)
+    {
         dex_dbg_item *item = &debug_info->items[i];
 
         if (item->reg_num == slot &&
             next != NULL &&
             next->offset == item->offset &&
-            item->name_idx != NO_INDEX) {
+            item->name_idx != NO_INDEX)
+        {
             string name = dex_str_of_idx(meta, item->name_idx);
             DEBUG_PRINT("\t[MATCH_DBG_ITEM]: %d %d %s\n",
                         item->offset, item->reg_num, name);
@@ -73,7 +78,8 @@ bool match_dex_parameter(jd_method *m, jd_stack *stack)
     if (debug_info == NULL)
         return false;
     int param_itor = m->max_locals - 1;
-    for (int i = 0; i < debug_info->parameters_size; ++i) {
+    for (int i = 0; i < debug_info->parameters_size; ++i)
+    {
         u4 name_idx = debug_info->parameter_name[i];
         if (name_idx == NO_INDEX)
             continue;

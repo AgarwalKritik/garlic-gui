@@ -6,19 +6,21 @@
 #include "decompiler/descriptor.h"
 #include "decompiler/field.h"
 
-bool dex_class_is_synthetic(jd_meta_dex *meta, dex_class_def *def) {
-    if (def->class_data_off == 0) {
+bool dex_class_is_synthetic(jd_meta_dex *meta, dex_class_def *def)
+{
+    if (def->class_data_off == 0)
+    {
         return false;
     }
 
     dex_class_data_item *data = def->class_data;
-    if (data == NULL) {
+    if (data == NULL)
+    {
         return false;
     }
 
     string name = dex_str_of_type_id(meta, def->class_idx);
-    return 
-           (def->access_flags & ACC_DEX_SYNTHETIC) != 0 &&
+    return (def->access_flags & ACC_DEX_SYNTHETIC) != 0 &&
            (def->access_flags & ACC_DEX_FINAL) != 0;
 }
 
@@ -74,8 +76,7 @@ void dex_class_access_flag(jsource_file *jf, str_list *list)
         str_concat(list, "public ");
     if (access_flags_contains(def->access_flags, ACC_DEX_FINAL))
         str_concat(list, "final ");
-    if (access_flags_contains(def->access_flags, ACC_DEX_ABSTRACT) && !
-            access_flags_contains(def->access_flags, ACC_DEX_INTERFACE))
+    if (access_flags_contains(def->access_flags, ACC_DEX_ABSTRACT) && !access_flags_contains(def->access_flags, ACC_DEX_INTERFACE))
         str_concat(list, "abstract ");
     if (access_flags_contains(def->access_flags, ACC_DEX_SYNTHETIC))
         str_concat(list, "synthetic ");
@@ -95,7 +96,8 @@ void dex_class_annotations(jsource_file *jf)
 
     dex_class_annotation(jf);
 
-    for (int i = 0; i < jf->fields_count; ++i) {
+    for (int i = 0; i < jf->fields_count; ++i)
+    {
         jd_field *field = &jf->fields[i];
         dex_field_annotation(dex->meta, field, cf);
     }
@@ -108,27 +110,32 @@ void dex_class_annotations(jsource_file *jf)
 
 void dex_class_import(jsource_file *jf)
 {
-    for (int i = 0; i < jf->annotations->size; ++i) {
+    for (int i = 0; i < jf->annotations->size; ++i)
+    {
         jd_annotation *annotation = lget_obj(jf->annotations, i);
         class_import(jf, annotation->fname);
     }
 
-    for (int i = 0; i < jf->fields_count; ++i) {
+    for (int i = 0; i < jf->fields_count; ++i)
+    {
         jd_field *f = &jf->fields[i];
-        for (int j = 0; j < f->annotations->size; ++j) {
+        for (int j = 0; j < f->annotations->size; ++j)
+        {
             jd_annotation *annotation = lget_obj(f->annotations, j);
             class_import(jf, annotation->fname);
         }
     }
 }
 
-bool dex_class_is_inner_class(jd_meta_dex *meta, dex_class_def *cf) {
+bool dex_class_is_inner_class(jd_meta_dex *meta, dex_class_def *cf)
+{
     string cname = dex_str_of_type_id(meta, cf->class_idx);
     string class_name = class_simple_name(cname);
 
     bool result = is_inner_class(class_name);
 
-    if (!result) return result;
+    if (!result)
+        return result;
 
     dex_annotations_directory_item *annotations = cf->annotations;
     if (annotations == NULL)
@@ -137,11 +144,13 @@ bool dex_class_is_inner_class(jd_meta_dex *meta, dex_class_def *cf) {
     if (set_item == NULL)
         return result;
 
-    for (int i = 0; i < set_item->size; ++i) {
+    for (int i = 0; i < set_item->size; ++i)
+    {
         annotation_item *item = &set_item->entries[i];
         u4 type_idx = item->encoded_annotation->type_idx;
         string type_name = dex_str_of_type_id(meta, type_idx);
-        if (STR_EQL(type_name, "Ldalvik/annotation/InnerClass;")) {
+        if (STR_EQL(type_name, "Ldalvik/annotation/InnerClass;"))
+        {
             result = true;
             break;
         }
@@ -149,11 +158,13 @@ bool dex_class_is_inner_class(jd_meta_dex *meta, dex_class_def *cf) {
     return result;
 }
 
-int dex_class_is_anonymous_class(jd_meta_dex *meta, dex_class_def *cf) {
+int dex_class_is_anonymous_class(jd_meta_dex *meta, dex_class_def *cf)
+{
     string cname = dex_str_of_type_id(meta, cf->class_idx);
     string class_name = class_simple_name(cname);
     bool result = is_anonymous_class(class_name);
-    if (!result) return result;
+    if (!result)
+        return result;
 
     dex_annotations_directory_item *annotations = cf->annotations;
     if (annotations == NULL)
@@ -162,11 +173,13 @@ int dex_class_is_anonymous_class(jd_meta_dex *meta, dex_class_def *cf) {
     if (set_item == NULL)
         return result;
 
-    for (int i = 0; i < set_item->size; ++i) {
+    for (int i = 0; i < set_item->size; ++i)
+    {
         annotation_item *item = &set_item->entries[i];
         u4 type_idx = item->encoded_annotation->type_idx;
         string type_name = dex_str_of_type_id(meta, type_idx);
-        if (STR_EQL(type_name, "Ldalvik/annotation/EnclosingClass;")) {
+        if (STR_EQL(type_name, "Ldalvik/annotation/EnclosingClass;"))
+        {
             result = true;
             break;
         }
@@ -208,13 +221,15 @@ void dex_fields(jsource_file *jf)
     encoded_field *efield;
     jd_field *field;
 
-    for (int i = 0; i < data->static_fields_size; ++i) {
+    for (int i = 0; i < data->static_fields_size; ++i)
+    {
         efield = &data->static_fields[i];
         field = &jf->fields[i];
         dex_encoded_field_to_field(dex, efield, field, false);
     }
 
-    for (int i = 0; i < data->instance_fields_size; ++i) {
+    for (int i = 0; i < data->instance_fields_size; ++i)
+    {
         efield = &data->instance_fields[i];
         field = &jf->fields[data->static_fields_size + i];
         dex_encoded_field_to_field(dex, efield, field, true);

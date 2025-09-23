@@ -6,4 +6,4 @@
 
 int identify_synchronized(jd_method *m);
 
-#endif //GARLIC_EXPRESSION_SYNCHRONIZED_H
+#endif // GARLIC_EXPRESSION_SYNCHRONIZED_H

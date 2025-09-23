@@ -6,7 +6,6 @@
 #include "common/endian_x.h"
 #include "klass.h"
 
-
 static inline void field_mark_hide(jd_field *field)
 {
     field->state_flag |= FIELD_STATE_HIDE;
@@ -26,4 +25,4 @@ static inline bool field_has_flag(jd_field *field, uint16_t flag)
 {
     return (field->access_flags & flag) != 0;
 }
-#endif //GARLIC_FIELD_H
+#endif // GARLIC_FIELD_H

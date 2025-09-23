@@ -26,7 +26,7 @@ static bool ternary_on_basic_block(jd_method *m, jd_bblock *block)
 
     jd_exp_if *if_exp = exp->data;
     jd_exp *true_exp = exp_of_offset(m, if_exp->offset);
-//    jd_exp *false_exp = ins->next->expression;
+    //    jd_exp *false_exp = ins->next->expression;
     jd_exp *false_exp = get_exp(m, exp->idx + 1);
 
     jd_bblock *true_block = exp_block(true_exp);
@@ -41,12 +41,12 @@ static bool ternary_on_basic_block(jd_method *m, jd_bblock *block)
 
     if (true_block == NULL || false_block == NULL)
         return result;
-//    if (true_block->in->size > 1 ||
-//        false_block->in->size > 1)
-//        return result;
-//
-//    if (lcontains_obj(block->frontier, block))
-//        return result;
+    //    if (true_block->in->size > 1 ||
+    //        false_block->in->size > 1)
+    //        return result;
+    //
+    //    if (lcontains_obj(block->frontier, block))
+    //        return result;
 
     if (true_valid_exp == NULL || false_valid_exp == NULL)
         return result;
@@ -60,32 +60,37 @@ static bool ternary_on_basic_block(jd_method *m, jd_bblock *block)
     jd_exp *true_val_exp = NULL;
     jd_exp *false_val_exp = NULL;
 
-    if (exp_is_define_stack_var(true_valid_exp)) {
+    if (exp_is_define_stack_var(true_valid_exp))
+    {
         jd_exp_def_var *true_def = true_valid_exp->data;
         true_var = (&true_def->list->args[0])->data;
         true_val_exp = &true_def->list->args[1];
     }
 
-    if (exp_is_define_stack_var(false_valid_exp)) {
+    if (exp_is_define_stack_var(false_valid_exp))
+    {
         jd_exp_def_var *false_def = false_valid_exp->data;
         false_var = (&false_def->list->args[0])->data;
         false_val_exp = &false_def->list->args[1];
     }
 
-    if (exp_is_assignment(true_valid_exp)) {
+    if (exp_is_assignment(true_valid_exp))
+    {
         jd_exp_assignment *ori_ass_exp = true_valid_exp->data;
-        true_var = ((jd_exp_lvalue*)ori_ass_exp->left->data)->stack_var;
+        true_var = ((jd_exp_lvalue *)ori_ass_exp->left->data)->stack_var;
         true_val_exp = ori_ass_exp->right;
     }
 
-    if (exp_is_assignment(false_valid_exp)) {
+    if (exp_is_assignment(false_valid_exp))
+    {
         jd_exp_assignment *ori_ass_exp = false_valid_exp->data;
-        false_var = ((jd_exp_lvalue*)ori_ass_exp->left->data)->stack_var;
+        false_var = ((jd_exp_lvalue *)ori_ass_exp->left->data)->stack_var;
         false_val_exp = ori_ass_exp->right;
     }
 
     if (exp_is_assignment_chain(true_valid_exp) &&
-        exp_is_assignment_chain(false_valid_exp)) {
+        exp_is_assignment_chain(false_valid_exp))
+    {
         // make sure true left == false_left
         jd_exp_assignment_chain *true_chain = true_valid_exp->data;
         jd_exp_assignment_chain *false_chain = false_valid_exp->data;
@@ -94,7 +99,8 @@ static bool ternary_on_basic_block(jd_method *m, jd_bblock *block)
     }
 
     if (exp_is_assignment_chain(true_valid_exp) &&
-        exp_is_assignment_chain(false_valid_exp)) {
+        exp_is_assignment_chain(false_valid_exp))
+    {
         // chain left equals
         jd_exp_ternary *ternary_exp = make_obj(jd_exp_ternary);
         ternary_exp->list = make_exp_list(3);
@@ -104,7 +110,7 @@ static bool ternary_on_basic_block(jd_method *m, jd_bblock *block)
 
         condition->type = if_exp->expression->type;
         condition->data = if_exp->expression->data;
-        condition->ins  = if_exp->expression->ins;
+        condition->ins = if_exp->expression->ins;
 
         memcpy(ternary_true_val_exp, true_val_exp, sizeof(jd_exp));
         memcpy(ternary_false_val_exp, false_val_exp, sizeof(jd_exp));
@@ -124,17 +130,20 @@ static bool ternary_on_basic_block(jd_method *m, jd_bblock *block)
                             "false_exp: %d\n",
                             true_valid_exp->idx,
                             false_valid_exp->idx);
-        for (int k = 0; k < true_chain->left->size; ++k) {
+        for (int k = 0; k < true_chain->left->size; ++k)
+        {
             jd_exp *e = lget_obj(true_chain->left, k);
-            if (exp_is_stack_var(e)) {
+            if (exp_is_stack_var(e))
+            {
                 jd_var *var = e->data;
-                var->def_count --;
+                var->def_count--;
             }
         }
     }
     else if (exp_is_save(true_valid_exp) &&
-            exp_is_save(false_valid_exp) &&
-            exp_saved_same(true_valid_exp, false_valid_exp)) {
+             exp_is_save(false_valid_exp) &&
+             exp_saved_same(true_valid_exp, false_valid_exp))
+    {
         jd_exp *true_save_right = exp_saved_value(true_valid_exp);
         jd_exp *false_save_right = exp_saved_value(false_valid_exp);
 
@@ -154,13 +163,14 @@ static bool ternary_on_basic_block(jd_method *m, jd_bblock *block)
         exp_mark_nopped_of_range(m, from_id, to_id);
         result = true;
     }
-    else {
+    else
+    {
         if (true_var != false_var ||
             true_var == NULL ||
             false_var == NULL)
             return result;
 
-        true_var->def_count --;
+        true_var->def_count--;
         jd_exp_ternary *ternary_exp = make_obj(jd_exp_ternary);
         ternary_exp->list = make_exp_list(3);
         jd_exp *condition = &ternary_exp->list->args[0];
@@ -178,7 +188,7 @@ static bool ternary_on_basic_block(jd_method *m, jd_bblock *block)
         assignment->assign_operator = JD_OP_ASSIGN;
         jd_exp_lvalue *lvalue = assignment->left->data;
         lvalue->stack_var = true_var;
-        assignment->def_count ++;
+        assignment->def_count++;
 
         jd_exp *ternary_expression = make_obj(jd_exp);
         ternary_expression->type = JD_EXPRESSION_TERNARY;
@@ -193,9 +203,9 @@ static bool ternary_on_basic_block(jd_method *m, jd_bblock *block)
         exp_mark_nopped_of_range(m, from_id, to_id);
         result = true;
         DEBUG_PRINT("[ternary] found a ternary true_exp: %d, "
-                            "false_exp: %d\n",
-                            true_valid_exp->idx,
-                            false_valid_exp->idx);
+                    "false_exp: %d\n",
+                    true_valid_exp->idx,
+                    false_valid_exp->idx);
     }
     return result;
 }
@@ -203,12 +213,14 @@ static bool ternary_on_basic_block(jd_method *m, jd_bblock *block)
 bool identify_ternary_operator(jd_method *m)
 {
     bool find_ternary = false;
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_atomic(node))
             continue;
 
-        for (int j = 0; j < node->children->size; ++j) {
+        for (int j = 0; j < node->children->size; ++j)
+        {
             jd_node *child = lget_obj(node->children, j);
             if (!node_is_basic_block(child))
                 continue;
@@ -270,7 +282,6 @@ static bool ternary_in_if_condition(jd_method *m, jd_bblock *block)
     jd_exp *true_exp = &ternary->list->args[1];
     jd_exp *false_exp = &ternary->list->args[2];
 
-
     memcpy(condition, first_if->expression, sizeof(jd_exp));
     memcpy(true_exp, fourth_if->expression, sizeof(jd_exp));
     memcpy(false_exp, second_if->expression, sizeof(jd_exp));
@@ -289,13 +300,14 @@ static bool ternary_in_if_condition(jd_method *m, jd_bblock *block)
 bool identify_ternary_operator_in_condition(jd_method *m)
 {
     bool find_ternary = false;
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *node = lget_obj(m->nodes, i);
         if (node_is_atomic(node))
             continue;
 
-
-        for (int j = 0; j < node->children->size; ++j) {
+        for (int j = 0; j < node->children->size; ++j)
+        {
             jd_node *child = lget_obj(node->children, j);
             if (!node_is_basic_block(child))
                 continue;

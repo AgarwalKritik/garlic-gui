@@ -39,7 +39,7 @@ void instruction_stack_action(jd_ins *ins);
 
 void jvm_simulator(jd_method *m);
 
-static inline jd_val* find_local_variable(jd_stack *stack, int slot)
+static inline jd_val *find_local_variable(jd_stack *stack, int slot)
 {
     return stack->local_vars[slot];
 }
@@ -49,4 +49,4 @@ static inline int find_local_variable_index(jd_stack *stack, int slot)
     return slot;
 }
 
-#endif //GARLIC_JVM_SIMULATOR_H
+#endif // GARLIC_JVM_SIMULATOR_H

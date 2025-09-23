@@ -1,7 +1,7 @@
 #include "decompiler/expression_return.h"
 #include "decompiler/control_flow.h"
 
-static jd_node* get_parent(jd_node *n)
+static jd_node *get_parent(jd_node *n)
 {
     jd_node *p = n->parent;
     if (node_is_try(p) || node_is_catch(p) || node_is_finally(p))
@@ -11,7 +11,8 @@ static jd_node* get_parent(jd_node *n)
 
 void nop_node_last_return(jd_method *m)
 {
-    for (int i = 0; i < m->nodes->size; ++i) {
+    for (int i = 0; i < m->nodes->size; ++i)
+    {
         jd_node *n = lget_obj(m->nodes, i);
         if (!node_is_basic_block(n))
             continue;
@@ -29,7 +30,8 @@ void nop_node_last_return(jd_method *m)
 
         jd_node *parent = get_parent(n);
         jd_node *parent_next = parent_next_node(parent);
-        if (parent_next == NULL) {
+        if (parent_next == NULL)
+        {
             exp_mark_nopped(exp);
         }
     }

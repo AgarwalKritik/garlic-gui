@@ -1,5 +1,5 @@
 #include <errno.h>
-//#include "apk/apk.h"
+// #include "apk/apk.h"
 #include "parser/dex/metadata.h"
 #include "dalvik/dex_decompile.h"
 #include "dalvik/dex_structure.h"
@@ -39,7 +39,8 @@ void apk_decompile_thread_task(jd_dex_task *task)
     dex_class_def *cf = task->cf;
 
     jsource_file *jf = dex_class_inside(dex, cf, NULL);
-    if (jf->parent == NULL) {
+    if (jf->parent == NULL)
+    {
         writter_for_class(jf, NULL);
         fclose(jf->source);
     }
@@ -76,10 +77,12 @@ static void apk_decompile_task_start(jd_apk *apk)
     apk->zip = zip;
     apk->entries_size = zip_entries_total(zip);
 
-    for (int i = 0; i < apk->entries_size; ++i) {
+    for (int i = 0; i < apk->entries_size; ++i)
+    {
         zip_entry_openbyindex(zip, i);
         string path_in_zip = (string)zip_entry_name(zip);
-        if (!str_end_with(path_in_zip, ".dex")) {
+        if (!str_end_with(path_in_zip, ".dex"))
+        {
             zip_entry_close(zip);
             continue;
         }
@@ -95,9 +98,11 @@ static void apk_decompile_task_start(jd_apk *apk)
         jd_dex *dex = dex_init_without_thread(meta);
         meta->source_dir = apk->save_dir;
 
-        for (int j = 0; j < meta->header->class_defs_size; ++j) {
+        for (int j = 0; j < meta->header->class_defs_size; ++j)
+        {
             dex_class_def *cf = &meta->class_defs[j];
-            if (apk->type == JD_DEX_TASK_DECOMPILE) {
+            if (apk->type == JD_DEX_TASK_DECOMPILE)
+            {
                 if (dex_class_is_inner_class(dex->meta, cf) ||
                     dex_class_is_anonymous_class(dex->meta, cf))
                     continue;
@@ -108,13 +113,15 @@ static void apk_decompile_task_start(jd_apk *apk)
             t->cf = cf;
             t->apk = apk;
             t->type = apk->type;
-            if (t->type == JD_DEX_TASK_SMALI) {
+            if (t->type == JD_DEX_TASK_SMALI)
+            {
                 threadpool_add(apk->threadpool,
                                &apk_smali_thread_task,
                                t,
                                0);
             }
-            else {
+            else
+            {
                 threadpool_add(apk->threadpool,
                                &apk_decompile_thread_task,
                                t,
@@ -150,9 +157,12 @@ void apk_decompile_analyse(string path,
     apk->thread_num = thread_num;
     apk->type = type;
 
-    if (thread_num > 1) {
+    if (thread_num > 1)
+    {
         apk->threadpool = threadpool_create_in(apk->pool, thread_num, 0);
-    } else {
+    }
+    else
+    {
         apk->threadpool = NULL;
     }
 

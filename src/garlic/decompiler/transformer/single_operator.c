@@ -9,7 +9,6 @@ string exp_single_operator_to_s(jd_exp *expression)
     return str_create("%s %s", op, exp_str);
 }
 
-
 void exp_single_operator_to_stream(FILE *stream,
                                    jd_node *node,
                                    jd_exp *expression)

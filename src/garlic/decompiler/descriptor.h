@@ -7,8 +7,8 @@ string descriptor_to_s(string str);
 
 void expand_descriptor(jd_descriptor *descriptor);
 
-
-static inline bool descriptor_is_primitive(string descriptor) {
+static inline bool descriptor_is_primitive(string descriptor)
+{
     return descriptor[0] != 'L';
 }
 
@@ -26,38 +26,49 @@ static inline string descriptor_item_class_name(string arr_cname)
 
     index = ptr - arr_cname;
 
-    if (memcmp(arr_cname, g_str_int, index) == 0) {
+    if (memcmp(arr_cname, g_str_int, index) == 0)
+    {
         return (string)g_str_int;
     }
-    else if (memcmp(arr_cname, g_str_long, index) == 0) {
+    else if (memcmp(arr_cname, g_str_long, index) == 0)
+    {
         return (string)g_str_long;
     }
-    else if (memcmp(arr_cname, g_str_float, index) == 0) {
+    else if (memcmp(arr_cname, g_str_float, index) == 0)
+    {
         return (string)g_str_float;
     }
-    else if (memcmp(arr_cname, g_str_double, index) == 0) {
+    else if (memcmp(arr_cname, g_str_double, index) == 0)
+    {
         return (string)g_str_double;
     }
-    else if (memcmp(arr_cname, g_str_char, index) == 0) {
+    else if (memcmp(arr_cname, g_str_char, index) == 0)
+    {
         return (string)g_str_char;
     }
-    else if (memcmp(arr_cname, g_str_byte, index) == 0) {
+    else if (memcmp(arr_cname, g_str_byte, index) == 0)
+    {
         return (string)g_str_byte;
     }
-    else if (memcmp(arr_cname, g_str_short, index) == 0) {
+    else if (memcmp(arr_cname, g_str_short, index) == 0)
+    {
         return (string)g_str_short;
     }
-    else if (memcmp(arr_cname, g_str_boolean, index) == 0) {
+    else if (memcmp(arr_cname, g_str_boolean, index) == 0)
+    {
         return (string)g_str_boolean;
     }
-    else if (memcmp(arr_cname, g_str_String, index) == 0) {
+    else if (memcmp(arr_cname, g_str_String, index) == 0)
+    {
         return (string)g_str_String;
     }
-    else if (memcmp(arr_cname, g_str_Object, index) == 0) {
+    else if (memcmp(arr_cname, g_str_Object, index) == 0)
+    {
         return (string)g_str_Object;
     }
-    else {
-        string str = x_alloc(index+1);
+    else
+    {
+        string str = x_alloc(index + 1);
         memcpy(str, arr_cname, index);
         str[index] = '\0';
         return str;
@@ -66,25 +77,26 @@ static inline string descriptor_item_class_name(string arr_cname)
 
 static inline string descriptor_class_name_of_primitive(char c)
 {
-    switch (c) {
-        case 'B':
-            return (string)g_str_byte;
-        case 'C':
-            return (string)g_str_char;
-        case 'D':
-            return (string)g_str_double;
-        case 'F':
-            return (string)g_str_float;
-        case 'I':
-            return (string)g_str_int;
-        case 'J':
-            return (string)g_str_long;
-        case 'S':
-            return (string)g_str_short;
-        case 'Z':
-            return (string)g_str_boolean;
-        default:
-            return str_dup(g_str_unknown);
+    switch (c)
+    {
+    case 'B':
+        return (string)g_str_byte;
+    case 'C':
+        return (string)g_str_char;
+    case 'D':
+        return (string)g_str_double;
+    case 'F':
+        return (string)g_str_float;
+    case 'I':
+        return (string)g_str_int;
+    case 'J':
+        return (string)g_str_long;
+    case 'S':
+        return (string)g_str_short;
+    case 'Z':
+        return (string)g_str_boolean;
+    default:
+        return str_dup(g_str_unknown);
     }
 }
 
@@ -93,7 +105,8 @@ static inline string descriptor_to_annotation_name(string descriptor)
     size_t len = strlen(descriptor);
     size_t end_index = len - 2;
     size_t start_index = end_index;
-    while (start_index >= 0) {
+    while (start_index >= 0)
+    {
         if (descriptor[start_index] == '/')
             break;
         start_index--;
@@ -105,4 +118,4 @@ static inline string descriptor_to_annotation_name(string descriptor)
     name[name_len] = '\0';
     return name;
 }
-#endif //GARLIC_DESCRIPTOR_H
+#endif // GARLIC_DESCRIPTOR_H

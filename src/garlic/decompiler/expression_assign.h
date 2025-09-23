@@ -5,4 +5,4 @@
 
 void identify_assignment(jd_method *m);
 
-#endif //GARLIC_EXPRESSION_ASSIGN_H
+#endif // GARLIC_EXPRESSION_ASSIGN_H

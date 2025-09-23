@@ -4,7 +4,7 @@
 #include "decompiler/structure.h"
 #include "decompiler/method.h"
 
-jd_val* jvm_method_parameter_val(jd_method *m, int index);
+jd_val *jvm_method_parameter_val(jd_method *m, int index);
 
 void jvm_method_access_flags(jd_method *m, str_list *list);
 
@@ -52,4 +52,4 @@ static inline bool jvm_method_is_empty(jd_method *m)
     return m->instructions == NULL || m->instructions->size == 0;
 }
 
-#endif //GARLIC_JVM_METHOD_H
+#endif // GARLIC_JVM_METHOD_H

@@ -5,13 +5,13 @@
 #include "dalvik/dex_class.h"
 #include "decompiler/method.h"
 
-#define dex_method_meta(method) (((jd_dex*)method->meta)->meta)
+#define dex_method_meta(method) (((jd_dex *)method->meta)->meta)
 
 void dex_method_init(jsource_file *jf,
                      jd_method *m,
                      encoded_method *em);
 
-jd_val* dex_method_parameter_val(jd_method *m, int index);
+jd_val *dex_method_parameter_val(jd_method *m, int index);
 
 void dex_method_access_flag_with_flags(u4 flags, str_list *list);
 
@@ -23,10 +23,10 @@ static inline bool dex_encoded_method_is_lambda(jd_meta_dex *meta,
     dex_method_id method_id = meta->method_ids[em->method_id];
     string name = meta->strings[method_id.name_idx].data;
     return str_contains(name, "lambda$") ||
-            (em->access_flags & ACC_DEX_SYNTHETIC) != 0;
+           (em->access_flags & ACC_DEX_SYNTHETIC) != 0;
 }
 
-static inline dex_class_def* dex_cdef_of_method(jd_meta_dex *meta,
+static inline dex_class_def *dex_cdef_of_method(jd_meta_dex *meta,
                                                 encoded_method *em)
 {
     dex_method_id *method_id = &meta->method_ids[em->method_id];
@@ -49,7 +49,7 @@ static inline bool dex_method_is_init(jd_method *m)
     return STR_EQL(m->name, g_str_init);
 }
 
-static inline  bool dex_method_is_clinit(jd_method *m)
+static inline bool dex_method_is_clinit(jd_method *m)
 {
     return STR_EQL(m->name, g_str_clinit);
 }
@@ -69,4 +69,4 @@ static inline bool dex_method_is_varargs(jd_method *m)
     return method_has_flag(m, ACC_DEX_VARARGS);
 }
 
-#endif //GARLIC_DEX_METHOD_H
+#endif // GARLIC_DEX_METHOD_H

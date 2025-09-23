@@ -5,4 +5,4 @@
 
 void identify_assert(jd_method *m);
 
-#endif //GARLIC_EXPRESSION_ASSERT_H
+#endif // GARLIC_EXPRESSION_ASSERT_H

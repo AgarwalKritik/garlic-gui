@@ -5,4 +5,4 @@
 
 void analyse_local_variables(jd_method *m);
 
-#endif //GARLIC_EXPRESSION_LOCAL_VARIABLE_H
+#endif // GARLIC_EXPRESSION_LOCAL_VARIABLE_H

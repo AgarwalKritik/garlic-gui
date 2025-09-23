@@ -36,16 +36,18 @@ static string jar_cname_from_path(jd_jar *jar, string path)
     const char *dot_class = strstr(start, ".class");
     size_t len = (dot_class != NULL) ? (dot_class - start) : strlen(start);
 
-    string output = x_alloc_in(jar->pool, len+1);
+    string output = x_alloc_in(jar->pool, len + 1);
     strncpy(output, start, len);
     output[len] = '\0';
 
-    if (output[0] == 'L') {
+    if (output[0] == 'L')
+    {
         memmove(output, output + 1, len);
         len--;
         output[len] = '\0';
     }
-    if (len > 0 && output[len - 1] == ';') {
+    if (len > 0 && output[len - 1] == ';')
+    {
         output[len - 1] = '\0';
     }
     return output;
@@ -60,20 +62,20 @@ static string jar_entry_parent_path(jd_jar *jar, jd_jar_entry *entry)
     if (last_dot == NULL || last_dollar == NULL)
         return NULL;
 
-
     size_t last_dollar_index = last_dollar - full;
     size_t last_dot_index = last_dot - full;
 
-    if (full[last_dollar_index-1] == '$')
-        last_dollar_index --;
+    if (full[last_dollar_index - 1] == '$')
+        last_dollar_index--;
 
     string parent_full = x_alloc_in(jar->pool, strlen(full));
     strncpy(parent_full, full, last_dollar_index);
     int i = 0;
-    for (; i < 6; ++i) {
-        parent_full[last_dollar_index+i] = full[i+last_dot_index];
+    for (; i < 6; ++i)
+    {
+        parent_full[last_dollar_index + i] = full[i + last_dot_index];
     }
-    parent_full[last_dollar_index+i] = '\0';
+    parent_full[last_dollar_index + i] = '\0';
     return parent_full;
 }
 
@@ -84,11 +86,13 @@ static void prepare_jar_zip(jd_jar *jar)
     jar->entries_size = zip_entries_total(zip);
     jar->class_entries = linit_object_with_pool(jar->pool);
 
-    for (int i = 0; i < jar->entries_size; ++i) {
+    for (int i = 0; i < jar->entries_size; ++i)
+    {
         zip_entry_openbyindex(zip, i);
         string path_in_jar = (string)zip_entry_name(zip);
         string full_path = str_create_in(jar->pool, "%s", path_in_jar);
-        if (!str_end_with(path_in_jar, ".class")) {
+        if (!str_end_with(path_in_jar, ".class"))
+        {
             zip_entry_close(zip); // only deal with .class files
             continue;
         }
@@ -123,17 +127,20 @@ static void prepare_jar_zip(jd_jar *jar)
 
 static void jar_inner_and_anoymous_class(jd_jar *jar)
 {
-    for (int i = 0; i < jar->class_entries->size; ++i) {
+    for (int i = 0; i < jar->class_entries->size; ++i)
+    {
         jd_jar_entry *entry = lget_obj(jar->class_entries, i);
         if (!entry->is_inner && !entry->is_anoymous)
             continue;
         string parent_path = jar_entry_parent_path(jar, entry);
-        if (parent_path == NULL) {
+        if (parent_path == NULL)
+        {
             DEBUG_PRINT("[parent_path] %s parent path is NULL\n", entry->path);
             continue;
         }
         jd_jar_entry *parent = hget_s2o(jar->name_to_index_map, parent_path);
-        if (parent == NULL) {
+        if (parent == NULL)
+        {
             DEBUG_PRINT("[parent] %s parent entry is NULL\n", entry->path);
             continue;
         }
@@ -142,7 +149,6 @@ static void jar_inner_and_anoymous_class(jd_jar *jar)
             ladd_obj(parent->anoymous_classes, entry);
         else if (entry->is_inner)
             ladd_obj(parent->inner_classes, entry);
-
     }
 }
 
@@ -163,9 +169,10 @@ static void jar_entry_source_file(jclass_file *jc, string dir, string name)
     jc->jfile->source = stream;
 }
 
-static jd_jar* jar_obj_create(string path, string save_path, int thread_cnt)
+static jd_jar *jar_obj_create(string path, string save_path, int thread_cnt)
 {
-    if (access(path, F_OK) != 0) {
+    if (access(path, F_OK) != 0)
+    {
         fprintf(stderr, "[errorn]: %s not exist\n", path);
         exit(0);
     }
@@ -183,7 +190,8 @@ static jd_jar* jar_obj_create(string path, string save_path, int thread_cnt)
 
     prepare_jar_zip(jar);
 
-    if (thread_cnt > 1) {
+    if (thread_cnt > 1)
+    {
         jar->threadpool = threadpool_create_in(jar->pool, thread_cnt, 0);
     }
 
@@ -206,7 +214,8 @@ void jar_entry_thread_task(jd_jar_entry *entry)
     tls->pool = mem_create_pool();
 
     jsource_file *jf = jar_entry_analyse(entry->jar, entry, NULL);
-    if (jf->parent == NULL) {
+    if (jf->parent == NULL)
+    {
         writter_for_class(jf, NULL);
         fclose(jf->source);
     }
@@ -217,7 +226,8 @@ void jar_entry_thread_task(jd_jar_entry *entry)
 
 static void jar_threadpool_start(jd_jar *jar)
 {
-    for (int i = 0; i < jar->class_entries->size; ++i) {
+    for (int i = 0; i < jar->class_entries->size; ++i)
+    {
         jd_jar_entry *entry = lget_obj(jar->class_entries, i);
         if (entry->is_inner || entry->is_anoymous)
             continue;
@@ -226,26 +236,26 @@ static void jar_threadpool_start(jd_jar *jar)
     }
 }
 
-jsource_file* jar_entry_anonymous_analyse(jd_jar *jar,
-                                        jd_jar_entry *entry,
-                                        jsource_file *parent)
+jsource_file *jar_entry_anonymous_analyse(jd_jar *jar,
+                                          jd_jar_entry *entry,
+                                          jsource_file *parent)
 {
-        jclass_file *jc = parse_class_content_from_jar_entry(entry);
-        jsource_file *jf = jc->jfile;
-        jf->jar = jar;
-        jf->jar_entry = entry;
-        entry->jf = jf;
-        entry->parsed = true;
-        jf->parent = parent;
-        jf->source = parent->source;
+    jclass_file *jc = parse_class_content_from_jar_entry(entry);
+    jsource_file *jf = jc->jfile;
+    jf->jar = jar;
+    jf->jar_entry = entry;
+    entry->jf = jf;
+    entry->parsed = true;
+    jf->parent = parent;
+    jf->source = parent->source;
 
-        jvm_analyse_class_file_inside(jf);
+    jvm_analyse_class_file_inside(jf);
 
-        tire_merge(jf->imports, parent->imports);
-        return jc->jfile;
+    tire_merge(jf->imports, parent->imports);
+    return jc->jfile;
 }
 
-jsource_file* jar_entry_analyse(jd_jar *jar,
+jsource_file *jar_entry_analyse(jd_jar *jar,
                                 jd_jar_entry *entry,
                                 jsource_file *parent)
 {
@@ -258,13 +268,15 @@ jsource_file* jar_entry_analyse(jd_jar *jar,
 
     if (parent == NULL)
         jar_entry_source_file(jc, jar->save, entry->path);
-    else {
+    else
+    {
         jf->parent = parent;
         jf->source = parent->source;
     }
 
     jvm_analyse_class_file_inside(jf);
-    if (parent != NULL) {
+    if (parent != NULL)
+    {
         tire_merge(jf->imports, parent->imports);
         jd_node *inner_block = class_body_block(jf);
         jd_node *parent_body = class_body_block(parent);
@@ -272,7 +284,8 @@ jsource_file* jar_entry_analyse(jd_jar *jar,
         ladd_obj(parent_body->children, inner_block);
     }
 
-    for (int i = 0; i < entry->inner_classes->size; ++i) {
+    for (int i = 0; i < entry->inner_classes->size; ++i)
+    {
         jd_jar_entry *inner_entry = lget_obj(entry->inner_classes, i);
         jsource_file *inner_jfile = jar_entry_analyse(jar, inner_entry, jf);
         jclass_file *inner_jclass = inner_jfile->jclass;
@@ -289,7 +302,8 @@ jsource_file* jar_entry_analyse(jd_jar *jar,
 
 static void jar_main_thread(jd_jar *jar)
 {
-    for (int i = 0; i < jar->class_entries->size; ++i) {
+    for (int i = 0; i < jar->class_entries->size; ++i)
+    {
         jd_jar_entry *entry = lget_obj(jar->class_entries, i);
 
         /*
@@ -304,24 +318,28 @@ static void jar_main_thread(jd_jar *jar)
         mem_init_pool();
 
         jsource_file *jf = jar_entry_analyse(jar, entry, NULL);
-        if (jf->parent == NULL) {
+        if (jf->parent == NULL)
+        {
             writter_for_class(jf, NULL);
             fclose(jf->source);
         }
-        jar->added ++;
-        jar->done ++;
+        jar->added++;
+        jar->done++;
         jar_main_thread_status(jar);
         mem_free_pool();
     }
 }
 
-void jar_file_analyse(string path, string save_path, int thread_cnt) {
+void jar_file_analyse(string path, string save_path, int thread_cnt)
+{
     jd_jar *jar = jar_obj_create(path, save_path, thread_cnt);
 
-    if (thread_cnt > 1) {
+    if (thread_cnt > 1)
+    {
         jar_threadpool_start(jar);
     }
-    else {
+    else
+    {
         jar_main_thread(jar);
     }
 

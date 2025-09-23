@@ -11,7 +11,8 @@ string exp_str_concat_to_s(jd_exp *expression)
         jd_exp *exp = &list->args[i];
         string str = exp_to_s(exp);
         str_concat(str_list, str);
-        if (i < list->len - 1) {
+        if (i < list->len - 1)
+        {
             str_concat(str_list, " + ");
         }
     }
@@ -25,7 +26,8 @@ void exp_str_concat_to_stream(FILE *stream, jd_node *node, jd_exp *expression)
     for (int i = 0; i < list->len; i++)
     {
         expression_to_stream(stream, node, &list->args[i]);
-        if (i < list->len - 1) {
+        if (i < list->len - 1)
+        {
             fprintf(stream, " + ");
         }
     }

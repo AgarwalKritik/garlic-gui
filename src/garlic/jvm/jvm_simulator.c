@@ -14,7 +14,8 @@
 
 static void jvm_variable_name(jd_method *m, jd_ins *ins, jd_val *val, int slot)
 {
-    if (jvm_has_debug(m, ins, slot)) {
+    if (jvm_has_debug(m, ins, slot))
+    {
         jvm_debug(m, ins, val, slot);
         return;
     }
@@ -33,7 +34,8 @@ static void jvm_run_store_local_variable(jd_ins *ins)
     jd_val *pop0 = ins->stack_in->vals[0];
     jd_val *local_var = find_local_variable(out, slot);
 
-    if (local_var == NULL) {
+    if (local_var == NULL)
+    {
         pop0->slot = slot;
         jd_val *new_val = stack_create_empty_val();
         out->local_vars[slot] = new_val;
@@ -42,10 +44,13 @@ static void jvm_run_store_local_variable(jd_ins *ins)
         jvm_variable_name(m, ins, new_val, slot);
         new_val->slot = slot;
     }
-    else {
-        if (pop0->type == local_var->type) {
+    else
+    {
+        if (pop0->type == local_var->type)
+        {
             bool mapped = jvm_has_debug(m, ins, slot);
-            if (mapped) {
+            if (mapped)
+            {
                 jd_matched_debug *matched = matched_local_variable(m,
                                                                    ins,
                                                                    slot);
@@ -53,9 +58,11 @@ static void jvm_run_store_local_variable(jd_ins *ins)
 
                 if (STR_EQL(class_name, local_var->data->cname) &&
                     STR_EQL(class_name, pop0->data->cname) &&
-                    STR_EQL(matched->name, local_var->name)) {
+                    STR_EQL(matched->name, local_var->name))
+                {
                 }
-                else {
+                else
+                {
                     jd_val *other_new_local = stack_create_empty_val();
                     out->local_vars[slot] = other_new_local;
                     other_new_local->slot = slot;
@@ -63,13 +70,15 @@ static void jvm_run_store_local_variable(jd_ins *ins)
                     other_new_local->name = matched->name;
                     other_new_local->data->cname = matched->sname;
                 }
-
             }
-            else {
+            else
+            {
                 if (STR_EQL(pop0->data->cname,
-                            local_var->data->cname)) {
+                            local_var->data->cname))
+                {
                 }
-                else {
+                else
+                {
                     jd_val *other_new_local = stack_create_empty_val();
                     out->local_vars[slot] = other_new_local;
                     stack_clone_val(other_new_local, pop0);
@@ -82,7 +91,8 @@ static void jvm_run_store_local_variable(jd_ins *ins)
                 }
             }
         }
-        else {
+        else
+        {
             jd_val *other_new_local = stack_create_empty_val();
             out->local_vars[slot] = other_new_local;
             stack_clone_val(other_new_local, pop0);
@@ -91,7 +101,6 @@ static void jvm_run_store_local_variable(jd_ins *ins)
             jvm_variable_name(m, ins, other_new_local, slot);
         }
     }
-
 }
 
 static void jvm_run_load_local_variable(jd_ins *ins)
@@ -102,20 +111,22 @@ static void jvm_run_load_local_variable(jd_ins *ins)
     jd_stack *stack_out = ins->stack_out;
     jd_val *local_var = find_local_variable(stack_out, slot);
 
-    if (local_var == NULL) {
+    if (local_var == NULL)
+    {
         DEBUG_PRINT("[%s %d]load local var: %d not found\n",
-               ins->name,
-               ins->offset,
-               slot);
+                    ins->name,
+                    ins->offset,
+                    slot);
         jd_val *push0 = stack_out->vals[0];
         push0->data = make_obj(jd_val_data);
         push0->data->cname = (string)g_str_Object;
         push0->type = JD_VAR_REFERENCE_T;
         push0->slot = slot;
-        push0->ins  = ins;
+        push0->ins = ins;
         jvm_variable_name(ins->method, ins, push0, slot);
     }
-    else {
+    else
+    {
         stack_out->vals[0] = local_var;
         if (local_var->ins == NULL)
             local_var->ins = ins;
@@ -138,8 +149,8 @@ static void jvm_run_array_load_local_variable(jd_ins *ins)
     // ..., arrayref, index →
     // ..., value
     if (!jvm_ins_is_array_load(ins))
-         return;
-    jd_stack *stack_in  = ins->stack_in;
+        return;
+    jd_stack *stack_in = ins->stack_in;
     jd_stack *stack_out = ins->stack_out;
     jd_val *push_val = stack_out->vals[0];
     jd_val *popped_array_var = stack_in->vals[1];
@@ -152,10 +163,12 @@ static void jvm_run_array_load_local_variable(jd_ins *ins)
 static void jvm_stack_var_defination(jd_ins *ins)
 {
     jd_method *m = ins->method;
-    for (int i = 0; i < ins->pushed_cnt; ++i) {
+    for (int i = 0; i < ins->pushed_cnt; ++i)
+    {
         jd_val *val = ins->stack_out->vals[i];
         jd_var *stack_var = stack_find_var(m, ins, i);
-        if (stack_var == NULL) {
+        if (stack_var == NULL)
+        {
             stack_var = stack_define_var(m, val, i);
             hset_i2o(m->offset2var_map, ins->offset, stack_var);
         }
@@ -174,7 +187,8 @@ static void jvm_run_stable_instruction_action(jd_ins *ins)
     else
         stack_out->depth = stack_in->depth + ins->pushed_cnt - ins->popped_cnt;
 
-    if (stack_out->depth == -1) {
+    if (stack_out->depth == -1)
+    {
         stack_out->depth = 0;
         stack_out->vals = NULL;
         DEBUG_STACK_PRINT("\tpopped[%d]: %s pop: %d\n",
@@ -182,29 +196,33 @@ static void jvm_run_stable_instruction_action(jd_ins *ins)
         return;
     }
     int current_depth = stack_in == NULL ? 0 : stack_in->depth;
-    if (stack_out->depth > 0) {
-        stack_out->vals = make_obj_arr(jd_val*, stack_out->depth);
+    if (stack_out->depth > 0)
+    {
+        stack_out->vals = make_obj_arr(jd_val *, stack_out->depth);
     }
     current_depth -= ins->popped_cnt;
 
     DEBUG_STACK_PRINT("\t\tpushed: %d ", ins->offset);
     int tmp_pushed = 0;
 
-    if (ins->pushed_cnt > 0) {
-        for (int i = 0; i < ins->pushed_cnt; ++i) {
+    if (ins->pushed_cnt > 0)
+    {
+        for (int i = 0; i < ins->pushed_cnt; ++i)
+        {
             jd_val *val = stack_create_empty_val();
             val->ins = ins;
             stack_out->vals[i] = val;
         }
         instruction_stack_action(ins);
-        tmp_pushed ++;
+        tmp_pushed++;
     }
 
     DEBUG_STACK_PRINT("\n");
 
     int i = stack_in->depth - current_depth;
     int j = 0;
-    for (;i < stack_in->depth; ++i, ++j) {
+    for (; i < stack_in->depth; ++i, ++j)
+    {
         int stack_in_index = i;
         int stack_out_index = tmp_pushed + j;
         jd_val *item = stack_in->vals[stack_in_index];
@@ -223,61 +241,63 @@ static void jvm_run_stable_instruction_action(jd_ins *ins)
 
 static void jvm_run_instruction_action(jd_ins *ins)
 {
-    switch (ins->code) {
-        case INS_DUP: // dup
-            build_jvm_ins_dup_action(ins);
-            break;
-        case INS_DUP_X1: // dup_x1
-            build_jvm_ins_dup_x1_action(ins);
-            break;
-        case INS_DUP_X2: // dup_x2
-            build_jvm_ins_dup_x2_action(ins);
-            break;
-        case INS_DUP2: // dup2
-            build_jvm_ins_dup2_action(ins);
-            break;
-        case INS_DUP2_X1: // dup2_x1
-            build_jvm_ins_dup2_x1_action(ins);
-            break;
-        case INS_DUP2_X2: // dup2_x2
-            build_jvm_ins_dup2_x2_action(ins);
-            break;
-        case INS_SWAP: // swap
-            build_jvm_ins_swap_action(ins);
-            break;
-        case INS_POP: // pop
-            build_jvm_ins_pop_action(ins);
-            break;
-        case INS_POP2:
-            build_jvm_ins_pop2_action(ins);
-            break;
-        default:
-            jvm_run_stable_instruction_action(ins);
-            break;
+    switch (ins->code)
+    {
+    case INS_DUP: // dup
+        build_jvm_ins_dup_action(ins);
+        break;
+    case INS_DUP_X1: // dup_x1
+        build_jvm_ins_dup_x1_action(ins);
+        break;
+    case INS_DUP_X2: // dup_x2
+        build_jvm_ins_dup_x2_action(ins);
+        break;
+    case INS_DUP2: // dup2
+        build_jvm_ins_dup2_action(ins);
+        break;
+    case INS_DUP2_X1: // dup2_x1
+        build_jvm_ins_dup2_x1_action(ins);
+        break;
+    case INS_DUP2_X2: // dup2_x2
+        build_jvm_ins_dup2_x2_action(ins);
+        break;
+    case INS_SWAP: // swap
+        build_jvm_ins_swap_action(ins);
+        break;
+    case INS_POP: // pop
+        build_jvm_ins_pop_action(ins);
+        break;
+    case INS_POP2:
+        build_jvm_ins_pop2_action(ins);
+        break;
+    default:
+        jvm_run_stable_instruction_action(ins);
+        break;
     }
 }
 
-
-static jd_stack* jvm_exception_stack(jd_method *m, jd_ins *ins, jd_stack *src)
+static jd_stack *jvm_exception_stack(jd_method *m, jd_ins *ins, jd_stack *src)
 {
     jd_bblock *block = block_handler_equals_ins(m, ins);
     jd_eblock *eblock = block->ub->eblock;
     string class_name = NULL;
     u2 class_index = eblock->exception->catch_type;
-    if (class_index == 0) {
+    if (class_index == 0)
+    {
         class_name = str_dup("java/lang/Throwable");
     }
-    else {
+    else
+    {
         jcp_info *info = pool_item(m->meta, class_index);
         class_name = get_class_name(m->meta, info);
     }
 
     jd_stack *clone = make_obj(jd_stack);
     clone->depth = 1;
-    clone->vals = make_obj_arr(jd_val*, clone->depth);
+    clone->vals = make_obj_arr(jd_val *, clone->depth);
     jd_val *exception_val = stack_create_empty_val();
     exception_val->type = JD_VAR_REFERENCE_T;
-//    exception_val->data->cname = cname;
+    //    exception_val->data->cname = cname;
     exception_val->data->cname = class_simple_name(class_name);
     exception_val->ins = ins;
     exception_val->stack_var = stack_define_var(m, exception_val, 0);
@@ -297,28 +317,35 @@ static void jvm_fill_watch_successors(jd_method *m, jd_ins *ins)
 
     if (ins->offset < end_ins->offset)
         ladd_obj(m->ins_watch_successors, ins->next);
-    else {
+    else
+    {
         // find next block
-        for (int i = 0; i < block->out->size; ++i) {
+        for (int i = 0; i < block->out->size; ++i)
+        {
             jd_edge *edge = lget_obj(block->out, i);
             jd_bblock *target_block = edge->target_block;
-            if (target_block->type == JD_BB_NORMAL) {
+            if (target_block->type == JD_BB_NORMAL)
+            {
                 if (jvm_ins_is_unconditional_jump(ins) &&
-                        jvm_ins_is_goto_back(ins)) {
-//                    jd_ins *ins_next = ins->next;
-//                    if (ins_next != NULL)
-//                        ladd_obj(m->ins_watch_successors, ins_next);
+                    jvm_ins_is_goto_back(ins))
+                {
+                    //                    jd_ins *ins_next = ins->next;
+                    //                    if (ins_next != NULL)
+                    //                        ladd_obj(m->ins_watch_successors, ins_next);
                     continue;
                 }
                 jd_ins *block_start_ins = target_block->ub->nblock->start_ins;
                 ladd_obj(m->ins_watch_successors, block_start_ins);
             }
         }
-        for (int i = 0; i < block->out->size; ++i) {
+        for (int i = 0; i < block->out->size; ++i)
+        {
             jd_edge *edge = lget_obj(block->out, i);
             jd_bblock *target_block = edge->target_block;
             if (target_block->type == JD_BB_EXCEPTION /* &&
-                ins_is_try_end(m, block_end_ins)*/) {
+                ins_is_try_end(m, block_end_ins)*/
+            )
+            {
                 jd_eblock *eblock = target_block->ub->eblock;
                 uint32_t hstart_off = eblock->handler_start_offset;
                 jd_bblock *handler_block = block_start_offset(m, hstart_off);
@@ -331,20 +358,24 @@ static void jvm_fill_watch_successors(jd_method *m, jd_ins *ins)
 
 static void jvm_fill_visit_queue(jd_method *m, jd_ins *ins)
 {
-    for (int i = 0; i < m->ins_watch_successors->size; ++i) {
+    for (int i = 0; i < m->ins_watch_successors->size; ++i)
+    {
         jd_ins *suc_ins = lget_obj(m->ins_watch_successors, i);
         int is_handler_start = ins_is_handler_start(m, suc_ins);
-        if (is_handler_start && suc_ins->stack_in == NULL) {
+        if (is_handler_start && suc_ins->stack_in == NULL)
+        {
             suc_ins->stack_in = jvm_exception_stack(m,
                                                     suc_ins,
                                                     ins->stack_out);
             queue_add_object(m->ins_visit_queue, suc_ins);
         }
-        else if (suc_ins->stack_in == NULL && !is_handler_start) {
+        else if (suc_ins->stack_in == NULL && !is_handler_start)
+        {
             suc_ins->stack_in = stack_clone(ins->stack_out);
             queue_push_object(m->ins_visit_queue, suc_ins);
         }
-        else {
+        else
+        {
             // intersection
         }
     }
@@ -364,8 +395,9 @@ static void jvm_process_instruction_action(jd_method *m, ins_action_cb cb)
     DEBUG_STACK_PRINT("[stack simulator]: %s \n", m->name);
     int times = 0;
     jd_ins *ins = NULL;
-    while ((ins = queue_pop_object(m->ins_visit_queue)) != NULL) {
-        times ++;
+    while ((ins = queue_pop_object(m->ins_visit_queue)) != NULL)
+    {
+        times++;
         cb(m, ins);
     }
 
@@ -385,25 +417,28 @@ static void jvm_method_enter_stack(jd_method *m)
     bool instance = method_is_member(m);
     int slot = instance ? 1 : 0;
 
-    if (instance) {
+    if (instance)
+    {
         jcp_info *info = pool_item(m->meta, jc->this_class);
         string full = get_class_name(m->meta, info);
         string cname = class_simple_name(full);
         stack_create_method_this_val(m, 0, cname);
     }
 
-    for (int i = 0; i < m->desc->list->size; ++i) {
+    for (int i = 0; i < m->desc->list->size; ++i)
+    {
         string item = lget_string(m->desc->list, i);
         jd_val *val = stack_create_val_with_descriptor(m, item, slot);
         jvm_variable_name(m, NULL, val, slot);
         if (val->type == JD_VAR_LONG_T ||
-            val->type == JD_VAR_DOUBLE_T) {
+            val->type == JD_VAR_DOUBLE_T)
+        {
             stack->local_vars[slot] = val;
             slot++;
         }
         m->parameters[i] = val;
         stack->local_vars[slot] = val;
-        slot ++;
+        slot++;
     }
 }
 
@@ -416,9 +451,9 @@ void jvm_simulator(jd_method *m)
     m->stack_variables = linit_object();
     // m->offset2varidx_map = hashmap_init((hcmp_fn) i2i_cmp, 0);
     m->offset2var_map = hashmap_init((hcmp_fn)i2obj_cmp, 0);
-    m->class_counter_map = hashmap_init((hcmp_fn) s2i_cmp, 0);
-    m->slot_counter_map = hashmap_init((hcmp_fn) i2i_cmp, 0);
-    m->class_counter_map = hashmap_init((hcmp_fn) s2i_cmp, 0);
+    m->class_counter_map = hashmap_init((hcmp_fn)s2i_cmp, 0);
+    m->slot_counter_map = hashmap_init((hcmp_fn)i2i_cmp, 0);
+    m->class_counter_map = hashmap_init((hcmp_fn)s2i_cmp, 0);
     m->var_name_map = hashmap_init((hcmp_fn)s2s_cmp, 0);
     m->types = linit_object();
 

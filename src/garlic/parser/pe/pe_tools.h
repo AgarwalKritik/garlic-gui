@@ -22,7 +22,8 @@ static inline bool pe_section_has_flag(pe_section_header *header, u4 flag)
 
 static inline u8 rva_to_offset(pe_file *pe, u8 rva)
 {
-    for (int i = pe->nt_header->number_of_sections-1; i >= 0; --i) {
+    for (int i = pe->nt_header->number_of_sections - 1; i >= 0; --i)
+    {
         pe_section_header *h = &pe->section_headers[i];
         if (rva >= h->virtual_address)
             return rva - h->virtual_address + h->pointer_to_raw_data;
@@ -35,4 +36,4 @@ static inline void set_pe_off_of_rva(pe_file *pe, u8 rva)
     pe->bin->cur_off = rva_to_offset(pe, rva);
 }
 
-#endif //GARLIC_PE_TOOLS_H
+#endif // GARLIC_PE_TOOLS_H

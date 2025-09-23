@@ -5,4 +5,4 @@
 
 void method_type_analyse(jd_method *m);
 
-#endif //GARLIC_EXPRESSION_ANALYSE_H
+#endif // GARLIC_EXPRESSION_ANALYSE_H

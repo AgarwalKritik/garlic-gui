@@ -5,16 +5,19 @@ static int compute_dominance_frontier_callback(jd_bblock *block)
 {
     lclear_object(block->frontier);
 
-    for (int i = 0; i < block->out->size; ++i) {
+    for (int i = 0; i < block->out->size; ++i)
+    {
         jd_edge *edge = lget_obj(block->out, i);
         jd_bblock *target_block = edge->target_block;
         if (target_block->idom != block)
             ladd_obj_no_dup(block->frontier, target_block);
     }
 
-    for (int i = 0; i < block->dom_children->size; ++i) {
+    for (int i = 0; i < block->dom_children->size; ++i)
+    {
         jd_bblock *child_block = lget_obj(block->dom_children, i);
-        for (int j = 0; j < child_block->frontier->size; ++j) {
+        for (int j = 0; j < child_block->frontier->size; ++j)
+        {
             jd_bblock *frontier_block = lget_obj(child_block->frontier, j);
             if (frontier_block->idom != block)
                 ladd_obj_no_dup(block->frontier, frontier_block);
@@ -31,7 +34,8 @@ bool dominates(const jd_bblock *check, const jd_bblock *other)
         return true;
 
     jd_bblock *_tmp = other->idom;
-    while (_tmp != NULL) {
+    while (_tmp != NULL)
+    {
         if (_tmp->block_id == check->block_id)
             return true;
         _tmp = _tmp->idom;
@@ -43,7 +47,8 @@ void dominance_frontier(jd_method *m)
 {
     basic_block_clear_visited_flag(m);
 
-    for (int i = 0; i < m->basic_blocks->size; ++i) {
+    for (int i = 0; i < m->basic_blocks->size; ++i)
+    {
         jd_bblock *block = lget_obj(m->basic_blocks, i);
         if (!basic_block_is_live(block))
             continue;
@@ -54,10 +59,12 @@ void dominance_frontier(jd_method *m)
 void compute_dominates_block(jd_method *m, jd_bblock *block)
 {
     lclear_object(block->dominates);
-    for (int j = 0; j < m->basic_blocks->size; ++j) {
+    for (int j = 0; j < m->basic_blocks->size; ++j)
+    {
         jd_bblock *other = lget_obj(m->basic_blocks, j);
         // self dominates self
-        if (other->block_id == block->block_id) {
+        if (other->block_id == block->block_id)
+        {
             ladd_obj(block->dominates, other);
             continue;
         }
@@ -72,7 +79,8 @@ static int pre_order_traversal(jd_bblock *block, traversal_cb callback)
         return 0;
     block->visited = 1;
     int result = callback(block);
-    for (int i = 0; i < block->out->size; ++i) {
+    for (int i = 0; i < block->out->size; ++i)
+    {
         jd_edge *edge = lget_obj(block->out, i);
         if (!edge->target_block->visited)
             result |= pre_order_traversal(edge->target_block, callback);
@@ -82,10 +90,12 @@ static int pre_order_traversal(jd_bblock *block, traversal_cb callback)
 
 static void post_order_traversal(jd_bblock *block, traversal_cb cb)
 {
-    if (block->visited || !basic_block_is_live(block)) return;
+    if (block->visited || !basic_block_is_live(block))
+        return;
     block->visited = 1;
 
-    for (int i = 0; i < block->dom_children->size; ++i) {
+    for (int i = 0; i < block->dom_children->size; ++i)
+    {
         jd_bblock *child_block = lget_obj(block->dom_children, i);
         post_order_traversal(child_block, cb);
     }
@@ -102,7 +112,7 @@ static inline bool block_in_list(const jd_bblock *block, const jd_bblock *list)
     return block_in_list(block, list->idom);
 }
 
-static const jd_bblock* same_dom_block(const jd_bblock *b1, 
+static const jd_bblock *same_dom_block(const jd_bblock *b1,
                                        const jd_bblock *b2)
 {
     if (b1 == NULL || b2 == NULL)
@@ -120,28 +130,33 @@ static bool compute_dominator_cb(jd_bblock *block)
 {
     jd_bblock *dominator_block = NULL;
 
-    for (int i = 0; i < block->in->size; ++i) {
+    for (int i = 0; i < block->in->size; ++i)
+    {
         jd_edge *edge = lget_obj(block->in, i);
         jd_bblock *source_block = edge->source_block;
-        if (source_block->visited) {
+        if (source_block->visited)
+        {
             dominator_block = source_block;
             break;
         }
     }
 
-    for (int i = 0; i < block->in->size; ++i) {
+    for (int i = 0; i < block->in->size; ++i)
+    {
         jd_edge *edge = lget_obj(block->in, i);
         jd_bblock *source_block = edge->source_block;
-        if (source_block->idom != NULL) {
+        if (source_block->idom != NULL)
+        {
             jd_bblock *_tmp = NULL;
-            _tmp = (jd_bblock *) same_dom_block(dominator_block, source_block);
+            _tmp = (jd_bblock *)same_dom_block(dominator_block, source_block);
             if (_tmp != NULL)
                 dominator_block = _tmp;
         }
     }
 
     if (block->idom != dominator_block &&
-        block != dominator_block) {
+        block != dominator_block)
+    {
         block->idom = dominator_block;
         return true;
     }
@@ -150,11 +165,14 @@ static bool compute_dominator_cb(jd_bblock *block)
 
 static void dominate_blocks_v2(jd_method *m)
 {
-    for (int i = 0; i < m->basic_blocks->size; ++i) {
+    for (int i = 0; i < m->basic_blocks->size; ++i)
+    {
         jd_bblock *block = lget_obj(m->basic_blocks, i);
-        for (int j = 0; j < m->basic_blocks->size; ++j) {
+        for (int j = 0; j < m->basic_blocks->size; ++j)
+        {
             jd_bblock *other = lget_obj(m->basic_blocks, j);
-            if (other->block_id == block->block_id) {
+            if (other->block_id == block->block_id)
+            {
                 ladd_obj(block->dominates, other);
                 continue;
             }
@@ -172,15 +190,18 @@ void dominate_blocks(jd_method *m, jd_bblock *block)
 
     ladd_obj_no_dup(block->dominates, block);
 
-    for (int i = 0; i < block->dom_children->size; ++i) {
+    for (int i = 0; i < block->dom_children->size; ++i)
+    {
         jd_bblock *child = lget_obj(block->dom_children, i);
         ladd_obj_no_dup(block->dominates, child);
         dominate_blocks(m, child);
     }
 
-    for (int i = 0; i < block->dom_children->size; ++i) {
+    for (int i = 0; i < block->dom_children->size; ++i)
+    {
         jd_bblock *child = lget_obj(block->dom_children, i);
-        for (int j = 0; j < child->dominates->size; ++j) {
+        for (int j = 0; j < child->dominates->size; ++j)
+        {
             jd_bblock *b = lget_obj(child->dominates, j);
             ladd_obj_no_dup(block->dominates, b);
         }
@@ -193,10 +214,12 @@ void dominator_tree(jd_method *m)
     enter_block->idom = enter_block;
     int changed = 1;
     int result_tmp = 0;
-    while (changed) {
+    while (changed)
+    {
         changed = 0;
         basic_block_clear_visited_flag(m);
-        for (int i = 0; i < m->basic_blocks->size; ++i) {
+        for (int i = 0; i < m->basic_blocks->size; ++i)
+        {
             jd_bblock *block = lget_obj(m->basic_blocks, i);
             if (!basic_block_is_live(block))
                 continue;
@@ -206,7 +229,8 @@ void dominator_tree(jd_method *m)
     }
 
     enter_block->idom = NULL;
-    for (int i = 0; i < m->basic_blocks->size; ++i) {
+    for (int i = 0; i < m->basic_blocks->size; ++i)
+    {
         jd_bblock *block = lget_obj(m->basic_blocks, i);
         if (!basic_block_is_live(block))
             continue;
@@ -225,7 +249,8 @@ void create_dominator_tree(jd_method *m)
 
 void clear_dominator_data(jd_method *m)
 {
-    for (int i = 0; i < m->basic_blocks->size; ++i) {
+    for (int i = 0; i < m->basic_blocks->size; ++i)
+    {
         jd_bblock *block = lget_obj(m->basic_blocks, i);
         lclear_object(block->frontier);
         lclear_object(block->dom_children);
@@ -236,7 +261,8 @@ void clear_dominator_data(jd_method *m)
 
 void clear_dominator_tree(jd_method *m)
 {
-    for (int i = 0; i < m->basic_blocks->size; ++i) {
+    for (int i = 0; i < m->basic_blocks->size; ++i)
+    {
         jd_bblock *block = lget_obj(m->basic_blocks, i);
         lclear_object(block->dom_children);
         lclear_object(block->frontier);

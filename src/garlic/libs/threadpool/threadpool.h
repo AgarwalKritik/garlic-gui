@@ -8,10 +8,10 @@
 
 typedef struct threadpool_t threadpool_t;
 
-
-typedef enum {
+typedef enum
+{
     immediate_shutdown = 1,
-    graceful_shutdown  = 2
+    graceful_shutdown = 2
 } threadpool_shutdown_t;
 
 /**
@@ -22,12 +22,14 @@ typedef enum {
  *  @var argument Argument to be passed to the function.
  */
 
-typedef struct {
+typedef struct
+{
     void (*function)(void *);
     void *argument;
 } threadpool_task_t;
 
-struct threadpool_t {
+struct threadpool_t
+{
     int init_count;
     pthread_mutex_t *lock;
     pthread_cond_t *notify;
@@ -44,19 +46,22 @@ struct threadpool_t {
     mem_pool *mem_pool;
 };
 
-typedef enum {
-    threadpool_invalid        = -1,
-    threadpool_lock_failure   = -2,
-    threadpool_queue_full     = -3,
-    threadpool_shutdown       = -4,
+typedef enum
+{
+    threadpool_invalid = -1,
+    threadpool_lock_failure = -2,
+    threadpool_queue_full = -3,
+    threadpool_shutdown = -4,
     threadpool_thread_failure = -5
 } threadpool_error_t;
 
-typedef enum {
-    threadpool_graceful       = 1
+typedef enum
+{
+    threadpool_graceful = 1
 } threadpool_destroy_flags_t;
 
-typedef struct {
+typedef struct
+{
     int thread_id;
     mem_pool *pool;
 } thread_local_data;
@@ -64,7 +69,7 @@ typedef struct {
 static pthread_key_t tls_key;
 static pthread_once_t tls_init_once = PTHREAD_ONCE_INIT;
 
-threadpool_t* threadpool_create_in(mem_pool *mem_pool,
+threadpool_t *threadpool_create_in(mem_pool *mem_pool,
                                    int cnt,
                                    int flags);
 
@@ -77,7 +82,7 @@ int threadpool_destroy(threadpool_t *pool, int flags);
 
 void thread_local_data_init(threadpool_t *pool, pthread_t tid);
 
-thread_local_data* get_thread_local_data();
+thread_local_data *get_thread_local_data();
 
 void create_tls_key();
 

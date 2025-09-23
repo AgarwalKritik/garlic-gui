@@ -59,7 +59,8 @@ void optimize_jvm_method(jd_method *m)
 
     bool changed = false;
 
-    do {
+    do
+    {
         changed = identify_logical_operations(m);
 
         changed |= identify_reverse_logical_operation(m);
@@ -112,5 +113,3 @@ void optimize_jvm_method(jd_method *m)
 
     optimize_exception_block(m);
 }
-
-

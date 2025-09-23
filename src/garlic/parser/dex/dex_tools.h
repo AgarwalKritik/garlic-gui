@@ -19,7 +19,7 @@ static inline bool dex_encoded_method_is_lambda(jd_meta_dex *meta,
     dex_method_id method_id = meta->method_ids[em->method_id];
     string name = meta->strings[method_id.name_idx].data;
     return str_contains(name, "lambda$") &&
-            (em->access_flags & ACC_DEX_SYNTHETIC) != 0;
+           (em->access_flags & ACC_DEX_SYNTHETIC) != 0;
 }
 
-#endif //GARLIC_DEX_TOOLS_H
+#endif // GARLIC_DEX_TOOLS_H

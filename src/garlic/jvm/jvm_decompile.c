@@ -14,10 +14,10 @@
 #include "jvm_descriptor.h"
 #include "jvm_method.h"
 
-
 static void jvm_methods(jsource_file *jf)
 {
-    for (int i = 0; i < jf->methods->size; ++i) {
+    for (int i = 0; i < jf->methods->size; ++i)
+    {
         jd_method *m = lget_obj(jf->methods, i);
         if (method_is_lambda(m))
             continue;
@@ -72,7 +72,7 @@ void jvm_init_method_fn(jsource_file *jf)
 
 void jvm_analyse_class_file_inside(jsource_file *jf)
 {
-    jf->fname = pool_str(jf->jclass, ((jclass_file*)jf->jclass)->this_class);
+    jf->fname = pool_str(jf->jclass, ((jclass_file *)jf->jclass)->this_class);
     jf->pname = class_package_name(jf);
     jf->sname = class_simple_name(jf->fname);
     jf->access_flags_fn = jvm_class_access_flag;
@@ -102,7 +102,8 @@ void jvm_analyse_class_file(jsource_file *jf)
 {
     jvm_analyse_class_file_inside(jf);
 
-    if (jf->parent == NULL) {
+    if (jf->parent == NULL)
+    {
         writter_for_class(jf, NULL);
         if (jf->source != NULL)
             fclose(jf->source);

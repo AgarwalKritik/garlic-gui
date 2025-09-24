@@ -1,23 +1,31 @@
-# Garlic Decompiler GUI
+<div align="center">
 
-A modern, cross-platform GUI for the [Garlic Decompiler](https://github.com/neocanable/garlic) — the world’s fastest APK/CLASS/JAR/DEX decompiler written in C.
+<img src="icon/garlic.png" alt="GarlicGUI Icon" width="128" />
 
-> Garlic Decompiler is a high-performance tool for reconstructing Java source code from .class, .jar, .dex and .apk files.
+# Garlic Decompiler (GUI)
+
+*A modern C++/Qt6 GUI front-end for the Garlic Decompiler — bringing its blazing-fast APK/DEX/JAR/CLASS decompilation power to your desktop.*
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![C++](https://img.shields.io/badge/C%2B%2B-17%2B-blue)](#requirements)
+[![Qt6](https://img.shields.io/badge/Qt-6-green)](https://www.qt.io/)
+
+</div>
 
 ## Complete Project Directory Structure:
 ```
-└──garlic-gui/
-    └── src/
-    ├── main.cpp                            
-    ├── gui/                                
-    │   ├── MainWindow.cpp/h                
-    │   ├── FileTreeWidget.cpp/h            
-    │   ├── CodeEditorWidget.cpp/h          
-    │   ├── DecompilerInterface.cpp/h       
-    │   ├── ProjectManager.cpp/h            
-    │   └── DecompilerProgressDialog.cpp/h 
-    └── garlic/                             
-        ├── garlic_wrapper.c/h       # Wrapper to link QT6 C++ with Garlic's C source.
+garlic-gui/
+└── src/
+    ├── main.cpp                           # Entry point
+    ├── gui/                               # Qt6 GUI components
+    │   ├── MainWindow.cpp/h               # Main window
+    │   ├── FileTreeWidget.cpp/h           # File navigation tree
+    │   ├── CodeEditorWidget.cpp/h         # Tabbed code editor
+    │   ├── DecompilerInterface.cpp/h      # C++ wrapper for Garlic
+    │   ├── ProjectManager.cpp/h           # Project management
+    │   └── DecompilerProgressDialog.cpp/h # Progress dialog
+    └── garlic/                            # Garlic integration
+        ├── garlic_wrapper.c/h             # C interface wrapper
         ├── garlic.c                 # From Garlic Decompiler Source (neocanable/garlic)
         ├── apk/                     # From Garlic Decompiler Source (neocanable/garlic)
         │   └── apk.c/h
@@ -203,7 +211,7 @@ A modern, cross-platform GUI for the [Garlic Decompiler](https://github.com/neoc
 
 ## License
 
-This project is licensed under the same terms as the [Garlic Decompiler](https://github.com/neocanable/garlic/blob/cc5c8d073dc8a22bbb631491df092a846095853d/LICENSE).
+This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 

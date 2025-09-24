@@ -41,7 +41,7 @@
 * Work with APK, DEX, JAR, and CLASS files
 * Navigate projects using a dark-themed, tabbed editor with syntax highlighting
 
-> Garlic Decompiler is optimized for reconstructing Java source code from `.class`, `.jar`, `.dex`, and `.apk` files.
+> Garlic Decompiler is a high-perfomance fastest decompilation tool for reconstructing Java source code from `.class`, `.jar`, `.dex`, and `.apk` files.
 
 ### Built With
 

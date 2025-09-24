@@ -1,225 +1,238 @@
 <div align="center">
 
-<img src="icon/garlic.png" alt="GarlicGUI Icon" width="128" />
-
 # Garlic Decompiler (GUI)
 
-*A modern C++/Qt6 GUI front-end for the Garlic Decompiler — bringing its blazing-fast APK/DEX/JAR/CLASS decompilation power to your desktop.*
+<img src="icon/garlic.png" alt="GarlicGUI Icon" width="128" />
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![C++](https://img.shields.io/badge/C%2B%2B-17%2B-blue)](#requirements)
-[![Qt6](https://img.shields.io/badge/Qt-6-green)](https://www.qt.io/)
+**A modern C++/Qt6 GUI front-end for the Garlic Decompiler — bringing blazing-fast APK/DEX/JAR/CLASS decompilation power to your desktop.**
+
+[![License](icon/license.svg)](LICENSE)
+[![C++](icon/cpp.svg)](#built-with)
+[![Qt6](icon/qt.svg)](https://www.qt.io/)
 
 </div>
 
-## Complete Project Directory Structure:
+## Complete Project Directory Structure
+
 ```
 garlic-gui/
 └── src/
-    ├── main.cpp                           # Entry point
-    ├── gui/                               # Qt6 GUI components
-    │   ├── MainWindow.cpp/h               # Main window
-    │   ├── FileTreeWidget.cpp/h           # File navigation tree
-    │   ├── CodeEditorWidget.cpp/h         # Tabbed code editor
-    │   ├── DecompilerInterface.cpp/h      # C++ wrapper for Garlic
-    │   ├── ProjectManager.cpp/h           # Project management
-    │   └── DecompilerProgressDialog.cpp/h # Progress dialog
-    └── garlic/                            # Garlic integration
-        ├── garlic_wrapper.c/h             # C interface wrapper
-        ├── garlic.c                 # From Garlic Decompiler Source (neocanable/garlic)
-        ├── apk/                     # From Garlic Decompiler Source (neocanable/garlic)
-        │   └── apk.c/h
-        ├── common/                  # From Garlic Decompiler Source (neocanable/garlic)
-        │   ├── debug.h
-        │   ├── endian_x.h
-        │   ├── file_tools.h
-        │   ├── output_tools.h
-        │   ├── str_tools.h
-        │   └── types.h
-        ├── dalvik/                  # From Garlic Decompiler Source (neocanable/garlic)
-        │   ├── dex_annotation.c/h
-        │   ├── dex_class.c/h
-        │   ├── dex_decompile.c/h
-        │   ├── dex_descriptor.c/h
-        │   ├── dex_dump.c/h
-        │   ├── dex_exception.c/h
-        │   ├── dex_expression_builder.c/h
-        │   ├── dex_ins.c/h
-        │   ├── dex_ins_action.c/h
-        │   ├── dex_ins_helper.h
-        │   ├── dex_lambda.c/h
-        │   ├── dex_meta_helper.c/h
-        │   ├── dex_method.c/h
-        │   ├── dex_optimizer.c/h
-        │   ├── dex_pre_optimizer.c/h
-        │   ├── dex_simulator.c/h
-        │   ├── dex_smali.c/h
-        │   ├── dex_structure.h
-        │   ├── dex_type_analyse.c/h
-        │   └── dex_writter.c
-        ├── decompiler/               # From Garlic Decompiler Source (neocanable/garlic)
-        │   ├── control_flow.c/h
-        │   ├── debug_pointer.h
-        │   ├── descriptor.c/h
-        │   ├── dominator_tree.c/h
-        │   ├── exception.c/h
-        │   ├── expression.c/h
-        │   ├── expression_analyse.c/h
-        │   ├── expression_array.c/h
-        │   ├── expression_assert.c/h
-        │   ├── expression_assign.c/h
-        │   ├── expression_branches.c/h
-        │   ├── expression_chain.c/h
-        │   ├── expression_copy_propgation.c/h
-        │   ├── expression_enum.c/h
-        │   ├── expression_exception.c/h
-        │   ├── expression_goto.c/h
-        │   ├── expression_helper.h
-        │   ├── expression_if.c/h
-        │   ├── expression_inline.c/h
-        │   ├── expression_inner_class.c/h
-        │   ├── expression_local_variable.c/h
-        │   ├── expression_logical.c/h
-        │   ├── expression_loop.c/h
-        │   ├── expression_loop_type.c/h
-        │   ├── expression_new.c/h
-        │   ├── expression_node.c/h
-        │   ├── expression_node_helper.h
-        │   ├── expression_node_param.c/h
-        │   ├── expression_remove_useless.c/h
-        │   ├── expression_return.c/h
-        │   ├── expression_synchronized.c/h
-        │   ├── expression_ternary.c/h
-        │   ├── expression_visitor.c/h
-        │   ├── expression_writter.c/h
-        │   ├── field.c/h
-        │   ├── instruction.c/h
-        │   ├── klass.c/h
-        │   ├── method.c/h
-        │   ├── scc.c/h
-        │   ├── signature.c/h
-        │   ├── ssa.c/h
-        │   ├── stack.c/h
-        │   ├── structure.h
-        │   └── transformer/
-        │       ├── anonymous.c
-        │       ├── array_load.c
-        │       ├── array_store.c
-        │       ├── arraylength.c
-        │       ├── assert.c
-        │       ├── assignment.c
-        │       ├── assignment_chain.c
-        │       ├── athrow.c
-        │       ├── cast.c
-        │       ├── const.c
-        │       ├── declaration.c
-        │       ├── define_stack_var.c
-        │       ├── enum.c
-        │       ├── get_field.c
-        │       ├── get_static.c
-        │       ├── goto.c
-        │       ├── if.c
-        │       ├── iinc.c
-        │       ├── initialize.c
-        │       ├── instanceof.c
-        │       ├── invoke.c
-        │       ├── invokedynamic.c
-        │       ├── invokeinterface.c
-        │       ├── invokespecial.c
-        │       ├── invokestatic.c
-        │       ├── invokevirtual.c
-        │       ├── lambda.c
-        │       ├── local_variable.c
-        │       ├── logic_not.c
-        │       ├── loop.c
-        │       ├── lvalue.c
-        │       ├── monitorenter.c
-        │       ├── monitorexit.c
-        │       ├── new_array.c
-        │       ├── operator.c
-        │       ├── put_field.c
-        │       ├── put_static.c
-        │       ├── return.c
-        │       ├── single_list.c
-        │       ├── single_operator.c
-        │       ├── stack_value.c
-        │       ├── stack_var.c
-        │       ├── store.c
-        │       ├── str_concat.c
-        │       ├── switch.c
-        │       ├── ternary.c
-        │       ├── transformer.c/h
-        │       └── uninitialize.c
-        ├── jar/
-        │   └── jar.c/h
-        ├── jvm/
-        │   ├── jvm_annotation.c/h
-        │   ├── jvm_class.c/h
-        │   ├── jvm_decompile.c/h
-        │   ├── jvm_descriptor.c/h
-        │   ├── jvm_exception.c/h
-        │   ├── jvm_expression_builder.c/h
-        │   ├── jvm_ins.c/h
-        │   ├── jvm_ins_action.c
-        │   ├── jvm_ins_helper.h
-        │   ├── jvm_lambda.c/h
-        │   ├── jvm_method.c/h
-        │   ├── jvm_optimizer.c/h
-        │   ├── jvm_simulator.c/h
-        │   └── jvm_type_analyse.c/h
-        ├── libs/
-        │   ├── bitset/
-        │   │   ├── bitset.c/h
-        │   │   └── portability.h
-        │   ├── hashmap/
-        │   │   ├── hashmap.c/h
-        │   │   └── hashmap_tools.c/h
-        │   ├── list/
-        │   │   └── list.c/h
-        │   ├── memory/
-        │   │   ├── mem_common.h
-        │   │   └── mem_pool.c/h
-        │   ├── queue/
-        │   │   └── queue.c/h
-        │   ├── str/
-        │   │   └── str.c/h
-        │   ├── threadpool/
-        │   │   └── threadpool.c/h
-        │   ├── trie/
-        │   │   └── trie_tree.c/h
-        │   └── zip/
-        │       └── zip.h
-        └── parser/
-            ├── class/
-            │   ├── class_structure.h
-            │   ├── class_tools.c/h
-            │   ├── metadata.c/h
-            │   └── opcode.c
-            ├── dex/
-            │   ├── dex.h
-            │   ├── dex_tools.h
-            │   ├── metadata.c/h
-            │   └── opcode.c
-            ├── pe/
-            │   ├── metadata.h
-            │   ├── pe.h
-            │   ├── pe_const.h
-            │   └── pe_tools.h
-            └── reader/
-                └── reader.h
+    ├── main.cpp                                # Entry point
+    ├── gui/                                    # Qt6 GUI components
+    │   ├── MainWindow.cpp/h                    # Main window
+    │   ├── FileTreeWidget.cpp/h                # File navigation tree
+    │   ├── CodeEditorWidget.cpp/h              # Tabbed code editor
+    │   ├── DecompilerInterface.cpp/h           # C++ wrapper for Garlic
+    │   ├── ProjectManager.cpp/h                # Project management
+    │   └── DecompilerProgressDialog.cpp/h      # Progress dialog
+    └── garlic/                                 # Garlic integration
+        ├── garlic_wrapper.c/h                  # C interface wrapper
+        ├── garlic.c                            # Original Garlic Decompiler Engine (C source)
+        ├── apk/                                # Original Garlic Decompiler Engine (C source)
+        │   └── apk.c/h                         # Original Garlic Decompiler Engine (C source)
+        ├── common/                             # Original Garlic Decompiler Engine (C source)
+        │   ├── debug.h                         # Original Garlic Decompiler Engine (C source)
+        │   ├── endian_x.h                      # Original Garlic Decompiler Engine (C source)
+        │   ├── file_tools.h                    # Original Garlic Decompiler Engine (C source)
+        │   ├── output_tools.h                  # Original Garlic Decompiler Engine (C source)
+        │   ├── str_tools.h                     # Original Garlic Decompiler Engine (C source)
+        │   └── types.h                         # Original Garlic Decompiler Engine (C source)
+        ├── dalvik/                             # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_annotation.c/h              # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_class.c/h                   # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_decompile.c/h               # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_descriptor.c/h              # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_dump.c/h                    # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_exception.c/h               # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_expression_builder.c/h      # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_ins.c/h                     # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_ins_action.c/h              # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_ins_helper.h                # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_lambda.c/h                  # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_meta_helper.c/h             # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_method.c/h                  # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_optimizer.c/h               # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_pre_optimizer.c/h           # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_simulator.c/h               # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_smali.c/h                   # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_structure.h                 # Original Garlic Decompiler Engine (C source)
+        │   ├── dex_type_analyse.c/h            # Original Garlic Decompiler Engine (C source)
+        │   └── dex_writter.c                   # Original Garlic Decompiler Engine (C source)
+        ├── decompiler/                         # Original Garlic Decompiler Engine (C source)
+        │   ├── control_flow.c/h                # Original Garlic Decompiler Engine (C source)
+        │   ├── debug_pointer.h                 # Original Garlic Decompiler Engine (C source)
+        │   ├── descriptor.c/h                  # Original Garlic Decompiler Engine (C source)
+        │   ├── dominator_tree.c/h              # Original Garlic Decompiler Engine (C source)
+        │   ├── exception.c/h                   # Original Garlic Decompiler Engine (C source)
+        │   ├── expression.c/h                  # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_analyse.c/h          # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_array.c/h            # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_assert.c/h           # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_assign.c/h           # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_branches.c/h         # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_chain.c/h            # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_copy_propgation.c/h  # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_enum.c/h             # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_exception.c/h        # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_goto.c/h             # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_helper.h             # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_if.c/h               # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_inline.c/h           # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_inner_class.c/h      # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_local_variable.c/h   # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_logical.c/h          # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_loop.c/h             # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_loop_type.c/h        # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_new.c/h              # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_node.c/h             # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_node_helper.h        # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_node_param.c/h       # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_remove_useless.c/h   # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_return.c/h           # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_synchronized.c/h     # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_ternary.c/h          # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_visitor.c/h          # Original Garlic Decompiler Engine (C source)
+        │   ├── expression_writter.c/h          # Original Garlic Decompiler Engine (C source)
+        │   ├── field.c/h                       # Original Garlic Decompiler Engine (C source)
+        │   ├── instruction.c/h                 # Original Garlic Decompiler Engine (C source)
+        │   ├── klass.c/h                       # Original Garlic Decompiler Engine (C source)
+        │   ├── method.c/h                      # Original Garlic Decompiler Engine (C source)
+        │   ├── scc.c/h                         # Original Garlic Decompiler Engine (C source)
+        │   ├── signature.c/h                   # Original Garlic Decompiler Engine (C source)
+        │   ├── ssa.c/h                         # Original Garlic Decompiler Engine (C source)
+        │   ├── stack.c/h                       # Original Garlic Decompiler Engine (C source)
+        │   ├── structure.h                     # Original Garlic Decompiler Engine (C source)
+        │   └── transformer/                    # Original Garlic Decompiler Engine (C source)
+        │       ├── anonymous.c                 # Original Garlic Decompiler Engine (C source)
+        │       ├── array_load.c                # Original Garlic Decompiler Engine (C source)
+        │       ├── array_store.c               # Original Garlic Decompiler Engine (C source)
+        │       ├── arraylength.c               # Original Garlic Decompiler Engine (C source)
+        │       ├── assert.c                    # Original Garlic Decompiler Engine (C source)
+        │       ├── assignment.c                # Original Garlic Decompiler Engine (C source)
+        │       ├── assignment_chain.c          # Original Garlic Decompiler Engine (C source)
+        │       ├── athrow.c                    # Original Garlic Decompiler Engine (C source)
+        │       ├── cast.c                      # Original Garlic Decompiler Engine (C source)
+        │       ├── const.c                     # Original Garlic Decompiler Engine (C source)
+        │       ├── declaration.c               # Original Garlic Decompiler Engine (C source)
+        │       ├── define_stack_var.c          # Original Garlic Decompiler Engine (C source)
+        │       ├── enum.c                      # Original Garlic Decompiler Engine (C source)
+        │       ├── get_field.c                 # Original Garlic Decompiler Engine (C source)
+        │       ├── get_static.c                # Original Garlic Decompiler Engine (C source)
+        │       ├── goto.c                      # Original Garlic Decompiler Engine (C source)
+        │       ├── if.c                        # Original Garlic Decompiler Engine (C source)
+        │       ├── iinc.c                      # Original Garlic Decompiler Engine (C source)
+        │       ├── initialize.c                # Original Garlic Decompiler Engine (C source)
+        │       ├── instanceof.c                # Original Garlic Decompiler Engine (C source)
+        │       ├── invoke.c                    # Original Garlic Decompiler Engine (C source)
+        │       ├── invokedynamic.c             # Original Garlic Decompiler Engine (C source)
+        │       ├── invokeinterface.c           # Original Garlic Decompiler Engine (C source)
+        │       ├── invokespecial.c             # Original Garlic Decompiler Engine (C source)
+        │       ├── invokestatic.c              # Original Garlic Decompiler Engine (C source)
+        │       ├── invokevirtual.c             # Original Garlic Decompiler Engine (C source)
+        │       ├── lambda.c                    # Original Garlic Decompiler Engine (C source)
+        │       ├── local_variable.c            # Original Garlic Decompiler Engine (C source)
+        │       ├── logic_not.c                 # Original Garlic Decompiler Engine (C source)
+        │       ├── loop.c                      # Original Garlic Decompiler Engine (C source)
+        │       ├── lvalue.c                    # Original Garlic Decompiler Engine (C source)
+        │       ├── monitorenter.c              # Original Garlic Decompiler Engine (C source)
+        │       ├── monitorexit.c               # Original Garlic Decompiler Engine (C source)
+        │       ├── new_array.c                 # Original Garlic Decompiler Engine (C source)
+        │       ├── operator.c                  # Original Garlic Decompiler Engine (C source)
+        │       ├── put_field.c                 # Original Garlic Decompiler Engine (C source)
+        │       ├── put_static.c                # Original Garlic Decompiler Engine (C source)
+        │       ├── return.c                    # Original Garlic Decompiler Engine (C source)
+        │       ├── single_list.c               # Original Garlic Decompiler Engine (C source)
+        │       ├── single_operator.c           # Original Garlic Decompiler Engine (C source)
+        │       ├── stack_value.c               # Original Garlic Decompiler Engine (C source)
+        │       ├── stack_var.c                 # Original Garlic Decompiler Engine (C source)
+        │       ├── store.c                     # Original Garlic Decompiler Engine (C source)
+        │       ├── str_concat.c                # Original Garlic Decompiler Engine (C source)
+        │       ├── switch.c                    # Original Garlic Decompiler Engine (C source)
+        │       ├── ternary.c                   # Original Garlic Decompiler Engine (C source)
+        │       ├── transformer.c/h             # Original Garlic Decompiler Engine (C source)
+        │       └── uninitialize.c              # Original Garlic Decompiler Engine (C source)
+        ├── jar/                                # Original Garlic Decompiler Engine (C source)
+        │   └── jar.c/h                         # Original Garlic Decompiler Engine (C source)
+        ├── jvm/                                # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_annotation.c/h              # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_class.c/h                   # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_decompile.c/h               # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_descriptor.c/h              # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_exception.c/h               # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_expression_builder.c/h      # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_ins.c/h                     # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_ins_action.c                # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_ins_helper.h                # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_lambda.c/h                  # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_method.c/h                  # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_optimizer.c/h               # Original Garlic Decompiler Engine (C source)
+        │   ├── jvm_simulator.c/h               # Original Garlic Decompiler Engine (C source)
+        │   └── jvm_type_analyse.c/h            # Original Garlic Decompiler Engine (C source)
+        ├── libs/                               # Original Garlic Decompiler Engine (C source)
+        │   ├── bitset/                         # Original Garlic Decompiler Engine (C source)
+        │   │   ├── bitset.c/h                  # Original Garlic Decompiler Engine (C source)
+        │   │   └── portability.h               # Original Garlic Decompiler Engine (C source)
+        │   ├── hashmap/                        # Original Garlic Decompiler Engine (C source)
+        │   │   ├── hashmap.c/h                 # Original Garlic Decompiler Engine (C source)
+        │   │   └── hashmap_tools.c/h           # Original Garlic Decompiler Engine (C source)
+        │   ├── list/                           # Original Garlic Decompiler Engine (C source)
+        │   │   └── list.c/h                    # Original Garlic Decompiler Engine (C source)
+        │   ├── memory/                         # Original Garlic Decompiler Engine (C source)
+        │   │   ├── mem_common.h                # Original Garlic Decompiler Engine (C source)
+        │   │   └── mem_pool.c/h                # Original Garlic Decompiler Engine (C source)
+        │   ├── queue/                          # Original Garlic Decompiler Engine (C source)
+        │   │   └── queue.c/h                   # Original Garlic Decompiler Engine (C source)
+        │   ├── str/                            # Original Garlic Decompiler Engine (C source)
+        │   │   └── str.c/h                     # Original Garlic Decompiler Engine (C source)
+        │   ├── threadpool/                     # Original Garlic Decompiler Engine (C source)
+        │   │   └── threadpool.c/h              # Original Garlic Decompiler Engine (C source)
+        │   ├── trie/                           # Original Garlic Decompiler Engine (C source)
+        │   │   └── trie_tree.c/h               # Original Garlic Decompiler Engine (C source)
+        │   └── zip/                            # Original Garlic Decompiler Engine (C source)
+        │       └── zip.h                       # Original Garlic Decompiler Engine (C source)
+        └── parser/                             # Original Garlic Decompiler Engine (C source)
+            ├── class/                          # Original Garlic Decompiler Engine (C source)
+            │   ├── class_structure.h           # Original Garlic Decompiler Engine (C source)
+            │   ├── class_tools.c/h             # Original Garlic Decompiler Engine (C source)
+            │   ├── metadata.c/h                # Original Garlic Decompiler Engine (C source)
+            │   └── opcode.c                    # Original Garlic Decompiler Engine (C source)
+            ├── dex/                            # Original Garlic Decompiler Engine (C source)
+            │   ├── dex.h                       # Original Garlic Decompiler Engine (C source)
+            │   ├── dex_tools.h                 # Original Garlic Decompiler Engine (C source)
+            │   ├── metadata.c/h                # Original Garlic Decompiler Engine (C source)
+            │   └── opcode.c                    # Original Garlic Decompiler Engine (C source)
+            ├── pe/                             # Original Garlic Decompiler Engine (C source)
+            │   ├── metadata.h                  # Original Garlic Decompiler Engine (C source)
+            │   ├── pe.h                        # Original Garlic Decompiler Engine (C source)
+            │   ├── pe_const.h                  # Original Garlic Decompiler Engine (C source)
+            │   └── pe_tools.h                  # Original Garlic Decompiler Engine (C source)
+            └── reader/                         # Original Garlic Decompiler Engine (C source)
+                └── reader.h                    # Original Garlic Decompiler Engine (C source)
 ```
 
 ## License
 
-This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.
+This project is distributed and licensed under the **Apache License 2.0** — see [LICENSE](LICENSE) for more information.
+
+---
+
+## Contact
+
+If you have any questions or suggestions, feel free to reach out to us:
+
+[![Raise an issue](icon/issue.svg)](https://github.com/AgarwalKritik/garlic-gui/issues/new)
+[![AbhiTheModder](icon/abhithemodder.svg)](https://lin.ky/abhithemodder)
+
+---
 
 ## Acknowledgments
 
-- **Garlic Decompiler**: <https://github.com/neocanable/garlic>
-- **JADX**: Inspiration for the GUI Design
-- **Qt6**: Cross-platform GUI Framework
+[![Garlic Decompiler](icon/garlic.svg)](https://github.com/neocanable/garlic)
+[![QT6](icon/qt6.svg)](https://www.qt.io/)
 
-## Authors
+---
 
-- [AbhiTheModder](https://github.com/AbhiTheModder)
+## Contributors
+
 - [Kritik Agarwal](https://github.com/AgarwalKritik)
+- [AbhiTheModder](https://github.com/AbhiTheModder)

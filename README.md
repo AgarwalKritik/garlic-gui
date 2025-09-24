@@ -68,7 +68,7 @@ garlic-gui/
 
 ```
 
-> For Complete Project Structure See [STRUCTURE.md](STRUCTURE.md)
+> For full tree with source annotations, see [STRUCTURE.md](STRUCTURE.md)
 
 ---
 
@@ -175,7 +175,7 @@ This project is distributed and licensed under the **Apache License 2.0** — se
 If you have any questions or suggestions, feel free to reach out to us:
 
 [![Raise an issue](icon/issue.svg)](https://github.com/AgarwalKritik/garlic-gui/issues/new)
- [![AbhiTheModder](icon/abhithemodder.svg)](https://lin.ky/abhithemodder)
+[![AbhiTheModder](icon/abhithemodder.svg)](https://lin.ky/abhithemodder)
 
 ---
 

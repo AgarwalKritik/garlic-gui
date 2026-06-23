@@ -156,7 +156,7 @@ void MainWindow::setupStatusBar()
     m_remoteLabel->setStyleSheet("background-color: #3994BC; color: #FFFFFF; font-weight: bold; border-radius: 2px; margin-right: 5px;");
     m_statusBar->addWidget(m_remoteLabel);
 
-    m_gitLabel = new QLabel(" feature/Fix* ");
+    m_gitLabel = new QLabel(" Garlic-GUI ");
     m_statusBar->addWidget(m_gitLabel);
 
     m_errorWarningLabel = new QLabel(" (x) 0  (!) 0 ");

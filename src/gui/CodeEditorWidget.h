@@ -19,13 +19,66 @@
 
 #include <QWidget>
 #include <QTabWidget>
-#include <QTextEdit>
+#include <QPlainTextEdit>
 #include <QVBoxLayout>
 #include <QSyntaxHighlighter>
 #include <QTextDocument>
 #include <QRegularExpression>
+#include <QPaintEvent>
+#include <QResizeEvent>
+#include <QRect>
+#include <QStackedWidget>
+#include <QShortcut>
 
 class JavaSyntaxHighlighter;
+class CodeEditor;
+class WelcomeWidget;
+class FindReplaceWidget;
+
+class LineNumberArea;
+
+class CodeEditor : public QPlainTextEdit
+{
+    Q_OBJECT
+
+public:
+    CodeEditor(QWidget *parent = nullptr);
+
+    void lineNumberAreaPaintEvent(QPaintEvent *event);
+    int lineNumberAreaWidth();
+
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
+private slots:
+    void updateLineNumberAreaWidth(int newBlockCount);
+    void highlightCurrentLine();
+    void updateLineNumberArea(const QRect &rect, int dy);
+
+private:
+    QWidget *lineNumberArea;
+};
+
+class LineNumberArea : public QWidget
+{
+public:
+    LineNumberArea(CodeEditor *editor) : QWidget(editor), codeEditor(editor)
+    {}
+
+    QSize sizeHint() const override
+    {
+        return QSize(codeEditor->lineNumberAreaWidth(), 0);
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event) override
+    {
+        codeEditor->lineNumberAreaPaintEvent(event);
+    }
+
+private:
+    CodeEditor *codeEditor;
+};
 
 class CodeEditorWidget : public QWidget
 {
@@ -39,17 +92,32 @@ public slots:
     void closeTab(int index);
     void closeAllTabs();
 
+signals:
+    void cursorPositionChanged(int line, int col);
+    void openFileRequested();
+
 private slots:
     void onTabCloseRequested(int index);
+    void showFindReplace();
+    void hideFindReplace();
+    void findNext();
+    void findPrev();
+    void replaceCurrent();
+    void replaceAll();
+    void updateTabVisibility();
 
 private:
     void setupUI();
-    QTextEdit *createTextEditor();
+    CodeEditor *createTextEditor();
     QString readFileContent(const QString &filePath);
     int findExistingTab(const QString &filePath);
 
     QVBoxLayout *m_layout;
+    QStackedWidget *m_stackedWidget;
+    WelcomeWidget *m_welcomeWidget;
     QTabWidget *m_tabWidget;
+    FindReplaceWidget *m_findReplaceWidget;
+    QShortcut *m_findShortcut;
 
     QList<QString> m_openFiles;
 };

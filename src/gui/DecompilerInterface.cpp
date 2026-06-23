@@ -24,6 +24,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QPointer>
+#include <QRegularExpression>
 
 // Static instance for callback
 DecompilerInterface *DecompilerInterface::s_instance = nullptr;
@@ -54,22 +55,27 @@ void DecompilerInterface::decompileFile(const QString &inputPath)
 
     emit decompilationStarted();
 
-    // Create output directory
-    m_currentOutputDir = createTempOutputDirectory();
+    // Create output directory using the input file's base name
+    m_currentOutputDir = createTempOutputDirectory(inputPath);
     if (m_currentOutputDir.isEmpty())
     {
         emit decompilationFinished(false);
         return;
     }
 
+    QString outputDir = m_currentOutputDir;
+    // Match the CLI default of 4 threads to prevent lock contention overhead
+    int threadNum = 4;
+
     // Run decompilation in a separate thread to avoid blocking the GUI
     QPointer<DecompilerInterface> self(this);
-    QThread *workerThread = QThread::create([self, inputPath]()
+    QThread *workerThread = QThread::create([self, inputPath, outputDir, threadNum]()
                                             {
         // Call Garlic decompiler
         int result = garlic_decompile_file(
             inputPath.toLocal8Bit().constData(),
-            self ? self->m_currentOutputDir.toLocal8Bit().constData() : ""
+            outputDir.toLocal8Bit().constData(),
+            threadNum
         );
         if (self) {
             // Emit result on main thread
@@ -97,10 +103,21 @@ void DecompilerInterface::progressCallback(int progress)
     }
 }
 
-QString DecompilerInterface::createTempOutputDirectory()
+#include <QDateTime>
+
+QString DecompilerInterface::createTempOutputDirectory(const QString &inputPath)
 {
     QString tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-    QString outputDir = tempDir + "/GarlicGUI_" + QString::number(QCoreApplication::applicationPid());
+    QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss_zzz");
+    
+    QString baseName = "Project";
+    if (!inputPath.isEmpty()) {
+        baseName = QFileInfo(inputPath).baseName();
+        // Remove spaces and special characters for a safe directory name
+        baseName.replace(QRegularExpression("[^a-zA-Z0-9_-]"), "_");
+    }
+    
+    QString outputDir = tempDir + "/" + baseName + "_" + QString::number(QCoreApplication::applicationPid()) + "_" + timestamp;
 
     QDir dir;
     if (!dir.mkpath(outputDir))

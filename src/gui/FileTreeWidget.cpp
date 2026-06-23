@@ -32,14 +32,23 @@ void FileTreeWidget::setupUI()
     m_layout->setContentsMargins(5, 5, 5, 5);
 
     // Title
-    m_titleLabel = new QLabel("Project Explorer");
-    m_titleLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 12px; }");
+    m_titleLabel = new QLabel("EXPLORER");
+    m_titleLabel->setStyleSheet("QLabel { font-size: 11px; color: #BBBBBB; letter-spacing: 1px; padding: 5px 0px 5px 15px; }");
     m_layout->addWidget(m_titleLabel);
 
     // Search box
     m_searchEdit = new QLineEdit();
     m_searchEdit->setPlaceholderText("Search files...");
-    m_searchEdit->setStyleSheet("QLineEdit { padding: 5px; border: 1px solid #555; border-radius: 3px; }");
+    m_searchEdit->setStyleSheet(
+        "QLineEdit { "
+        "  padding: 4px; "
+        "  border: 1px solid #202122; "
+        "  background-color: #202122; "
+        "  color: #CCCCCC; "
+        "} "
+        "QLineEdit:focus { "
+        "  border: 1px solid #3994BC; "
+        "}");
     connect(m_searchEdit, &QLineEdit::textChanged, this, &FileTreeWidget::onSearchTextChanged);
     m_layout->addWidget(m_searchEdit);
 
@@ -47,19 +56,23 @@ void FileTreeWidget::setupUI()
     m_treeWidget = new QTreeWidget();
     m_treeWidget->setHeaderHidden(true);
     m_treeWidget->setRootIsDecorated(true);
-    m_treeWidget->setAlternatingRowColors(true);
+    m_treeWidget->setAlternatingRowColors(false); // VS Code doesn't alternate
     m_treeWidget->setStyleSheet(
         "QTreeWidget { "
-        "  border: 1px solid #555; "
-        "  background-color: #2b2b2b; "
-        "  selection-background-color: #3d7848; "
+        "  border: none; "
+        "  background-color: #191A1B; "
+        "  color: #CCCCCC; "
         "} "
         "QTreeWidget::item { "
-        "  padding: 3px; "
+        "  padding: 3px 0px; "
         "  border: none; "
         "} "
         "QTreeWidget::item:hover { "
-        "  background-color: #404040; "
+        "  background-color: #202122; "
+        "} "
+        "QTreeWidget::item:selected { "
+        "  background-color: #3994BC; "
+        "  color: #FFFFFF; "
         "}");
 
     connect(m_treeWidget, &QTreeWidget::itemClicked, this, &FileTreeWidget::onItemClicked);
@@ -68,14 +81,14 @@ void FileTreeWidget::setupUI()
     setLayout(m_layout);
 }
 
-void FileTreeWidget::loadProject(const QString &projectPath)
+void FileTreeWidget::loadProject(const QString &projectPath, const QString &projectName)
 {
     m_currentProjectPath = projectPath;
     m_treeWidget->clear();
 
     if (!projectPath.isEmpty() && QDir(projectPath).exists())
     {
-        populateTree(projectPath);
+        populateTree(projectPath, projectName);
         m_treeWidget->expandToDepth(1);
     }
 }
@@ -86,13 +99,14 @@ void FileTreeWidget::clearProject()
     m_treeWidget->clear();
 }
 
-void FileTreeWidget::populateTree(const QString &rootPath)
+void FileTreeWidget::populateTree(const QString &rootPath, const QString &projectName)
 {
     QDir rootDir(rootPath);
     if (!rootDir.exists())
         return;
 
-    QTreeWidgetItem *rootItem = createTreeItem(rootDir.dirName(), rootPath);
+    QString displayName = projectName.isEmpty() ? rootDir.dirName() : projectName;
+    QTreeWidgetItem *rootItem = createTreeItem(displayName, rootPath);
     m_treeWidget->addTopLevelItem(rootItem);
 
     addDirectoryToTree(rootItem, rootPath);

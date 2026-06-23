@@ -105,6 +105,10 @@ set(GUI_SOURCES
     src/gui/FileTreeWidget.h
     src/gui/CodeEditorWidget.cpp
     src/gui/CodeEditorWidget.h
+    src/gui/WelcomeWidget.cpp
+    src/gui/WelcomeWidget.h
+    src/gui/FindReplaceWidget.cpp
+    src/gui/FindReplaceWidget.h
     src/gui/DecompilerInterface.cpp
     src/gui/DecompilerInterface.h
     src/gui/ProjectManager.cpp

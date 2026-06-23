@@ -1,3 +1,9 @@
+/*
+ * Author: Kritik Agarwal
+ * Garlic Wrapper - Interface between C++ GUI and Garlic C decompiler
+ * This file provides C interface functions that can be called from C++
+ */
+
 #ifndef GARLIC_WRAPPER_H
 #define GARLIC_WRAPPER_H
 
@@ -8,7 +14,7 @@ extern "C"
 
     // Main decompilation function
     // Returns 1 on success, 0 on failure
-    int garlic_decompile_file(const char *input_path, const char *output_path);
+    int garlic_decompile_file(const char *input_path, const char *output_path, int thread_num);
 
     // Progress callback registration
     // Callback will be called with progress values from 0 to 100

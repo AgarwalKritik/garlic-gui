@@ -32,6 +32,7 @@ class FileTreeWidget;
 class CodeEditorWidget;
 class DecompilerInterface;
 class ProjectManager;
+class DecompilerProgressDialog;
 
 class MainWindow : public QMainWindow
 {
@@ -49,11 +50,11 @@ private slots:
     void onDecompilationStarted();
     void onDecompilationFinished(bool success);
     void onDecompilationProgress(int progress);
+    void updateCursorPosition(int line, int col);
 
 private:
     void setupUI();
     void setupMenuBar();
-    void setupToolBar();
     void setupStatusBar();
     void setupCentralWidget();
     void updateWindowTitle(const QString &projectPath = QString());
@@ -82,8 +83,21 @@ private:
     // Status bar widgets
     QLabel *m_statusLabel;
     QProgressBar *m_progressBar;
+    
+    QLabel *m_remoteLabel;
+    QLabel *m_gitLabel;
+    QLabel *m_errorWarningLabel;
+    
+    QLabel *m_cursorPositionLabel;
+    QLabel *m_spacesLabel;
+    QLabel *m_encodingLabel;
+    QLabel *m_crlfLabel;
+    QLabel *m_fileTypeLabel;
 
     QString m_currentProject;
+    QString m_currentFile;
+    QString m_currentFileType;
+    DecompilerProgressDialog *m_progressDialog;
 };
 
 #endif // MAINWINDOW_H

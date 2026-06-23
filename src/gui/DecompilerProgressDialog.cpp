@@ -58,29 +58,8 @@ void DecompilerProgressDialog::setupUI()
         "}");
     m_mainLayout->addWidget(m_progressBar);
 
-    // Cancel button
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-    buttonLayout->addStretch();
-
-    m_cancelButton = new QPushButton("Cancel");
-    m_cancelButton->setStyleSheet(
-        "QPushButton { "
-        "  padding: 8px 20px; "
-        "  border: 1px solid #555; "
-        "  border-radius: 3px; "
-        "  background-color: #404040; "
-        "  color: white; "
-        "} "
-        "QPushButton:hover { "
-        "  background-color: #505050; "
-        "} "
-        "QPushButton:pressed { "
-        "  background-color: #353535; "
-        "}");
-    connect(m_cancelButton, &QPushButton::clicked, this, &DecompilerProgressDialog::onCancelClicked);
-
-    buttonLayout->addWidget(m_cancelButton);
-    m_mainLayout->addLayout(buttonLayout);
+    // Cancel button - Removed because Garlic C engine does not support cancellation.
+    // A synchronous blocking call in a background thread cannot be cleanly aborted.
 
     setLayout(m_mainLayout);
 }

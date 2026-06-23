@@ -33,22 +33,36 @@ int main(int argc, char *argv[])
     // Set modern style
     app.setStyle(QStyleFactory::create("Fusion"));
 
-    // Dark theme
+    // VS Code Dark 2026 theme
     QPalette darkPalette;
-    darkPalette.setColor(QPalette::Window, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::WindowText, Qt::white);
-    darkPalette.setColor(QPalette::Base, QColor(25, 25, 25));
-    darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+    darkPalette.setColor(QPalette::Window, QColor(25, 26, 27)); // #191A1B
+    darkPalette.setColor(QPalette::WindowText, QColor(204, 204, 204)); // #CCCCCC
+    darkPalette.setColor(QPalette::Base, QColor(18, 19, 20)); // #121314
+    darkPalette.setColor(QPalette::AlternateBase, QColor(25, 26, 27)); // #191A1B
+    darkPalette.setColor(QPalette::ToolTipBase, QColor(32, 33, 34)); // #202122
     darkPalette.setColor(QPalette::ToolTipText, Qt::white);
     darkPalette.setColor(QPalette::Text, Qt::white);
-    darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
+    darkPalette.setColor(QPalette::Button, QColor(32, 33, 34)); // #202122
     darkPalette.setColor(QPalette::ButtonText, Qt::white);
     darkPalette.setColor(QPalette::BrightText, Qt::red);
-    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+    darkPalette.setColor(QPalette::Link, QColor(57, 148, 188)); // #3994BC
+    darkPalette.setColor(QPalette::Highlight, QColor(57, 148, 188)); // #3994BC
+    darkPalette.setColor(QPalette::HighlightedText, Qt::white);
     app.setPalette(darkPalette);
+
+    // Global stylesheet for consistent flat look
+    app.setStyleSheet(
+        "QToolTip { color: #ffffff; background-color: #202122; border: 1px solid #191A1B; }"
+        "QMainWindow::separator { background: #333333; width: 1px; height: 1px; }"
+        "QMainWindow::separator:hover { background: #3994BC; }"
+        "QMenu { background-color: #202122; color: #CCCCCC; border: 1px solid #333333; }"
+        "QMenu::item { padding: 4px 20px; }"
+        "QMenu::item:selected { background-color: #3994BC; color: white; }"
+        "QMenuBar { background-color: #3C3C3C; color: #CCCCCC; }"
+        "QMenuBar::item { spacing: 3px; padding: 4px 8px; background: transparent; border-radius: 2px; }"
+        "QMenuBar::item:selected { background: #505050; }"
+        "QMenuBar::item:pressed { background: #505050; }"
+    );
 
     MainWindow window;
     window.show();

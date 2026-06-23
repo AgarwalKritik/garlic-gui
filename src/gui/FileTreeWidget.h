@@ -31,7 +31,7 @@ class FileTreeWidget : public QWidget
 public:
     explicit FileTreeWidget(QWidget *parent = nullptr);
 
-    void loadProject(const QString &projectPath);
+    void loadProject(const QString &projectPath, const QString &projectName = QString());
     void clearProject();
 
 signals:
@@ -43,7 +43,7 @@ private slots:
 
 private:
     void setupUI();
-    void populateTree(const QString &rootPath);
+    void populateTree(const QString &rootPath, const QString &projectName = QString());
     void addDirectoryToTree(QTreeWidgetItem *parentItem, const QString &dirPath);
     bool isJavaFile(const QString &fileName);
     QTreeWidgetItem *createTreeItem(const QString &name, const QString &fullPath, bool isFile = false);

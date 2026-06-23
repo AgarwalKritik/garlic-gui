@@ -239,7 +239,12 @@ void thread_local_data_init(threadpool_t *pool, pthread_t tid)
 {
     pthread_once(&tls_init_once, create_tls_key);
     mem_pool *mpool = pool->mem_pool;
+    
+    // Prevent data race when multiple threads allocate from the same memory pool simultaneously
+    pthread_mutex_lock(pool->lock);
     thread_local_data *tls = x_alloc_in(mpool, sizeof(thread_local_data));
+    pthread_mutex_unlock(pool->lock);
+    
     if (!tls)
     {
         perror("Failed to allocate thread local storage");

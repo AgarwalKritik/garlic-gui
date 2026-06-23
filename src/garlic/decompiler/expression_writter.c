@@ -504,6 +504,7 @@ static void write_notice(jsource_file *jf)
 
     fprintf(stream, "/*\n");
     fprintf(stream, " * Decompiled by Garlic\n");
+    fprintf(stream, " * Using Garlic-GUI Decompiler by AgarwalKritik\n");
     fprintf(stream, " * Version: 1.0\n");
     fprintf(stream, " */ \n");
 }

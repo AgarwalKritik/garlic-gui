@@ -1,4 +1,5 @@
 /*
+ * Author: Kritik Agarwal
  * Garlic Wrapper - Interface between C++ GUI and Garlic C decompiler
  * This file provides C interface functions that can be called from C++
  */
@@ -106,7 +107,7 @@ static void prepare_output_directory(const char *input_path, const char *output_
     mkdir_p((char *)output_path);
 }
 
-static int decompile_apk_file(const char *input_path, const char *output_path)
+static int decompile_apk_file(const char *input_path, const char *output_path, int thread_num)
 {
     update_progress(10);
 
@@ -114,8 +115,7 @@ static int decompile_apk_file(const char *input_path, const char *output_path)
 
     update_progress(20);
 
-    // Use 4 threads by default for GUI
-    int thread_num = 4;
+    update_progress(30);
 
     update_progress(30);
 
@@ -129,7 +129,7 @@ static int decompile_apk_file(const char *input_path, const char *output_path)
     return 1; // Success - Garlic functions don't return error codes
 }
 
-static int decompile_dex_file(const char *input_path, const char *output_path)
+static int decompile_dex_file(const char *input_path, const char *output_path, int thread_num)
 {
     update_progress(10);
 
@@ -137,8 +137,7 @@ static int decompile_dex_file(const char *input_path, const char *output_path)
 
     update_progress(20);
 
-    // Use 4 threads by default for GUI
-    int thread_num = 4;
+    update_progress(30);
 
     update_progress(30);
 
@@ -152,7 +151,7 @@ static int decompile_dex_file(const char *input_path, const char *output_path)
     return 1; // Success - Garlic functions don't return error codes
 }
 
-static int decompile_jar_file(const char *input_path, const char *output_path)
+static int decompile_jar_file(const char *input_path, const char *output_path, int thread_num)
 {
     update_progress(10);
 
@@ -160,8 +159,7 @@ static int decompile_jar_file(const char *input_path, const char *output_path)
 
     update_progress(20);
 
-    // Use 4 threads by default for GUI
-    int thread_num = 4;
+    update_progress(30);
 
     update_progress(30);
 
@@ -203,12 +201,14 @@ static int decompile_class_file(const char *input_path, const char *output_path)
 }
 
 // Main decompilation function
-int garlic_decompile_file(const char *input_path, const char *output_path)
+int garlic_decompile_file(const char *input_path, const char *output_path, int thread_num)
 {
     if (!input_path || !output_path)
     {
         return 0; // failure
     }
+
+    if (thread_num <= 0) thread_num = 4;
 
     current_progress = 0;
     update_progress(0);
@@ -218,13 +218,13 @@ int garlic_decompile_file(const char *input_path, const char *output_path)
     switch (file_type)
     {
     case JD_FILE_TYPE_APK:
-        return decompile_apk_file(input_path, output_path);
+        return decompile_apk_file(input_path, output_path, thread_num);
 
     case JD_FILE_TYPE_DEX:
-        return decompile_dex_file(input_path, output_path);
+        return decompile_dex_file(input_path, output_path, thread_num);
 
     case JD_FILE_TYPE_JAR:
-        return decompile_jar_file(input_path, output_path);
+        return decompile_jar_file(input_path, output_path, thread_num);
 
     case JD_FILE_TYPE_JAVA_CLASS:
         return decompile_class_file(input_path, output_path);

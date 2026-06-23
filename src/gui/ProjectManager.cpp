@@ -90,6 +90,10 @@ bool ProjectManager::copyDirectoryRecursively(const QString &sourceDir, const QS
         QString sourcePath = source.absoluteFilePath(fileName);
         QString targetPath = targetFolder.absoluteFilePath(fileName);
 
+        if (QFile::exists(targetPath)) {
+            QFile::remove(targetPath);
+        }
+
         if (!QFile::copy(sourcePath, targetPath))
         {
             qDebug() << "Failed to copy file:" << sourcePath << "to" << targetPath;

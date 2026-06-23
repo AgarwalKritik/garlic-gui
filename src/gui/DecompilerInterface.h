@@ -42,7 +42,7 @@ signals:
     void progressUpdated(int progress);
 
 private:
-    QString createTempOutputDirectory();
+    QString createTempOutputDirectory(const QString &inputPath);
 
     QString m_currentOutputDir;
 

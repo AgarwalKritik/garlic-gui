@@ -475,7 +475,7 @@ static void dex_cmp_expression(jd_exp *exp, jd_dex_ins *ins)
     jd_exp_compare *compare = right->data;
 
     compare->list = make_exp_list(2);
-    compare->operator = dex_ins_operator(ins);
+    compare->operator= dex_ins_operator(ins);
     jd_exp *left_cmp = &compare->list->args[0];
     jd_exp *right_cmp = &compare->list->args[1];
     left_cmp->ins = ins;
@@ -493,19 +493,19 @@ static void dex_cmp_expression(jd_exp *exp, jd_dex_ins *ins)
     switch (ins->code)
     {
     case DEX_INS_CMPL_FLOAT:
-        compare->operator = JD_OP_LT;
+        compare->operator= JD_OP_LT;
         break;
     case DEX_INS_CMPG_FLOAT:
-        compare->operator = JD_OP_GT;
+        compare->operator= JD_OP_GT;
         break;
     case DEX_INS_CMPL_DOUBLE:
-        compare->operator = JD_OP_LT;
+        compare->operator= JD_OP_LT;
         break;
     case DEX_INS_CMPG_DOUBLE:
-        compare->operator = JD_OP_GT;
+        compare->operator= JD_OP_GT;
         break;
     case DEX_INS_CMP_LONG:
-        compare->operator = JD_OP_EQ;
+        compare->operator= JD_OP_EQ;
         break;
     default:
         break;
@@ -527,7 +527,7 @@ static void dex_if_expression(jd_exp *exp, jd_dex_ins *ins)
     condition->data = make_obj(jd_exp_operator);
     jd_exp_operator *exp_operator = condition->data;
     exp_operator->list = make_exp_list(2);
-    exp_operator->operator = dex_ins_operator(ins);
+    exp_operator->operator= dex_ins_operator(ins);
     jd_exp *left = &exp_operator->list->args[0];
     jd_exp *right = &exp_operator->list->args[1];
     u1 slot_a = dex_ins_parameter(ins, 0);
@@ -557,7 +557,7 @@ static void dex_ifz_expression(jd_exp *exp, jd_dex_ins *ins)
         {
             condition->type = JD_EXPRESSION_SINGLE_OPERATOR;
             jd_exp_single_operator *sop = make_obj(jd_exp_single_operator);
-            sop->operator = JD_OP_LOGICAL_NOT;
+            sop->operator= JD_OP_LOGICAL_NOT;
             sop->list = make_exp_list(1);
             jd_exp *single_op_exp = &sop->list->args[0];
             dex_local_variable_exp(single_op_exp, left_val);
@@ -580,7 +580,7 @@ static void dex_ifz_expression(jd_exp *exp, jd_dex_ins *ins)
         condition->data = make_obj(jd_exp_operator);
         jd_exp_operator *exp_operator = condition->data;
         exp_operator->list = make_exp_list(2);
-        exp_operator->operator = dex_ins_operator(ins);
+        exp_operator->operator= dex_ins_operator(ins);
         jd_exp *left = &exp_operator->list->args[0];
         dex_local_variable_exp(left, left_val);
 
@@ -612,22 +612,22 @@ static void dex_ifz_expression(jd_exp *exp, jd_dex_ins *ins)
         switch (ins->code)
         {
         case DEX_INS_IF_EQZ:
-            exp_operator->operator = JD_OP_EQ;
+            exp_operator->operator= JD_OP_EQ;
             break;
         case DEX_INS_IF_NEZ:
-            exp_operator->operator = JD_OP_NE;
+            exp_operator->operator= JD_OP_NE;
             break;
         case DEX_INS_IF_LTZ:
-            exp_operator->operator = JD_OP_LT;
+            exp_operator->operator= JD_OP_LT;
             break;
         case DEX_INS_IF_GEZ:
-            exp_operator->operator = JD_OP_GE;
+            exp_operator->operator= JD_OP_GE;
             break;
         case DEX_INS_IF_GTZ:
-            exp_operator->operator = JD_OP_GT;
+            exp_operator->operator= JD_OP_GT;
             break;
         case DEX_INS_IF_LEZ:
-            exp_operator->operator = JD_OP_LE;
+            exp_operator->operator= JD_OP_LE;
             break;
         default:
             break;
@@ -1059,11 +1059,11 @@ static void dex_single_operator_expression(jd_exp *exp, jd_dex_ins *ins)
     case DEX_INS_NEG_LONG:
     case DEX_INS_NEG_DOUBLE:
     case DEX_INS_NEG_FLOAT:
-        op->operator = JD_OP_NEG;
+        op->operator= JD_OP_NEG;
         break;
     case DEX_INS_NOT_INT:
     case DEX_INS_NOT_LONG:
-        op->operator = JD_OP_NOT;
+        op->operator= JD_OP_NOT;
         break;
     default:
         break;
@@ -1136,7 +1136,7 @@ static void dex_binop_2addr_expression(jd_exp *exp, jd_dex_ins *ins)
     dex_local_variable_exp(left_exp, locals[slot_a]);
     dex_local_variable_exp(right_exp, locals[slot_b]);
 
-    exp_op->operator = dex_ins_operator(ins);
+    exp_op->operator= dex_ins_operator(ins);
     right->data = exp_op;
 }
 
@@ -1166,7 +1166,7 @@ static void dex_binop_lit_expression(jd_exp *exp, jd_dex_ins *ins)
     primitive->int_val = (int)dex_ins_parameter(ins, 2);
     const_val->data->cname = (string)g_str_int;
 
-    exp_op->operator = dex_ins_operator(ins);
+    exp_op->operator= dex_ins_operator(ins);
     right->data = exp_op;
 }
 

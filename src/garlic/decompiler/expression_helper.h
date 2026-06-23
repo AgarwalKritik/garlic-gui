@@ -15,7 +15,7 @@
 
 #define DEFINE_EXP_HELPER_METHOD(opcode, code_name) \
     static inline bool                              \
-    exp_is_##code_name(jd_exp *e)                   \
+        exp_is_##code_name(jd_exp *e)               \
     {                                               \
         return e->type == opcode;                   \
     }

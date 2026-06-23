@@ -68,8 +68,8 @@ static bool identify_assignment_chain_of_basic_block(jd_method *m,
 
             need_insert_initializer(m, next_exp, left_exp, node);
 
-            jd_exp_operator *operator = make_obj(jd_exp_operator);
-            operator->operator = JD_OP_ASSIGN;
+            jd_exp_operator *operator= make_obj(jd_exp_operator);
+            operator->operator= JD_OP_ASSIGN;
             operator->list = make_exp_list(2);
             jd_exp *op0 = &operator->list->args[0];
             jd_exp *op1 = &operator->list->args[1];
@@ -225,7 +225,7 @@ bool identify_assignment_chain_store(jd_method *m)
                 new_right->type = JD_EXPRESSION_OPERATOR;
                 new_right->data = make_obj(jd_exp_operator);
                 jd_exp_operator *op = new_right->data;
-                op->operator = JD_OP_ASSIGN;
+                op->operator= JD_OP_ASSIGN;
                 op->list = make_exp_list(2);
                 memcpy(&op->list->args[0], exp, sizeof(jd_exp));
                 memcpy(&op->list->args[1], right, sizeof(jd_exp));

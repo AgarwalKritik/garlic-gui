@@ -43,7 +43,7 @@ void negative_if_expression(jd_method *m)
 
             jd_exp_single_operator *sop = make_obj(jd_exp_single_operator);
             sop->list = exp_list;
-            sop->operator = JD_OP_LOGICAL_NOT;
+            sop->operator= JD_OP_LOGICAL_NOT;
         }
         else if (condition->type == JD_EXPRESSION_SINGLE_OPERATOR)
         {
@@ -58,7 +58,7 @@ void negative_if_expression(jd_method *m)
         else
         {
             jd_exp_operator *op = condition->data;
-            op->operator = operator_logical_not(op->operator);
+            op->operator= operator_logical_not(op->operator);
         }
     }
 }
@@ -84,7 +84,7 @@ void identify_boolean_in_if(jd_method *m)
         jd_exp *left = &op->list->args[0];
         jd_exp *right = &op->list->args[1];
 
-        if (op->operator == JD_OP_NE &&
+        if (op->operator== JD_OP_NE &&
             exp_is_const(right))
         {
             jd_exp_const *const_exp = right->data;
@@ -93,7 +93,7 @@ void identify_boolean_in_if(jd_method *m)
             if (const_exp->val->data->primitive->int_val == 0)
                 if_exp->expression = left;
         }
-        else if (op->operator == JD_OP_EQ &&
+        else if (op->operator== JD_OP_EQ &&
                  exp_is_const(right))
         {
             jd_exp_const *const_exp = right->data;

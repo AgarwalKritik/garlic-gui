@@ -157,7 +157,7 @@ static void build_operator_expression(jd_exp *exp, jd_ins *ins)
     build_stack_var_exp(left_exp, ins->stack_in->vals[1]);
     build_stack_var_exp(right_exp, ins->stack_in->vals[0]);
 
-    exp_op->operator = jvm_ins_operator(ins);
+    exp_op->operator= jvm_ins_operator(ins);
     right->data = exp_op;
 
     exp->type = JD_EXPRESSION_ASSIGNMENT;
@@ -385,7 +385,7 @@ static void build_if_boolean_exp(jd_exp *condition, jd_ins *ins, jd_val *val0)
         s->list = make_exp_list(1);
         jd_exp *single = &s->list->args[0];
         build_stack_var_exp(single, val0);
-        s->operator = JD_OP_LOGICAL_NOT;
+        s->operator= JD_OP_LOGICAL_NOT;
         condition->data = s;
         condition->ins = ins;
         condition->block = ins->block;
@@ -421,7 +421,7 @@ static void build_if_expression(jd_exp *exp, jd_ins *ins)
     jd_exp_operator *exp_operator = condition->data;
     exp_operator->list = make_exp_list(2);
 
-    exp_operator->operator = jvm_ins_operator(ins);
+    exp_operator->operator= jvm_ins_operator(ins);
     jd_exp *left = &exp_operator->list->args[0];
     jd_exp *right = &exp_operator->list->args[1];
 
@@ -502,7 +502,7 @@ static void build_cmp_expression(jd_exp *exp, jd_ins *ins)
     jd_exp_compare *compare = right->data;
 
     compare->list = make_exp_list(2);
-    compare->operator = jvm_ins_operator(ins);
+    compare->operator= jvm_ins_operator(ins);
     jd_exp *left_cmp = &compare->list->args[0];
     jd_exp *right_cmp = &compare->list->args[1];
 
@@ -852,7 +852,7 @@ static void build_neg_expression(jd_exp *exp, jd_ins *ins)
     jd_exp *right = assignment->right;
     right->type = JD_EXPRESSION_SINGLE_OPERATOR;
     jd_exp_single_operator *op = make_obj(jd_exp_single_operator);
-    op->operator = JD_OP_NEG;
+    op->operator= JD_OP_NEG;
     op->list = make_exp_list(1);
     jd_exp *first = &op->list->args[0];
 

@@ -2,88 +2,88 @@
 #include "libs/hashmap/hashmap_tools.h"
 // #include "libs/memory/memory_pool.h"
 
-#define DEFINE_HASHMAP_BODY(tk, tv)                                   \
-    tk##_to_##tv *                                                    \
-    find_##tk##_to_##tv##_entry(hashmap *_map, tk key)                \
-    {                                                                 \
-        tk##_to_##tv k;                                               \
-        hashmap_entry_init(&k, memihash(&key, sizeof(tk)));           \
-        k.key = key;                                                  \
-        return (tk##_to_##tv *)hashmap_get(_map, &k, NULL);           \
-    }                                                                 \
-                                                                      \
-    int                                                               \
-    tk##_to_##tv##_cmp(const tk##_to_##tv *e1,                        \
-                       const tk##_to_##tv *e2, const void *unused)    \
-    {                                                                 \
-        return e1->key != e2->key;                                    \
-    }                                                                 \
-                                                                      \
-    void                                                              \
-    hashmap_set_##tk##_to_##tv(hashmap *_map, tk key, tv value)       \
-    {                                                                 \
-        tk##_to_##tv *e = find_##tk##_to_##tv##_entry(_map, key);     \
-        if (!e)                                                       \
-        {                                                             \
-            if (_map->pool == NULL)                                   \
-                e = x_alloc(sizeof(tk##_to_##tv));                    \
-            else                                                      \
-                e = mem_pool_alloc(_map->pool, sizeof(tk##_to_##tv)); \
-            hashmap_entry_init(e, memihash(&key, sizeof(tk)));        \
-            e->key = key;                                             \
-            hashmap_add(_map, e);                                     \
-        }                                                             \
-        e->value = value;                                             \
-    }                                                                 \
-    void                                                              \
-    hashmap_remove_##tk##_to_##tv(hashmap *_map, tk key)              \
-    {                                                                 \
-        tk##_to_##tv k;                                               \
-        hashmap_entry_init(&k, memihash(&key, sizeof(tk)));           \
-        k.key = key;                                                  \
-        hashmap_remove(_map, &k, NULL);                               \
+#define DEFINE_HASHMAP_BODY(tk, tv)                                    \
+    tk##_to_##tv *                                                     \
+        find_##tk##_to_##tv##_entry(hashmap *_map, tk key)             \
+    {                                                                  \
+        tk##_to_##tv k;                                                \
+        hashmap_entry_init(&k, memihash(&key, sizeof(tk)));            \
+        k.key = key;                                                   \
+        return (tk##_to_##tv *)hashmap_get(_map, &k, NULL);            \
+    }                                                                  \
+                                                                       \
+    int                                                                \
+        tk##_to_##tv##_cmp(const tk##_to_##tv *e1,                     \
+                           const tk##_to_##tv *e2, const void *unused) \
+    {                                                                  \
+        return e1->key != e2->key;                                     \
+    }                                                                  \
+                                                                       \
+    void                                                               \
+        hashmap_set_##tk##_to_##tv(hashmap *_map, tk key, tv value)    \
+    {                                                                  \
+        tk##_to_##tv *e = find_##tk##_to_##tv##_entry(_map, key);      \
+        if (!e)                                                        \
+        {                                                              \
+            if (_map->pool == NULL)                                    \
+                e = x_alloc(sizeof(tk##_to_##tv));                     \
+            else                                                       \
+                e = mem_pool_alloc(_map->pool, sizeof(tk##_to_##tv));  \
+            hashmap_entry_init(e, memihash(&key, sizeof(tk)));         \
+            e->key = key;                                              \
+            hashmap_add(_map, e);                                      \
+        }                                                              \
+        e->value = value;                                              \
+    }                                                                  \
+    void                                                               \
+        hashmap_remove_##tk##_to_##tv(hashmap *_map, tk key)           \
+    {                                                                  \
+        tk##_to_##tv k;                                                \
+        hashmap_entry_init(&k, memihash(&key, sizeof(tk)));            \
+        k.key = key;                                                   \
+        hashmap_remove(_map, &k, NULL);                                \
     }
 
-#define DEFINE_HASHMAP_BODY_WITH_STRING_KEY(tk, tv)                   \
-    tk##_to_##tv *                                                    \
-    find_##tk##_to_##tv##_entry(hashmap *_map, tk key)                \
-    {                                                                 \
-        tk##_to_##tv k;                                               \
-        hashmap_entry_init(&k, strhash(key));                         \
-        k.key = key;                                                  \
-        return (tk##_to_##tv *)hashmap_get(_map, &k, NULL);           \
-    }                                                                 \
-                                                                      \
-    int                                                               \
-    tk##_to_##tv##_cmp(const tk##_to_##tv *e1,                        \
-                       const tk##_to_##tv *e2, const void *unused)    \
-    {                                                                 \
-        return strcmp(e1->key, e2->key);                              \
-    }                                                                 \
-                                                                      \
-    void                                                              \
-    hashmap_set_##tk##_to_##tv(hashmap *_map, tk key, tv value)       \
-    {                                                                 \
-        tk##_to_##tv *e = find_##tk##_to_##tv##_entry(_map, key);     \
-        if (!e)                                                       \
-        {                                                             \
-            if (_map->pool == NULL)                                   \
-                e = x_alloc(sizeof(tk##_to_##tv));                    \
-            else                                                      \
-                e = mem_pool_alloc(_map->pool, sizeof(tk##_to_##tv)); \
-            hashmap_entry_init(e, strhash(key));                      \
-            e->key = key;                                             \
-            hashmap_add(_map, e);                                     \
-        }                                                             \
-        e->value = value;                                             \
-    }                                                                 \
-    void                                                              \
-    hashmap_remove_##tk##_to_##tv(hashmap *_map, tk key)              \
-    {                                                                 \
-        tk##_to_##tv k;                                               \
-        hashmap_entry_init(&k, strhash(key));                         \
-        k.key = key;                                                  \
-        hashmap_remove(_map, &k, NULL);                               \
+#define DEFINE_HASHMAP_BODY_WITH_STRING_KEY(tk, tv)                    \
+    tk##_to_##tv *                                                     \
+        find_##tk##_to_##tv##_entry(hashmap *_map, tk key)             \
+    {                                                                  \
+        tk##_to_##tv k;                                                \
+        hashmap_entry_init(&k, strhash(key));                          \
+        k.key = key;                                                   \
+        return (tk##_to_##tv *)hashmap_get(_map, &k, NULL);            \
+    }                                                                  \
+                                                                       \
+    int                                                                \
+        tk##_to_##tv##_cmp(const tk##_to_##tv *e1,                     \
+                           const tk##_to_##tv *e2, const void *unused) \
+    {                                                                  \
+        return strcmp(e1->key, e2->key);                               \
+    }                                                                  \
+                                                                       \
+    void                                                               \
+        hashmap_set_##tk##_to_##tv(hashmap *_map, tk key, tv value)    \
+    {                                                                  \
+        tk##_to_##tv *e = find_##tk##_to_##tv##_entry(_map, key);      \
+        if (!e)                                                        \
+        {                                                              \
+            if (_map->pool == NULL)                                    \
+                e = x_alloc(sizeof(tk##_to_##tv));                     \
+            else                                                       \
+                e = mem_pool_alloc(_map->pool, sizeof(tk##_to_##tv));  \
+            hashmap_entry_init(e, strhash(key));                       \
+            e->key = key;                                              \
+            hashmap_add(_map, e);                                      \
+        }                                                              \
+        e->value = value;                                              \
+    }                                                                  \
+    void                                                               \
+        hashmap_remove_##tk##_to_##tv(hashmap *_map, tk key)           \
+    {                                                                  \
+        tk##_to_##tv k;                                                \
+        hashmap_entry_init(&k, strhash(key));                          \
+        k.key = key;                                                   \
+        hashmap_remove(_map, &k, NULL);                                \
     }
 
 DEFINE_HASHMAP_BODY(u1, object);

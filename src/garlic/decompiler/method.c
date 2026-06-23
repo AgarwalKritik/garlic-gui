@@ -128,9 +128,12 @@ static void create_method_defination_without_signature(jd_method *m,
     string method_return_type = class_simple_name(desc->str_return);
 
     if (!method_is_init(m) && !method_is_clinit(m))
+    {
         str_concat(list, method_return_type);
+        str_concat(list, " ");
+    }
 
-    strs_concat(list, 3, " ", name, "(");
+    strs_concat(list, 2, name, "(");
 
     for (int i = 0; i < desc->list->size; ++i)
     {

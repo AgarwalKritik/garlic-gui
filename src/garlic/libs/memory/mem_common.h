@@ -8,6 +8,7 @@
 #include <string.h>
 #include "types.h"
 
+static const char *g_str_default = "default";
 static const char *g_str_this = "this";
 static const char *g_str_null = "null";
 static const char *g_str_long = "long";

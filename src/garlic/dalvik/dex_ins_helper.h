@@ -232,11 +232,11 @@
 #define DEX_INS_COPY_BASIC_BLOCK 0xE3
 #define DEX_INS_COPY_BASIC_BLOCK_GOTO 0xE4
 
-#define DEF_DEX_INS_METHOD(opcode, code_name) \
-    static inline bool                        \
-    dex_ins_is_##code_name(jd_dex_ins *ins)   \
-    {                                         \
-        return ins->code == opcode;           \
+#define DEF_DEX_INS_METHOD(opcode, code_name)   \
+    static inline bool                          \
+        dex_ins_is_##code_name(jd_dex_ins *ins) \
+    {                                           \
+        return ins->code == opcode;             \
     }
 
 DEF_DEX_INS_METHOD(DEX_INS_NOP, nop)

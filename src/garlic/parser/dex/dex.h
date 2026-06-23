@@ -6,6 +6,8 @@
 #include "hashmap.h"
 #include "decompiler/structure.h"
 
+// https://source.android.com/docs/core/runtime/dex-format?hl=en
+
 typedef uint8_t uleb128;
 
 #define NO_INDEX 0xffffffff

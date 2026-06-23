@@ -354,7 +354,7 @@ jd_matched_debug *matched_local_variable(jd_method *m, jd_ins *ins, int slot)
         type_sig *ts = parse_field_signature(signature);
         string full = field_type_sig_to_s(ts);
         r->fname = full;
-        r->sname = class_simple_name(full);
+        r->sname = class_simple_name_without_primitive(full);
         return r;
     }
     return NULL;

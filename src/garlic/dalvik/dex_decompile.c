@@ -152,7 +152,7 @@ FILE *dex_class_smali_save_dir(jd_dex *dex, dex_class_def *cf)
     jd_meta_dex *meta = dex->meta;
     string desc = dex_str_of_type_id(dex->meta, cf->class_idx);
     string fname = class_full_name(desc);
-    string sname = class_simple_name(fname);
+    string sname = class_simple_name_without_primitive(fname);
     string pname = class_package_name_of(fname);
 
     string full_dir = str_create("%s/%s", meta->source_dir, pname);
@@ -187,8 +187,10 @@ jsource_file *dex_class_inside(jd_dex *dex,
     jsource_file *jf = make_obj(jsource_file);
     string desc = dex_str_of_type_id(dex->meta, cf->class_idx);
     jf->fname = class_full_name(desc);
-    jf->sname = class_simple_name(jf->fname);
+    jf->sname = class_simple_name_without_primitive(jf->fname);
     jf->pname = class_package_name(jf);
+    if (jf->pname == NULL)
+        jf->pname = g_str_default;
     jf->imports = trie_create_node("");
     jf->meta = dex;
     jf->jclass = cf;

@@ -197,6 +197,46 @@ string class_full_name(string descriptor)
     }
 }
 
+string class_simple_name_without_primitive(string full)
+{
+    switch (full[0])
+    {
+    case '[':
+    {
+        char *last_square = strrchr(full, '[');
+        int depth = (int)(last_square - full) + 1;
+        char c = full[depth];
+        switch (c)
+        {
+        case 'I':
+            return class_type_array_name((string)g_str_int, depth);
+        case 'J':
+            return class_type_array_name((string)g_str_long, depth);
+        case 'F':
+            return class_type_array_name((string)g_str_float, depth);
+        case 'D':
+            return class_type_array_name((string)g_str_double, depth);
+        case 'B':
+            return class_type_array_name((string)g_str_byte, depth);
+        case 'C':
+            return class_type_array_name((string)g_str_char, depth);
+        case 'S':
+            return class_type_array_name((string)g_str_short, depth);
+        case 'Z':
+            return class_type_array_name((string)g_str_boolean, depth);
+        default:
+        {
+            // L
+            string short_name = class_path_to_short(full);
+            return class_type_array_name(short_name, depth);
+        }
+        }
+    }
+    default:
+        return class_path_to_short(full);
+    }
+}
+
 string class_simple_name(string full)
 {
     if (strlen(full) == 1)

@@ -38,7 +38,7 @@ threadpool_t *threadpool_create_in(mem_pool *mem_pool, int cnt, int flags)
     pool->head = pool->tail = pool->count = 0;
     pool->shutdown = pool->started = 0;
     pool->threads = x_alloc_in(mem_pool, sizeof(pthread_t) * cnt);
-    pool->queue = x_alloc_in(mem_pool, sizeof(threadpool_task_t) * MAX_QUEUE);
+    pool->queue = x_alloc_in(mem_pool, sizeof(threadpool_task_t) * pool->queue_size);
     pool->init_count = 0;
 
     pool->lock = malloc(sizeof(pthread_mutex_t));
@@ -88,10 +88,11 @@ err:
 
 int threadpool_add(threadpool_t *pool,
                    void (*function)(void *),
-                   void *argument, int flags)
+                   void *argument,
+                   int flags)
 {
     int err = 0;
-    int next;
+
     (void)flags;
 
     if (pool == NULL || function == NULL)
@@ -104,15 +105,36 @@ int threadpool_add(threadpool_t *pool,
         return threadpool_lock_failure;
     }
 
-    next = (pool->tail + 1) % pool->queue_size;
-
     do
     {
-        if (pool->count == pool->queue_size)
+        if (pool->tail >= pool->queue_size)
         {
-            size_t old = sizeof(threadpool_task_t) * pool->queue_size;
-            size_t _new = pool->queue_size * 2 * sizeof(threadpool_task_t);
-            pool->queue = x_realloc(pool->queue, old, _new);
+            if (pool->head > 0)
+            {
+
+                memmove(pool->queue, &pool->queue[pool->head],
+                        sizeof(threadpool_task_t) * pool->count);
+                pool->tail = pool->count;
+                pool->head = 0;
+            }
+            if (pool->tail >= pool->queue_size)
+            {
+                int new_size = pool->queue_size * 2;
+                size_t old_mem = sizeof(threadpool_task_t) * pool->queue_size;
+
+                size_t new_mem = sizeof(threadpool_task_t) * new_size;
+
+                threadpool_task_t *new_queue =
+                    x_realloc(pool->queue, old_mem, new_mem);
+
+                if (!new_queue)
+                {
+                    err = threadpool_lock_failure;
+                    break;
+                }
+                pool->queue = new_queue;
+                pool->queue_size = new_size;
+            }
         }
 
         if (pool->shutdown)
@@ -123,14 +145,16 @@ int threadpool_add(threadpool_t *pool,
 
         pool->queue[pool->tail].function = function;
         pool->queue[pool->tail].argument = argument;
-        pool->tail = next;
-        pool->count += 1;
+
+        pool->tail++;
+        pool->count++;
 
         if (pthread_cond_signal(pool->notify) != 0)
         {
             err = threadpool_lock_failure;
             break;
         }
+
     } while (0);
 
     if (pthread_mutex_unlock(pool->lock) != 0)
@@ -254,8 +278,9 @@ static void *threadpool_thread(void *threadpool)
 
         task.function = pool->queue[pool->head].function;
         task.argument = pool->queue[pool->head].argument;
-        pool->head = (pool->head + 1) % pool->queue_size;
-        pool->count -= 1;
+
+        pool->head++;
+        pool->count--;
 
         pthread_mutex_unlock(pool->lock);
 

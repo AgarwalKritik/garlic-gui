@@ -1236,7 +1236,9 @@ static void parse_attr_module(jclass_file *jc, jattr *attribute)
     uint16_t _requires_count = be16toh(item->requires_count);
     if (_requires_count > 0)
     {
-        item->requires = make_obj_arr(module_attr_requires, _requires_count);
+        item->
+            requires
+        = make_obj_arr(module_attr_requires, _requires_count);
         size_t _req_size = _requires_count * sizeof(module_attr_requires);
         jclass_read(jc, item->requires, _req_size);
     }

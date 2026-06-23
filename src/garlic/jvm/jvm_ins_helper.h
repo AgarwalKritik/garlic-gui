@@ -211,7 +211,7 @@
 
 #define DEFINE_INS_HELPER_METHOD(opcode, code_name) \
     static inline bool                              \
-    jvm_ins_is_##code_name(jd_ins *ins)             \
+        jvm_ins_is_##code_name(jd_ins *ins)         \
     {                                               \
         return ins->code == opcode;                 \
     }

@@ -16,34 +16,37 @@ static void optimize_enum_statics(jd_method *m)
     for (int i = 0; i < root->children->size; ++i)
     {
         jd_node *node = lget_obj(root->children, i);
-        if (node_is_not_expression(node))
-            continue;
-
-        jd_exp *exp = node->data;
-        if (exp_is_nopped(exp) || !exp_is_put_static(exp))
-            continue;
-
-        jd_exp_put_static *put_static = exp->data;
-        if (STR_EQL(put_static->name, "$VALUES") &&
-            STR_EQL(put_static->class_name, method_class_name))
+        if (node_is_basic_block(node))
         {
-            exp_mark_nopped(exp);
-            continue;
-        }
-
-        jd_exp *val_exp = &put_static->list->args[0];
-        if (exp_is_initialize(val_exp))
-        {
-            jd_exp_initialize *initialize = val_exp->data;
-            if (STR_EQL(initialize->class_name, method_class_name))
+            for (int j = node->start_idx; j < node->end_idx; ++j)
             {
-                jd_exp_num_item *item = make_obj(jd_exp_num_item);
-                item->list = initialize->list;
-                item->name = put_static->name;
+                jd_exp *exp = lget_obj(m->expressions, j);
+                if (exp_is_nopped(exp) || !exp_is_put_static(exp))
+                    continue;
 
-                ladd_obj(enum_exp->list, item);
-                last = exp;
-                exp_mark_nopped(exp);
+                jd_exp_put_static *put_static = exp->data;
+                if (STR_EQL(put_static->name, "$VALUES") &&
+                    STR_EQL(put_static->class_name, method_class_name))
+                {
+                    exp_mark_nopped(exp);
+                    continue;
+                }
+
+                jd_exp *val_exp = &put_static->list->args[0];
+                if (exp_is_initialize(val_exp))
+                {
+                    jd_exp_initialize *initialize = val_exp->data;
+                    if (STR_EQL(initialize->class_name, method_class_name))
+                    {
+                        jd_exp_num_item *item = make_obj(jd_exp_num_item);
+                        item->list = initialize->list;
+                        item->name = put_static->name;
+
+                        ladd_obj(enum_exp->list, item);
+                        last = exp;
+                        exp_mark_nopped(exp);
+                    }
+                }
             }
         }
     }

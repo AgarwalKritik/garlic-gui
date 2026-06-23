@@ -17,12 +17,10 @@ static inline bool is_goto_edge(jd_edge *edge)
 
 static bool basic_block_has_live_jump_in_goto(jd_bblock *block)
 {
-    for (int i = 0; i < block->in->size; ++i)
-    {
+    for (int i = 0; i < block->in->size; ++i) {
         jd_edge *edge = lget_obj(block->in, i);
         jd_bblock *source = edge->source_block;
-        if (source->type != JD_BB_NORMAL)
-            continue;
+        if (source->type != JD_BB_NORMAL) continue;
         jd_nblock *nsb = source->ub->nblock;
         jd_dex_ins *end_ins = ins_of_offset(source->method, nsb->end_offset);
         if (dex_ins_is_goto_jump(end_ins) && !ins_is_nopped(end_ins))
@@ -37,15 +35,13 @@ static bool basic_block_is_finally_start(jd_method *m, jd_bblock *block)
         return false;
 
     jd_nblock *nblock = block->ub->nblock;
-    for (int i = 0; i < m->basic_blocks->size; ++i)
-    {
+    for (int i = 0; i < m->basic_blocks->size; ++i) {
         jd_bblock *b = lget_obj(m->basic_blocks, i);
         if (b->type != JD_BB_EXCEPTION)
             continue;
         jd_eblock *eblock = b->ub->eblock;
         if (eblock->handler_start_offset == nblock->start_offset &&
-            eblock->type == JD_EXCEPTION_FINALLY)
-        {
+            eblock->type == JD_EXCEPTION_FINALLY) {
             return true;
         }
     }
@@ -75,12 +71,10 @@ static void modify_handler_start_to_goto_target(jd_method *m,
     jd_dex_ins *prev_start_ins = prev_nblock->start_ins;
     if (!dex_ins_is_move_exception(prev_start_ins))
         return;
-    for (int i = 0; i < m->cfg_exceptions->size; ++i)
-    {
+    for (int i = 0; i < m->cfg_exceptions->size; ++i) {
         jd_exc *e = lget_obj(m->cfg_exceptions, i);
         if (e->handler_start == start_ins->offset
-            /* && e->catch_type_index != 0*/)
-        {
+            /* && e->catch_type_index != 0*/) {
             e->handler_start = prev_start_ins->offset;
             e->handler_start_idx = prev_start_ins->idx;
         }
@@ -96,8 +90,7 @@ static void optimize_goto_to_return(jd_method *m)
     // goto_offset is return
     // replace current goto to return
 
-    for (int i = 0; i < m->basic_blocks->size; ++i)
-    {
+    for (int i = 0; i < m->basic_blocks->size; ++i) {
         jd_bblock *b = lget_obj(m->basic_blocks, i);
         if (b->type != JD_BB_NORMAL)
             continue;
@@ -109,8 +102,7 @@ static void optimize_goto_to_return(jd_method *m)
 
         s4 offset = (s4)dex_goto_offset(end_ins);
         jd_dex_ins *target_ins = dex_ins_of_offset(m, offset);
-        while (dex_ins_is_goto_jump(target_ins))
-        {
+        while (dex_ins_is_goto_jump(target_ins)) {
             offset = dex_goto_offset(target_ins);
             target_ins = dex_ins_of_offset(m, offset);
         }
@@ -134,8 +126,7 @@ static void optimize_goto_to_return(jd_method *m)
 
 void optimize_move_exception_goto(jd_method *m)
 {
-    for (int i = 0; i < m->basic_blocks->size; ++i)
-    {
+    for (int i = 0; i < m->basic_blocks->size; ++i) {
         jd_bblock *b = lget_obj(m->basic_blocks, i);
         if (b->type != JD_BB_NORMAL)
             continue;
@@ -159,45 +150,34 @@ void optimize_move_exception_goto(jd_method *m)
 static void optimize_share_suffix_v2(jd_method *m)
 {
     bool changed = false;
-    do
-    {
+    do {
         changed = false;
         DEBUG_PRINT("start optimize share suffix\n");
-        for (int i = 0; i < m->basic_blocks->size; ++i)
-        {
+        for (int i = 0; i < m->basic_blocks->size; ++i) {
             jd_bblock *b = lget_obj(m->basic_blocks, i);
-            if (!basic_block_is_normal_live(b))
-                continue;
-            if (!is_list_empty(b->dom_children))
-                continue;
-            if (b->out->size != 1)
-                continue;
-            if (lcontains_obj(b->frontier, b))
-                continue;
+            if (!basic_block_is_normal_live(b)) continue;
+            if (!is_list_empty(b->dom_children)) continue;
+            if (b->out->size != 1) continue;
+            if (lcontains_obj(b->frontier, b)) continue;
 
-            if (!basic_block_has_live_jump_in_goto(b))
-                continue;
+            if (!basic_block_has_live_jump_in_goto(b)) continue;
 
             jd_edge *out_edge = lget_obj_first(b->out);
             jd_bblock *out_block = out_edge->target_block;
-            if (out_block->type != JD_BB_NORMAL)
-                continue;
+            if (out_block->type != JD_BB_NORMAL) continue;
 
             jd_nblock *nb = b->ub->nblock;
             jd_dex_ins *start_ins = nb->start_ins;
             jd_dex_ins *end_ins = nb->end_ins;
-            if (dex_ins_is_switch(end_ins))
-                continue;
+            if (dex_ins_is_switch(end_ins)) continue;
 
             jd_nblock *out_nb = out_block->ub->nblock;
             jd_dex_ins *out_start_ins = out_nb->start_ins;
 
-            for (int j = 0; j < b->in->size; ++j)
-            {
+            for (int j = 0; j < b->in->size; ++j) {
                 jd_edge *edge = lget_obj(b->in, j);
                 jd_bblock *sb = edge->source_block;
-                if (!is_goto_edge(edge))
-                    continue;
+                if (!is_goto_edge(edge)) continue;
                 jd_nblock *snb = sb->ub->nblock;
 
                 jd_dex_ins *goto_ins = dex_ins_of_offset(m, snb->end_offset);
@@ -208,8 +188,7 @@ static void optimize_share_suffix_v2(jd_method *m)
                 cfg_unlink_blocks(sb, b);
                 create_link_edge(sb, out_block);
 
-                for (int k = nb->start_idx; k <= nb->end_idx; ++k)
-                {
+                for (int k = nb->start_idx; k <= nb->end_idx ; ++k) {
                     jd_dex_ins *ins = get_dex_ins(m, k);
                     if (dex_ins_is_goto_jump(ins) && ins == nb->end_ins)
                         continue;
@@ -221,19 +200,16 @@ static void optimize_share_suffix_v2(jd_method *m)
                 changed = true;
             }
 
-            if (b->in->size == 0)
-            {
+            if (b->in->size == 0) {
                 jd_dex_ins *nopped = start_ins;
-                while (nopped != NULL && nopped->offset <= end_ins->offset)
-                {
+                while (nopped != NULL && nopped->offset <= end_ins->offset) {
                     ins_mark_nopped(nopped);
                     nopped = nopped->next;
                 }
             }
         }
 
-        if (changed)
-        {
+        if (changed) {
             clear_dominator_data(m);
             create_dominator_tree(m);
         }

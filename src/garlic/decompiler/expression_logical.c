@@ -14,28 +14,28 @@ void make_logic_not(jd_exp *expression)
         switch (exp_operator->operator)
         {
         case JD_OP_EQ:
-            exp_operator->operator = JD_OP_NE;
+            exp_operator->operator= JD_OP_NE;
             break;
         case JD_OP_NE:
-            exp_operator->operator = JD_OP_EQ;
+            exp_operator->operator= JD_OP_EQ;
             break;
         case JD_OP_LT:
-            exp_operator->operator = JD_OP_GE;
+            exp_operator->operator= JD_OP_GE;
             break;
         case JD_OP_LE:
-            exp_operator->operator = JD_OP_GT;
+            exp_operator->operator= JD_OP_GT;
             break;
         case JD_OP_GT:
-            exp_operator->operator = JD_OP_LE;
+            exp_operator->operator= JD_OP_LE;
             break;
         case JD_OP_GE:
-            exp_operator->operator = JD_OP_LT;
+            exp_operator->operator= JD_OP_LT;
             break;
         case JD_OP_LOGICAL_AND:
-            exp_operator->operator = JD_OP_LOGICAL_OR;
+            exp_operator->operator= JD_OP_LOGICAL_OR;
             break;
         case JD_OP_LOGICAL_OR:
-            exp_operator->operator = JD_OP_LOGICAL_AND;
+            exp_operator->operator= JD_OP_LOGICAL_AND;
             break;
         default:
             break;
@@ -44,7 +44,7 @@ void make_logic_not(jd_exp *expression)
     else
     {
         jd_exp_operator *op = make_obj(jd_exp_operator);
-        op->operator = JD_OP_LOGICAL_NOT;
+        op->operator= JD_OP_LOGICAL_NOT;
         op->list = make_exp_list(1);
         memcpy(&op->list->args[0], expression, sizeof(jd_exp));
         expression->type = JD_EXPRESSION_SINGLE_OPERATOR;
@@ -121,7 +121,7 @@ bool identify_logical_operations(jd_method *m)
                 jd_exp *first = &op->list->args[0];
                 if (other == next_f)
                 {
-                    op->operator = JD_OP_LOGICAL_OR;
+                    op->operator= JD_OP_LOGICAL_OR;
                     if (negate)
                         make_logic_not(if_exp->expression);
                     memcpy(first,
@@ -130,7 +130,7 @@ bool identify_logical_operations(jd_method *m)
                 }
                 else
                 {
-                    op->operator = JD_OP_LOGICAL_AND;
+                    op->operator= JD_OP_LOGICAL_AND;
                     if (!negate)
                         make_logic_not(if_exp->expression);
                     memcpy(first,
@@ -230,7 +230,7 @@ bool identify_reverse_logical_operation(jd_method *m)
 
                 if (other == next_f)
                 {
-                    op->operator = JD_OP_LOGICAL_OR;
+                    op->operator= JD_OP_LOGICAL_OR;
                     if (negate)
                         make_logic_not(if_exp->expression);
                     memcpy(&op->list->args[0],
@@ -239,7 +239,7 @@ bool identify_reverse_logical_operation(jd_method *m)
                 }
                 else
                 {
-                    op->operator = JD_OP_LOGICAL_AND;
+                    op->operator= JD_OP_LOGICAL_AND;
                     if (!negate)
                         make_logic_not(if_exp->expression);
                     memcpy(&op->list->args[0],

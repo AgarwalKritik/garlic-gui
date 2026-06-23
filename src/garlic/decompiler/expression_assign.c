@@ -116,7 +116,7 @@ void identify_assignment(jd_method *m)
             {
                 exp->type = JD_EXPRESSION_OPERATOR;
                 exp->data = op_exp;
-                op_exp->operator = to_operator(op_exp->operator);
+                op_exp->operator= to_operator(op_exp->operator);
             }
             break;
         }
@@ -139,7 +139,7 @@ void identify_assignment(jd_method *m)
             {
                 exp->type = JD_EXPRESSION_OPERATOR;
                 exp->data = op_exp;
-                op_exp->operator = to_operator(op_exp->operator);
+                op_exp->operator= to_operator(op_exp->operator);
             }
             break;
         }
@@ -161,7 +161,7 @@ void identify_assignment(jd_method *m)
             {
                 exp->type = JD_EXPRESSION_OPERATOR;
                 exp->data = op_exp;
-                op_exp->operator = to_operator(op_exp->operator);
+                op_exp->operator= to_operator(op_exp->operator);
             }
             break;
         }

@@ -91,7 +91,7 @@ string exp_operator_to_s(jd_exp *expression)
 
 void exp_operator_to_stream(FILE *stream, jd_node *node, jd_exp *expression)
 {
-    jd_exp_operator *operator = expression->data;
+    jd_exp_operator *operator= expression->data;
     jd_exp *exp_left = &operator->list->args[0];
     jd_exp *exp_right = &operator->list->args[1];
     string op = get_operator_name(operator->operator);

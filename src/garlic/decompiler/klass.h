@@ -25,6 +25,8 @@ string class_path_to_short(string class_name);
 
 string class_simple_name(string full);
 
+string class_simple_name_without_primitive(string full);
+
 string class_full_name(string descriptor);
 
 string class_package_name(jsource_file *jf);

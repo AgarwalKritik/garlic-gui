@@ -5,13 +5,13 @@
 
 #define DEFINE_NODE_HELPER_METHOD(t, name) \
     static inline bool                     \
-    node_is_##name(jd_node *n)             \
+        node_is_##name(jd_node *n)         \
     {                                      \
         return n->type == t;               \
     }                                      \
                                            \
     static inline bool                     \
-    node_is_not_##name(jd_node *n)         \
+        node_is_not_##name(jd_node *n)     \
     {                                      \
         return n->type != t;               \
     }

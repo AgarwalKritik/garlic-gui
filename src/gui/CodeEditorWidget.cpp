@@ -1,18 +1,17 @@
-/*
- * Copyright 2025 Kritik Agarwal
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+//  Copyright 2026 Kritik Agarwal
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
 
 #include "CodeEditorWidget.h"
 #include "WelcomeWidget.h"
@@ -42,7 +41,8 @@ int CodeEditor::lineNumberAreaWidth()
 {
     int digits = 1;
     int max = qMax(1, blockCount());
-    while (max >= 10) {
+    while (max >= 10)
+    {
         max /= 10;
         ++digits;
     }
@@ -78,7 +78,8 @@ void CodeEditor::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    if (!isReadOnly()) {
+    if (!isReadOnly())
+    {
         QTextEdit::ExtraSelection selection;
         QColor lineColor = QColor(40, 40, 40); // VS Code active line highlight
 
@@ -102,8 +103,10 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     int top = qRound(blockBoundingGeometry(block).translated(contentOffset()).top());
     int bottom = top + qRound(blockBoundingRect(block).height());
 
-    while (block.isValid() && top <= event->rect().bottom()) {
-        if (block.isVisible() && bottom >= event->rect().top()) {
+    while (block.isValid() && top <= event->rect().bottom())
+    {
+        if (block.isVisible() && bottom >= event->rect().top())
+        {
             QString number = QString::number(blockNumber + 1);
             painter.setPen(QColor(133, 133, 133)); // #858585
             painter.drawText(0, top, lineNumberArea->width() - 8, fontMetrics().height(),
@@ -140,7 +143,7 @@ void CodeEditorWidget::setupUI()
     m_layout->addWidget(m_findReplaceWidget);
 
     m_stackedWidget = new QStackedWidget(this);
-    
+
     m_welcomeWidget = new WelcomeWidget(this);
     connect(m_welcomeWidget, &WelcomeWidget::openFileRequested, this, &CodeEditorWidget::openFileRequested);
 
@@ -173,15 +176,15 @@ void CodeEditorWidget::setupUI()
         "}");
 
     connect(m_tabWidget, &QTabWidget::tabCloseRequested, this, &CodeEditorWidget::onTabCloseRequested);
-    connect(m_tabWidget, &QTabWidget::currentChanged, this, [this](int index) {
+    connect(m_tabWidget, &QTabWidget::currentChanged, this, [this](int index)
+            {
         if (index >= 0) {
             CodeEditor *editor = qobject_cast<CodeEditor*>(m_tabWidget->widget(index));
             if (editor) {
                 QTextCursor cursor = editor->textCursor();
                 emit cursorPositionChanged(cursor.blockNumber() + 1, cursor.columnNumber() + 1);
             }
-        }
-    });
+        } });
 
     m_stackedWidget->addWidget(m_welcomeWidget);
     m_stackedWidget->addWidget(m_tabWidget);
@@ -229,14 +232,14 @@ void CodeEditorWidget::openFile(const QString &filePath)
     QFileInfo fileInfo(filePath);
     int tabIndex = m_tabWidget->addTab(textEdit, fileInfo.fileName());
     m_tabWidget->setTabToolTip(tabIndex, filePath);
-    
-    connect(textEdit, &CodeEditor::cursorPositionChanged, this, [this, textEdit]() {
+
+    connect(textEdit, &CodeEditor::cursorPositionChanged, this, [this, textEdit]()
+            {
         if (m_tabWidget->currentWidget() == textEdit) {
             QTextCursor cursor = textEdit->textCursor();
             emit cursorPositionChanged(cursor.blockNumber() + 1, cursor.columnNumber() + 1);
-        }
-    });
-    
+        } });
+
     m_tabWidget->setCurrentIndex(tabIndex);
 
     m_openFiles.append(filePath);
@@ -319,135 +322,180 @@ void CodeEditorWidget::closeAllTabs()
     updateTabVisibility();
 }
 
-void CodeEditorWidget::showFindReplace() {
-    if (m_stackedWidget->currentWidget() == m_tabWidget) {
+void CodeEditorWidget::showFindReplace()
+{
+    if (m_stackedWidget->currentWidget() == m_tabWidget)
+    {
         m_findReplaceWidget->show();
         m_findReplaceWidget->focusFindInput();
     }
 }
 
-void CodeEditorWidget::hideFindReplace() {
+void CodeEditorWidget::hideFindReplace()
+{
     m_findReplaceWidget->hide();
-    if (CodeEditor *editor = qobject_cast<CodeEditor*>(m_tabWidget->currentWidget())) {
+    if (CodeEditor *editor = qobject_cast<CodeEditor *>(m_tabWidget->currentWidget()))
+    {
         editor->setFocus();
     }
 }
 
-void CodeEditorWidget::updateTabVisibility() {
-    if (m_tabWidget->count() > 0) {
+void CodeEditorWidget::updateTabVisibility()
+{
+    if (m_tabWidget->count() > 0)
+    {
         m_stackedWidget->setCurrentWidget(m_tabWidget);
-    } else {
+    }
+    else
+    {
         m_stackedWidget->setCurrentWidget(m_welcomeWidget);
         m_findReplaceWidget->hide();
     }
 }
 
-void CodeEditorWidget::findNext() {
-    CodeEditor *editor = qobject_cast<CodeEditor*>(m_tabWidget->currentWidget());
-    if (!editor) return;
+void CodeEditorWidget::findNext()
+{
+    CodeEditor *editor = qobject_cast<CodeEditor *>(m_tabWidget->currentWidget());
+    if (!editor)
+        return;
 
     QString query = m_findReplaceWidget->getFindText();
-    if (query.isEmpty()) return;
+    if (query.isEmpty())
+        return;
 
     QTextDocument::FindFlags flags;
-    if (m_findReplaceWidget->isMatchCase()) flags |= QTextDocument::FindCaseSensitively;
-    if (m_findReplaceWidget->isWholeWord()) flags |= QTextDocument::FindWholeWords;
+    if (m_findReplaceWidget->isMatchCase())
+        flags |= QTextDocument::FindCaseSensitively;
+    if (m_findReplaceWidget->isWholeWord())
+        flags |= QTextDocument::FindWholeWords;
 
     bool found = false;
-    if (m_findReplaceWidget->isRegex()) {
+    if (m_findReplaceWidget->isRegex())
+    {
         QRegularExpression regex(query, m_findReplaceWidget->isMatchCase() ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption);
         found = editor->find(regex, flags);
-    } else {
+    }
+    else
+    {
         found = editor->find(query, flags);
     }
-    
+
     // Wrap around
-    if (!found) {
+    if (!found)
+    {
         QTextCursor cursor = editor->textCursor();
         cursor.movePosition(QTextCursor::Start);
         editor->setTextCursor(cursor);
-        if (m_findReplaceWidget->isRegex()) {
+        if (m_findReplaceWidget->isRegex())
+        {
             QRegularExpression regex(query, m_findReplaceWidget->isMatchCase() ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption);
             editor->find(regex, flags);
-        } else {
+        }
+        else
+        {
             editor->find(query, flags);
         }
     }
 }
 
-void CodeEditorWidget::findPrev() {
-    CodeEditor *editor = qobject_cast<CodeEditor*>(m_tabWidget->currentWidget());
-    if (!editor) return;
+void CodeEditorWidget::findPrev()
+{
+    CodeEditor *editor = qobject_cast<CodeEditor *>(m_tabWidget->currentWidget());
+    if (!editor)
+        return;
 
     QString query = m_findReplaceWidget->getFindText();
-    if (query.isEmpty()) return;
+    if (query.isEmpty())
+        return;
 
     QTextDocument::FindFlags flags = QTextDocument::FindBackward;
-    if (m_findReplaceWidget->isMatchCase()) flags |= QTextDocument::FindCaseSensitively;
-    if (m_findReplaceWidget->isWholeWord()) flags |= QTextDocument::FindWholeWords;
+    if (m_findReplaceWidget->isMatchCase())
+        flags |= QTextDocument::FindCaseSensitively;
+    if (m_findReplaceWidget->isWholeWord())
+        flags |= QTextDocument::FindWholeWords;
 
     bool found = false;
-    if (m_findReplaceWidget->isRegex()) {
+    if (m_findReplaceWidget->isRegex())
+    {
         QRegularExpression regex(query, m_findReplaceWidget->isMatchCase() ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption);
         found = editor->find(regex, flags);
-    } else {
+    }
+    else
+    {
         found = editor->find(query, flags);
     }
-    
+
     // Wrap around
-    if (!found) {
+    if (!found)
+    {
         QTextCursor cursor = editor->textCursor();
         cursor.movePosition(QTextCursor::End);
         editor->setTextCursor(cursor);
-        if (m_findReplaceWidget->isRegex()) {
+        if (m_findReplaceWidget->isRegex())
+        {
             QRegularExpression regex(query, m_findReplaceWidget->isMatchCase() ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption);
             editor->find(regex, flags);
-        } else {
+        }
+        else
+        {
             editor->find(query, flags);
         }
     }
 }
 
-void CodeEditorWidget::replaceCurrent() {
-    CodeEditor *editor = qobject_cast<CodeEditor*>(m_tabWidget->currentWidget());
-    if (!editor) return;
-    
+void CodeEditorWidget::replaceCurrent()
+{
+    CodeEditor *editor = qobject_cast<CodeEditor *>(m_tabWidget->currentWidget());
+    if (!editor)
+        return;
+
     QTextCursor cursor = editor->textCursor();
-    if (cursor.hasSelection()) {
+    if (cursor.hasSelection())
+    {
         cursor.insertText(m_findReplaceWidget->getReplaceText());
     }
     findNext();
 }
 
-void CodeEditorWidget::replaceAll() {
-    CodeEditor *editor = qobject_cast<CodeEditor*>(m_tabWidget->currentWidget());
-    if (!editor) return;
+void CodeEditorWidget::replaceAll()
+{
+    CodeEditor *editor = qobject_cast<CodeEditor *>(m_tabWidget->currentWidget());
+    if (!editor)
+        return;
 
     QString query = m_findReplaceWidget->getFindText();
-    if (query.isEmpty()) return;
-    
+    if (query.isEmpty())
+        return;
+
     QTextDocument::FindFlags flags;
-    if (m_findReplaceWidget->isMatchCase()) flags |= QTextDocument::FindCaseSensitively;
-    if (m_findReplaceWidget->isWholeWord()) flags |= QTextDocument::FindWholeWords;
+    if (m_findReplaceWidget->isMatchCase())
+        flags |= QTextDocument::FindCaseSensitively;
+    if (m_findReplaceWidget->isWholeWord())
+        flags |= QTextDocument::FindWholeWords;
 
     QTextCursor cursor = editor->textCursor();
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::Start);
     editor->setTextCursor(cursor);
 
-    while (true) {
+    while (true)
+    {
         bool found = false;
-        if (m_findReplaceWidget->isRegex()) {
+        if (m_findReplaceWidget->isRegex())
+        {
             QRegularExpression regex(query, m_findReplaceWidget->isMatchCase() ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption);
             found = editor->find(regex, flags);
-        } else {
+        }
+        else
+        {
             found = editor->find(query, flags);
         }
-        
-        if (!found) break;
+
+        if (!found)
+            break;
         editor->textCursor().insertText(m_findReplaceWidget->getReplaceText());
     }
-    
+
     cursor.endEditBlock();
 }
 

@@ -1,18 +1,17 @@
-/*
- * Copyright 2025 Kritik Agarwal
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+//  Copyright 2026 Kritik Agarwal
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
 
 #include "DecompilerInterface.h"
 #include "../garlic/garlic_wrapper.h"
@@ -109,14 +108,15 @@ QString DecompilerInterface::createTempOutputDirectory(const QString &inputPath)
 {
     QString tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss_zzz");
-    
+
     QString baseName = "Project";
-    if (!inputPath.isEmpty()) {
+    if (!inputPath.isEmpty())
+    {
         baseName = QFileInfo(inputPath).baseName();
         // Remove spaces and special characters for a safe directory name
         baseName.replace(QRegularExpression("[^a-zA-Z0-9_-]"), "_");
     }
-    
+
     QString outputDir = tempDir + "/" + baseName + "_" + QString::number(QCoreApplication::applicationPid()) + "_" + timestamp;
 
     QDir dir;

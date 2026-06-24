@@ -1,0 +1,102 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on version tags (e.g., v1.0, v1.0.1)
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: GarlicGUI-Linux
+          - os: windows-latest
+            artifact_name: GarlicGUI-Windows
+          - os: macos-latest
+            artifact_name: GarlicGUI-MacOS
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.3'
+          target: 'desktop'
+
+      - name: Install Dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libgl1-mesa-dev
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Deploy and Package (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd build
+          cpack -C Release
+          Move-Item GarlicGUI-*-win64.zip ..\GarlicGUI-Windows.zip
+          Move-Item GarlicGUI-*-win64.msi ..\GarlicGUI-Windows.msi
+
+      - name: Deploy and Package (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          macdeployqt build/GarlicGUI.app -dmg
+          mv build/GarlicGUI.dmg GarlicGUI-MacOS.dmg
+
+      - name: Deploy and Package (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          # Package the standalone binary
+          cd build
+          tar -czvf ../GarlicGUI-Linux.tar.gz GarlicGUI
+          cd ..
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            GarlicGUI-Windows.zip
+            GarlicGUI-Windows.msi
+            GarlicGUI-MacOS.dmg
+            GarlicGUI-Linux.tar.gz
+          if-no-files-found: ignore
+
+  release:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/GarlicGUI-Windows/GarlicGUI-Windows.zip
+            artifacts/GarlicGUI-Windows/GarlicGUI-Windows.msi
+            artifacts/GarlicGUI-MacOS/GarlicGUI-MacOS.dmg
+            artifacts/GarlicGUI-Linux/GarlicGUI-Linux.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

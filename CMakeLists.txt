@@ -156,3 +156,18 @@ endif()
 
 # Install
 install(TARGETS GarlicGUI DESTINATION bin)
+
+if(WIN32)
+    # Run windeployqt during install step so CPack includes the Qt DLLs
+    install(CODE "execute_process(COMMAND windeployqt \"\${CMAKE_INSTALL_PREFIX}/bin/GarlicGUI.exe\")")
+endif()
+
+# CPack configuration
+set(CPACK_PACKAGE_NAME "GarlicGUI")
+set(CPACK_PACKAGE_VENDOR "AgarwalKritik")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+if(WIN32)
+    set(CPACK_GENERATOR "WIX;ZIP")
+    set(CPACK_WIX_UPGRADE_GUID "D981D396-DF46-45EE-B23B-D577CCF82B84")
+endif()
+include(CPack)

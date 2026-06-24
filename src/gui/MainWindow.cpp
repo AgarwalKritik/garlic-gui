@@ -1,18 +1,17 @@
-/*
- * Copyright 2025 Kritik Agarwal
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+//  Copyright 2026 Kritik Agarwal
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
 
 #include "MainWindow.h"
 #include "FileTreeWidget.h"
@@ -190,8 +189,6 @@ void MainWindow::setupStatusBar()
     m_statusBar->addPermanentWidget(m_fileTypeLabel);
 }
 
-
-
 void MainWindow::setupCentralWidget()
 {
     m_centralSplitter = new QSplitter(Qt::Horizontal, this);
@@ -351,9 +348,10 @@ void MainWindow::onDecompilationProgress(int progress)
 void MainWindow::updateCursorPosition(int line, int col)
 {
     m_cursorPositionLabel->setText(QString("Ln %1, Col %2").arg(line).arg(col));
-    
+
     // Also update file type label based on current file
-    if (!m_currentFileType.isEmpty()) {
+    if (!m_currentFileType.isEmpty())
+    {
         m_fileTypeLabel->setText(m_currentFileType);
     }
 }

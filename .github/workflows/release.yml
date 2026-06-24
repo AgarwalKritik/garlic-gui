@@ -35,10 +35,10 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.7.2'
+          version: '6.9.2'
           target: 'desktop'
           arch: 'win64_mingw'
-          tools: 'tools_mingw'
+          tools: 'tools_mingw1310'
 
       - name: Install Dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
@@ -52,47 +52,32 @@ jobs:
 
       - name: Configure CMake (Windows)
         if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: |
-          # Prefer QT_ROOT_DIR (set by the install-qt action); fallback to IQTA_TOOLS or Qt folder in repo
-          $qt_root = $env:QT_ROOT_DIR
-          if (-not $qt_root -or -not (Test-Path $qt_root)) {
-            if ($env:IQTA_TOOLS -and (Test-Path $env:IQTA_TOOLS)) {
-              $qt_root = $env:IQTA_TOOLS
-            } else {
-              $fallback = Join-Path $PWD 'Qt'
-              if (Test-Path $fallback) { $qt_root = $fallback }
-            }
-          }
+            Write-Host "QT_ROOT_DIR: $env:QT_ROOT_DIR"
 
-          Write-Host "Using Qt root: $qt_root"
+            $gcc = Get-Command gcc.exe -ErrorAction Stop
+            $gpp = Get-Command g++.exe -ErrorAction Stop
+            $make = Get-Command mingw32-make.exe -ErrorAction Stop
 
-          # Find gcc.exe (search under qt_root)
-          $gcc = Get-ChildItem -Path $qt_root -Filter gcc.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $gcc) {
-            throw "gcc.exe not found under Qt root: $qt_root"
-          }
+            Write-Host "gcc:  $($gcc.Source)"
+            Write-Host "g++:  $($gpp.Source)"
+            Write-Host "make: $($make.Source)"
 
-          $gccPath = $gcc.FullName
-          $binDir = Split-Path $gccPath -Parent
-          $gppPath = Join-Path $binDir 'g++.exe'
+            $env:CC = $gcc.Source
+            $env:CXX = $gpp.Source
 
-          # Export env vars for CMake
-          $env:PATH = "$binDir;$env:PATH"
-          $env:CC = $gccPath
-          $env:CXX = $gppPath
+            if (Test-Path build) { Remove-Item -Recurse -Force build }
 
-          Write-Host "Found gcc: $env:CC"
-          Write-Host "Found g++: $env:CXX"
+            cmake -B build -S . -G "MinGW Makefiles" `
+              -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" `
+              -DCMAKE_BUILD_TYPE=Release `
+              -DCMAKE_CXX_STANDARD=17 `
+              -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition" `
+              -DCMAKE_C_COMPILER="$env:CC" `
+              -DCMAKE_CXX_COMPILER="$env:CXX" `
+              -DCMAKE_MAKE_PROGRAM="$($make.Source)"
 
-          if (Test-Path build) { Remove-Item -Recurse -Force build }
-
-          cmake -B build -S . -G "MinGW Makefiles" `
-            -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" `
-            -DCMAKE_BUILD_TYPE=Release `
-            -DCMAKE_CXX_STANDARD=17 `
-            -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition" `
-            -DCMAKE_C_COMPILER="$env:CC" `
-            -DCMAKE_CXX_COMPILER="$env:CXX"
 
       - name: Fix AGL framework bug on macOS
         if: matrix.os == 'macos-26'

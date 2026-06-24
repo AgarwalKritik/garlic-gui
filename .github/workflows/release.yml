@@ -24,11 +24,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Qt
+      - name: Install Qt (Linux/macOS)
+        if: matrix.os != 'windows-latest'
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.7.2'
           target: 'desktop'
+
+      - name: Install Qt (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.2'
+          target: 'desktop'
+          arch: 'win64_mingw'
 
       - name: Install Dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
@@ -36,11 +45,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libgl1-mesa-dev
 
-      - name: Configure CMake
+      - name: Configure CMake (Linux/macOS)
+        if: matrix.os != 'windows-latest'
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
+      - name: Configure CMake (Windows)
+        if: matrix.os == 'windows-latest'
+        run: cmake -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+
       - name: Build
-        run: cmake --build build --config Release
+        run: cmake --build build -j4
 
       - name: Deploy and Package (Windows)
         if: matrix.os == 'windows-latest'

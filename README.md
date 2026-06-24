@@ -100,7 +100,7 @@ git clone https://github.com/AgarwalKritik/garlic-gui.git && cd garlic-gui
 
 # Create build directory and compile
 cmake -B build
-cmake --build build -j$(nproc)
+make -j$(nproc)
 
 # Run the application
 ./build/GarlicGUI

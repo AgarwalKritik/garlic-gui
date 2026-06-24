@@ -53,7 +53,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           $env:PATH = "$env:IQTA_TOOLS\mingw1120_64\bin;" + $env:PATH
-          cmake -B build -S . -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition"
+          cmake -B build -S . -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition"
 
       - name: Build
         run: cmake --build build -j4

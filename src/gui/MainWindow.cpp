@@ -125,13 +125,6 @@ void MainWindow::setupMenuBar()
     QMenu *editMenu = m_menuBar->addMenu("&Edit");
     editMenu->addAction("Undo");
     editMenu->addAction("Redo");
-    editMenu->addSeparator();
-
-    QAction *findReplaceAction = new QAction("&Find/Replace", this);
-    findReplaceAction->setShortcut(QKeySequence("Ctrl+F"));
-    findReplaceAction->setStatusTip("Find or replace text in the current file");
-    connect(findReplaceAction, &QAction::triggered, m_codeEditorWidget, &CodeEditorWidget::showFindReplace);
-    editMenu->addAction(findReplaceAction);
 
     QMenu *viewMenu = m_menuBar->addMenu("&View");
     viewMenu->addAction("Explorer");

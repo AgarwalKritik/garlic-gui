@@ -91,7 +91,6 @@ public slots:
     void openFile(const QString &filePath);
     void closeTab(int index);
     void closeAllTabs();
-    void showFindReplace();
 
 signals:
     void cursorPositionChanged(int line, int col);
@@ -100,6 +99,7 @@ signals:
 
 private slots:
     void onTabCloseRequested(int index);
+    void showFindReplace();
     void hideFindReplace();
     void findNext();
     void findPrev();

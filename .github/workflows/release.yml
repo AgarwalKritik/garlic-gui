@@ -58,10 +58,23 @@ jobs:
           $env:PATH = "$qt_mingw;" + $env:PATH
           $env:CC = Join-Path $qt_mingw 'gcc.exe'
           $env:CXX = Join-Path $qt_mingw 'g++.exe'
+          
+          # Verify the compilers exist
+          if (!(Test-Path $env:CC)) { throw "gcc.exe not found at $($env:CC)" }
+          if (!(Test-Path $env:CXX)) { throw "g++.exe not found at $($env:CXX)" }
+          
+          Write-Host "CC: $env:CC"
+          Write-Host "CXX: $env:CXX"
 
           if (Test-Path build) { Remove-Item -Recurse -Force build }
 
-          cmake -B build -S . -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition"
+          cmake -B build -S . -G "MinGW Makefiles" `
+            -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_CXX_STANDARD=17 `
+            -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition" `
+            -DCMAKE_C_COMPILER="$env:CC" `
+            -DCMAKE_CXX_COMPILER="$env:CXX"
 
       - name: Fix AGL framework bug on macOS
         if: matrix.os == 'macos-26'

@@ -104,7 +104,7 @@ You can download the latest compiled releases directly from the [GitHub Releases
 - CMake 3.16 or later
 
 - Qt6 (GUI Components)
-- C/C++ compiler (GCC, Clang, MinGW, or MSVC)
+- C/C++ compiler (GCC, Clang, MinGW)
 
 #### <img src="https://api.iconify.design/simple-icons:linux.svg?color=%233994BC" width="20" align="center" /> Linux (All Distros)
 
@@ -147,7 +147,7 @@ cmake --build build -j$(sysctl -n hw.ncpu)
 #### <img src="https://api.iconify.design/simple-icons:windows.svg?color=%233994BC" width="20" align="center" /> Windows
 
 1. Install **Qt6 (Open Source edition)** from [Qt website](https://www.qt.io/download-open-source).
-2. Add Qt6 compiler (MinGW or MSVC) to your `PATH`, e.g., `C:/Qt/6.x.x/mingw_64/bin/`.
+2. Add Qt6 compiler (MinGW) to your `PATH`, e.g., `C:/Qt/6.x.x/mingw_64/bin/`.
    > **Note**: Replace ```6.x.x``` with the exact version of Qt you downloaded.
 
 3. Open **Command Prompt** or **PowerShell**, then:

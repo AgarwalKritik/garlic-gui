@@ -13,6 +13,7 @@
 ## High-Level Overview
 
 The project is strictly divided into two distinct layers to ensure maximum performance and maintainability:
+
 1. **The GUI Layer (`src/gui`)**: Written in modern C++17 and Qt6. It handles all user interactions, file management, code editing, and async threading.
 2. **The Core Engine (`src/garlic`)**: The original Garlic Decompiler engine written in pure C. It performs the heavy lifting of reverse-engineering binaries into Java source code.
 
@@ -27,7 +28,7 @@ garlic-gui/
 ├── src/
 │   ├── main.cpp                # Application entry point
 │   │
-│   ├── gui/                    # 🎨 GUI LAYER (C++ / Qt6)
+│   ├── gui/                    # GUI LAYER (C++ / Qt6)
 │   │   ├── CodeEditorWidget    # The tabbed IDE code editor
 │   │   ├── DecompilerInterface # The C++ Bridge talking to the C engine
 │   │   ├── DecompilerProgress  # Progress dialog
@@ -62,6 +63,7 @@ garlic-gui/
 
 Because the GUI is built in C++ and the Core is pure C, they communicate through a dedicated wrapper layer.
 If you are contributing to the UI and need to invoke a decompiler function:
+
 1. Ensure the function is properly exposed in `src/garlic/garlic_wrapper.h`.
 2. Call it asynchronously using `src/gui/DecompilerInterface.cpp` to prevent locking up the Qt Main Event Loop.
 3. Thread pooling and memory allocation for the heavy decompilation are managed internally by the `garlic/libs` C utilities.

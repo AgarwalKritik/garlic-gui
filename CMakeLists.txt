@@ -162,7 +162,7 @@ endif ()
 if(MSVC)
     target_compile_options(GarlicGUI PRIVATE /W3)
 else()
-    target_compile_options(GarlicGUI PRIVATE -Wall -Wextra)
+    target_compile_options(GarlicGUI PRIVATE -Wall -Wextra -std=c++17)
 endif()
 
 # Strip binary on Unix (like original Garlic)

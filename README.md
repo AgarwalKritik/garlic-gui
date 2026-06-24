@@ -2,7 +2,7 @@
 
 # Garlic Decompiler (GUI)
 
-<img src="icon/garlic.png" alt="GarlicGUI Icon" width="128" />
+<img src="icon/garlic.png" alt="GarlicGUI Icon" width="256" />
 
 **A modern C++/Qt6 desktop interface for the Garlic Decompiler, bringing blazing-fast APK, DEX, JAR, and CLASS decompilation to Windows, Linux, and macOS.**
 

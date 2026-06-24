@@ -8,6 +8,15 @@ set(CMAKE_C_STANDARD 99)
 # Find Qt6
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
+get_target_property(QT_WIDGETS_LINKS Qt6::Widgets INTERFACE_LINK_LIBRARIES)
+message(STATUS "Qt6::Widgets => ${QT_WIDGETS_LINKS}")
+
+get_target_property(QT_CORE_LINKS Qt6::Core INTERFACE_LINK_LIBRARIES)
+message(STATUS "Qt6::Core => ${QT_CORE_LINKS}")
+
+get_target_property(QT_GUI_LINKS Qt6::Gui INTERFACE_LINK_LIBRARIES)
+message(STATUS "Qt6::Gui => ${QT_GUI_LINKS}")
+
 # Enable Qt MOC
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -120,6 +129,8 @@ set(GUI_SOURCES
     src/garlic/garlic_wrapper.h
     resources.qrc
 )
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Create executable
 add_executable(GarlicGUI 

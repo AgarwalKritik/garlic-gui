@@ -161,7 +161,7 @@ cd garlic-gui
 cmake -B build -S . -DCMAKE_PREFIX_PATH="C:/Qt/6.x.x/mingw_64" -DCMAKE_BUILD_TYPE=Release
 
 # Compile the application
-cmake --build build --config Release
+cmake --build build -j4
 ```
 
 1. Run the application:

@@ -24,6 +24,26 @@
 #include <QTimer>
 #include <QPointer>
 #include <QRegularExpression>
+#include <stdio.h>
+
+#ifdef _WIN32
+#include <io.h>
+#include <fcntl.h>
+#define PIPE(fd) _pipe((fd), 4096, _O_TEXT)
+#define DUP _dup
+#define DUP2 _dup2
+#define FILENO _fileno
+#define CLOSE _close
+#define FDOPEN _fdopen
+#else
+#include <unistd.h>
+#define PIPE(fd) pipe((fd))
+#define DUP dup
+#define DUP2 dup2
+#define FILENO fileno
+#define CLOSE close
+#define FDOPEN fdopen
+#endif
 
 // Static instance for callback
 DecompilerInterface *DecompilerInterface::s_instance = nullptr;
@@ -66,22 +86,108 @@ void DecompilerInterface::decompileFile(const QString &inputPath)
     // Match the CLI default of 4 threads to prevent lock contention overhead
     int threadNum = 4;
 
-    // Run decompilation in a separate thread to avoid blocking the GUI
+    // Flush before redirecting
+    fflush(stdout);
+    fflush(stderr);
+
+    // Set up stdout/stderr redirection
+    int pipeFds[2];
+    if (PIPE(pipeFds) == -1) {
+        emit decompilationFinished(false);
+        return;
+    }
+
+    // Ensure stdout/stderr have valid file descriptors in Windows GUI apps
+#ifdef _WIN32
+    if (_fileno(stdout) < 0) freopen("NUL", "w", stdout);
+    if (_fileno(stderr) < 0) freopen("NUL", "w", stderr);
+#endif
+
+    int fdOut = FILENO(stdout);
+    int fdErr = FILENO(stderr);
+
+    int oldStdout = -1;
+    int oldStderr = -1;
+
+    if (fdOut >= 0) {
+        oldStdout = DUP(fdOut);
+        DUP2(pipeFds[1], fdOut);
+    }
+    if (fdErr >= 0) {
+        oldStderr = DUP(fdErr);
+        DUP2(pipeFds[1], fdErr);
+    }
+
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stderr, NULL, _IONBF, 0);
+
     QPointer<DecompilerInterface> self(this);
-    QThread *workerThread = QThread::create([self, inputPath, outputDir, threadNum]()
-                                            {
+
+    // Spawn reader thread
+    QThread *readerThread = QThread::create([self, pipeFds]() {
+        int fd = pipeFds[0];
+        char buffer[4096];
+        int bytesRead;
+        QString rawBuffer;
+        
+        qint64 lastEmitTime = QDateTime::currentMSecsSinceEpoch();
+
+#ifdef _WIN32
+        while ((bytesRead = _read(fd, buffer, sizeof(buffer) - 1)) > 0) {
+#else
+        while ((bytesRead = read(fd, buffer, sizeof(buffer) - 1)) > 0) {
+#endif
+            buffer[bytesRead] = '\0';
+            rawBuffer.append(QString::fromUtf8(buffer));
+            
+            qint64 now = QDateTime::currentMSecsSinceEpoch();
+            if (now - lastEmitTime > 50 || rawBuffer.endsWith('\n')) {
+                if (!rawBuffer.isEmpty() && self) {
+                    QString chunk = rawBuffer;
+                    QMetaObject::invokeMethod(self, [self, chunk]() {
+                        emit self->logMessage(chunk);
+                    }, Qt::QueuedConnection);
+                    rawBuffer.clear();
+                    lastEmitTime = now;
+                }
+            }
+        }
+        
+        if (!rawBuffer.isEmpty() && self) {
+            QString chunk = rawBuffer;
+            QMetaObject::invokeMethod(self, [self, chunk]() {
+                emit self->logMessage(chunk);
+            }, Qt::QueuedConnection);
+        }
+    });
+    connect(readerThread, &QThread::finished, readerThread, &QThread::deleteLater);
+    readerThread->start();
+
+    // Run decompilation in a separate thread to avoid blocking the GUI
+    QThread *workerThread = QThread::create([self, inputPath, outputDir, threadNum, pipeFds, oldStdout, oldStderr, fdOut, fdErr]() {
         // Call Garlic decompiler
         int result = garlic_decompile_file(
             inputPath.toLocal8Bit().constData(),
             outputDir.toLocal8Bit().constData(),
             threadNum
         );
+        
+        // Restore stdout/stderr
+        fflush(stdout);
+        fflush(stderr);
+        if (oldStdout >= 0) { DUP2(oldStdout, fdOut); CLOSE(oldStdout); }
+        if (oldStderr >= 0) { DUP2(oldStderr, fdErr); CLOSE(oldStderr); }
+        
+        // Close write end of pipe so the reader thread sees EOF
+        CLOSE(pipeFds[1]);
+        
         if (self) {
             // Emit result on main thread
             QMetaObject::invokeMethod(self, [self, result]() {
                 emit self->decompilationFinished(result == 1);
             }, Qt::QueuedConnection);
-        } });
+        }
+    });
 
     connect(workerThread, &QThread::finished, workerThread, &QThread::deleteLater);
     workerThread->start();

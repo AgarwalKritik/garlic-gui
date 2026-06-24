@@ -16,6 +16,10 @@
 #include "FileTreeWidget.h"
 #include <QDir>
 #include <QFileInfo>
+#include <QProgressDialog>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
 #include <QHeaderView>
 #include <QIcon>
 
@@ -104,21 +108,44 @@ void FileTreeWidget::populateTree(const QString &rootPath, const QString &projec
     if (!rootDir.exists())
         return;
 
+    QProgressDialog progress("Loading project files into Explorer...", "Cancel", 0, 0, this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(0); // Show immediately
+    progress.setValue(0);
+
     QString displayName = projectName.isEmpty() ? rootDir.dirName() : projectName;
     QTreeWidgetItem *rootItem = createTreeItem(displayName, rootPath);
     m_treeWidget->addTopLevelItem(rootItem);
 
-    addDirectoryToTree(rootItem, rootPath);
+    addDirectoryToTree(rootItem, rootPath, &progress);
+    
+    if (progress.wasCanceled()) {
+        clearProject();
+        return;
+    }
+    
     rootItem->setExpanded(true);
 }
 
-void FileTreeWidget::addDirectoryToTree(QTreeWidgetItem *parentItem, const QString &dirPath)
+void FileTreeWidget::addDirectoryToTree(QTreeWidgetItem *parentItem, const QString &dirPath, QProgressDialog *progress)
 {
+    if (progress && progress->wasCanceled())
+        return;
+
     QDir dir(dirPath);
     QStringList entries = dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot, QDir::DirsFirst | QDir::Name);
 
+    int count = 0;
     foreach (const QString &entry, entries)
     {
+        if (progress && progress->wasCanceled())
+            return;
+
+        // Process events every 50 items to keep UI responsive
+        if (++count % 50 == 0) {
+            QCoreApplication::processEvents();
+        }
+
         QString fullPath = dir.absoluteFilePath(entry);
         QFileInfo fileInfo(fullPath);
 
@@ -126,7 +153,7 @@ void FileTreeWidget::addDirectoryToTree(QTreeWidgetItem *parentItem, const QStri
         {
             QTreeWidgetItem *dirItem = createTreeItem(entry, fullPath);
             parentItem->addChild(dirItem);
-            addDirectoryToTree(dirItem, fullPath);
+            addDirectoryToTree(dirItem, fullPath, progress);
         }
         else if (isJavaFile(entry))
         {

@@ -39,6 +39,7 @@ signals:
     void decompilationStarted();
     void decompilationFinished(bool success);
     void progressUpdated(int progress);
+    void logMessage(const QString &message);
 
 private:
     QString createTempOutputDirectory(const QString &inputPath);

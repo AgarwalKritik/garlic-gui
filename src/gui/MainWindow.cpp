@@ -23,6 +23,9 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QIcon>
+#include <QDockWidget>
+#include <QPlainTextEdit>
+#include <QScrollBar>
 
 #include <QApplication>
 #include <QFileDialog>
@@ -43,7 +46,7 @@ inline void ensureOutputDir(const QString &path)
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), m_menuBar(nullptr), m_statusBar(nullptr), m_centralSplitter(nullptr), m_fileTreeWidget(nullptr), m_codeEditorWidget(nullptr), m_decompiler(nullptr), m_projectManager(nullptr), m_statusLabel(nullptr), m_progressBar(nullptr), m_progressDialog(nullptr)
+    : QMainWindow(parent), m_menuBar(nullptr), m_statusBar(nullptr), m_centralSplitter(nullptr), m_fileTreeWidget(nullptr), m_codeEditorWidget(nullptr), m_logDock(nullptr), m_logTextEdit(nullptr), m_decompiler(nullptr), m_projectManager(nullptr), m_statusLabel(nullptr), m_progressBar(nullptr), m_progressDialog(nullptr)
 {
     setupUI();
 
@@ -58,6 +61,8 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::onDecompilationFinished);
     connect(m_decompiler, &DecompilerInterface::progressUpdated,
             this, &MainWindow::onDecompilationProgress);
+    connect(m_decompiler, &DecompilerInterface::logMessage,
+            this, &MainWindow::appendLogMessage);
 
     connect(m_fileTreeWidget, &FileTreeWidget::fileSelected,
             m_codeEditorWidget, &CodeEditorWidget::openFile);
@@ -151,15 +156,8 @@ void MainWindow::setupStatusBar()
         "}");
 
     // Left Side
-    m_remoteLabel = new QLabel(" >< ");
-    m_remoteLabel->setStyleSheet("background-color: #3994BC; color: #FFFFFF; font-weight: bold; border-radius: 2px; margin-right: 5px;");
-    m_statusBar->addWidget(m_remoteLabel);
-
     m_gitLabel = new QLabel(" Garlic-GUI ");
     m_statusBar->addWidget(m_gitLabel);
-
-    m_errorWarningLabel = new QLabel(" (x) 0  (!) 0 ");
-    m_statusBar->addWidget(m_errorWarningLabel);
 
     m_statusLabel = new QLabel("Ready");
     m_statusBar->addWidget(m_statusLabel, 1);
@@ -175,15 +173,6 @@ void MainWindow::setupStatusBar()
     // Right Side
     m_cursorPositionLabel = new QLabel("Ln 1, Col 1");
     m_statusBar->addPermanentWidget(m_cursorPositionLabel);
-
-    m_spacesLabel = new QLabel("Spaces: 4");
-    m_statusBar->addPermanentWidget(m_spacesLabel);
-
-    m_encodingLabel = new QLabel("UTF-8");
-    m_statusBar->addPermanentWidget(m_encodingLabel);
-
-    m_crlfLabel = new QLabel("CRLF");
-    m_statusBar->addPermanentWidget(m_crlfLabel);
 
     m_fileTypeLabel = new QLabel("Java");
     m_statusBar->addPermanentWidget(m_fileTypeLabel);
@@ -208,6 +197,7 @@ void MainWindow::setupCentralWidget()
     // Create code editor widget
     m_codeEditorWidget = new CodeEditorWidget(this);
     connect(m_codeEditorWidget, &CodeEditorWidget::cursorPositionChanged, this, &MainWindow::updateCursorPosition);
+    connect(m_codeEditorWidget, &CodeEditorWidget::fileTypeChanged, this, &MainWindow::updateFileType);
     connect(m_codeEditorWidget, &CodeEditorWidget::openFileRequested, m_openAction, &QAction::trigger);
 
     m_centralSplitter->addWidget(m_fileTreeWidget);
@@ -218,6 +208,17 @@ void MainWindow::setupCentralWidget()
     m_centralSplitter->setStretchFactor(1, 1);
 
     setCentralWidget(m_centralSplitter);
+
+    // Setup Log Dock
+    m_logDock = new QDockWidget("Output Log", this);
+    m_logDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+
+    m_logTextEdit = new QPlainTextEdit(m_logDock);
+    m_logTextEdit->setReadOnly(true);
+    m_logTextEdit->setStyleSheet("QPlainTextEdit { background-color: #1e1e1e; color: #d4d4d4; font-family: Consolas, monospace; }");
+    m_logDock->setWidget(m_logTextEdit);
+
+    addDockWidget(Qt::BottomDockWidgetArea, m_logDock);
 }
 
 void MainWindow::openFile()
@@ -243,6 +244,8 @@ void MainWindow::openFile()
 
         connect(m_decompiler, &DecompilerInterface::progressUpdated,
                 m_progressDialog, &DecompilerProgressDialog::updateProgress);
+        connect(m_decompiler, &DecompilerInterface::logMessage,
+                m_progressDialog, &DecompilerProgressDialog::setStatusText);
 
         m_decompiler->decompileFile(fileName);
     }
@@ -294,8 +297,8 @@ void MainWindow::aboutApplication()
                        "<p>2. <a href='https://www.qt.io/'>Qt Framework</a></p>"
                        "<p>3. GUI Concept and idea by <a href='https://lin.ky/abhithemodder'>AbhiTheModder</a>.</p>"
                        "<br>"
-                       "<p>Designed and developed with ❤︎ by <a href='https://github.com/AgarwalKritik'>Kritik Agarwal</a>.</p>"
-                       "<p>© 2026 AgarwalKritik. All rights reserved.</p>");
+                       "<p>Designed and developed with ❤︎</p>"
+                       "<p>© 2026 <a href='https://github.com/AgarwalKritik'>Kritik Agarwal</a>. All rights reserved.</p>");
 }
 
 void MainWindow::onDecompilationStarted()
@@ -348,12 +351,12 @@ void MainWindow::onDecompilationProgress(int progress)
 void MainWindow::updateCursorPosition(int line, int col)
 {
     m_cursorPositionLabel->setText(QString("Ln %1, Col %2").arg(line).arg(col));
+}
 
-    // Also update file type label based on current file
-    if (!m_currentFileType.isEmpty())
-    {
-        m_fileTypeLabel->setText(m_currentFileType);
-    }
+void MainWindow::updateFileType(const QString &type)
+{
+    m_fileTypeLabel->setText(type);
+    m_currentFileType = type;
 }
 
 void MainWindow::updateWindowTitle(const QString &projectPath)
@@ -365,4 +368,31 @@ void MainWindow::updateWindowTitle(const QString &projectPath)
         title += " - " + fileInfo.fileName();
     }
     setWindowTitle(title);
+}
+
+void MainWindow::appendLogMessage(const QString &message)
+{
+    if (m_logTextEdit)
+    {
+        QTextCursor cursor = m_logTextEdit->textCursor();
+        cursor.beginEditBlock();
+        cursor.movePosition(QTextCursor::End);
+        
+        for (int i = 0; i < message.length(); ++i) {
+            QChar c = message[i];
+            if (c == '\b') {
+                cursor.deletePreviousChar();
+            } else if (c == '\r') {
+                cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+                cursor.removeSelectedText();
+            } else {
+                cursor.insertText(QString(c));
+            }
+        }
+        
+        cursor.endEditBlock();
+        m_logTextEdit->setTextCursor(cursor);
+        QScrollBar *bar = m_logTextEdit->verticalScrollBar();
+        bar->setValue(bar->maximum());
+    }
 }

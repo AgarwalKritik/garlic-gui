@@ -183,6 +183,15 @@ void CodeEditorWidget::setupUI()
             if (editor) {
                 QTextCursor cursor = editor->textCursor();
                 emit cursorPositionChanged(cursor.blockNumber() + 1, cursor.columnNumber() + 1);
+                
+                QString filePath = m_tabWidget->tabToolTip(index);
+                QFileInfo info(filePath);
+                QString ext = info.suffix().toUpper();
+                if (ext.isEmpty()) ext = "Text";
+                else if (ext == "JAVA") ext = "Java";
+                else if (ext == "XML") ext = "XML";
+                else if (ext == "MF") ext = "Manifest";
+                emit fileTypeChanged(ext);
             }
         } });
 

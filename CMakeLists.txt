@@ -139,6 +139,10 @@ if (WIN32)
     set_target_properties(GarlicGUI PROPERTIES WIN32_EXECUTABLE TRUE)
 endif ()
 
+if (APPLE)
+    set_target_properties(GarlicGUI PROPERTIES MACOSX_BUNDLE TRUE)
+endif ()
+
 # Compiler specific settings
 if(MSVC)
     target_compile_options(GarlicGUI PRIVATE /W3)

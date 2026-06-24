@@ -43,7 +43,7 @@ private slots:
 private:
     void setupUI();
     void populateTree(const QString &rootPath, const QString &projectName = QString());
-    void addDirectoryToTree(QTreeWidgetItem *parentItem, const QString &dirPath);
+    void addDirectoryToTree(QTreeWidgetItem *parentItem, const QString &dirPath, class QProgressDialog *progress = nullptr);
     bool isJavaFile(const QString &fileName);
     QTreeWidgetItem *createTreeItem(const QString &name, const QString &fullPath, bool isFile = false);
     void filterTree(const QString &searchText);

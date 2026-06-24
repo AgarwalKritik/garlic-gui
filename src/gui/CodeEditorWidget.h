@@ -94,6 +94,7 @@ public slots:
 
 signals:
     void cursorPositionChanged(int line, int col);
+    void fileTypeChanged(const QString &fileType);
     void openFileRequested();
 
 private slots:

@@ -32,6 +32,8 @@ class CodeEditorWidget;
 class DecompilerInterface;
 class ProjectManager;
 class DecompilerProgressDialog;
+class QDockWidget;
+class QPlainTextEdit;
 
 class MainWindow : public QMainWindow
 {
@@ -50,6 +52,8 @@ private slots:
     void onDecompilationFinished(bool success);
     void onDecompilationProgress(int progress);
     void updateCursorPosition(int line, int col);
+    void updateFileType(const QString &type);
+    void appendLogMessage(const QString &message);
 
 private:
     void setupUI();
@@ -67,6 +71,8 @@ private:
     // Custom widgets
     FileTreeWidget *m_fileTreeWidget;
     CodeEditorWidget *m_codeEditorWidget;
+    QDockWidget *m_logDock;
+    QPlainTextEdit *m_logTextEdit;
 
     // Core components
     DecompilerInterface *m_decompiler;
@@ -83,14 +89,9 @@ private:
     QLabel *m_statusLabel;
     QProgressBar *m_progressBar;
 
-    QLabel *m_remoteLabel;
     QLabel *m_gitLabel;
-    QLabel *m_errorWarningLabel;
 
     QLabel *m_cursorPositionLabel;
-    QLabel *m_spacesLabel;
-    QLabel *m_encodingLabel;
-    QLabel *m_crlfLabel;
     QLabel *m_fileTypeLabel;
 
     QString m_currentProject;

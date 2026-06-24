@@ -66,27 +66,6 @@ void DecompilerProgressDialog::setupUI()
 void DecompilerProgressDialog::updateProgress(int progress)
 {
     m_progressBar->setValue(progress);
-
-    if (progress < 25)
-    {
-        setStatusText("Parsing file structure...");
-    }
-    else if (progress < 50)
-    {
-        setStatusText("Extracting classes...");
-    }
-    else if (progress < 75)
-    {
-        setStatusText("Decompiling methods...");
-    }
-    else if (progress < 95)
-    {
-        setStatusText("Generating source code...");
-    }
-    else
-    {
-        setStatusText("Finalizing...");
-    }
 }
 
 void DecompilerProgressDialog::setStatusText(const QString &text)

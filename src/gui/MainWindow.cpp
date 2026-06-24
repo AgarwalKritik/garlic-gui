@@ -295,7 +295,7 @@ void MainWindow::aboutApplication()
                        "<p>3. GUI Concept and idea by <a href='https://lin.ky/abhithemodder'>AbhiTheModder</a>.</p>"
                        "<br>"
                        "<p>Designed and developed with ❤︎ by <a href='https://github.com/AgarwalKritik'>Kritik Agarwal</a>.</p>"
-                       "<p>© 2025 AgarwalKritik. All rights reserved.</p>");
+                       "<p>© 2026 AgarwalKritik. All rights reserved.</p>");
 }
 
 void MainWindow::onDecompilationStarted()

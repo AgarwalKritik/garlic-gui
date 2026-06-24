@@ -4,103 +4,109 @@
 
 <img src="icon/garlic.png" alt="GarlicGUI Icon" width="128" />
 
-**A modern C++/Qt6 GUI front-end for the Garlic Decompiler — bringing blazing-fast APK/DEX/JAR/CLASS decompilation power to your desktop.**
+**A modern C++/Qt6 desktop interface for the Garlic Decompiler, bringing blazing-fast APK, DEX, JAR, and CLASS decompilation to Windows, Linux, and macOS.**
 
-[![C++](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtODY1ODNhZmQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMTk0LjI4MzMzNDczMjA1NTY2IiBoZWlnaHQ9IjM1IiB2aWV3Qm94PSIwIDAgMTk0LjI4MzMzNDczMjA1NTY2IDM1IiBjbGFzcz0iYmFkZ2Utc3ZnIj48ZGVmcyBkYXRhLXYtODY1ODNhZmQ9IiI+PCEtLS0tPjwhLS0tLT48IS0tLS0+PC9kZWZzPjxwYXRoIGRhdGEtdi04NjU4M2FmZD0iIiBkPSJNIDEwIDAgTCAxMTkuMTE2NjY4NzAxMTcxODggMCBMIDExOS4xMTY2Njg3MDExNzE4OCAzNSBMIDEwIDM1IFEgMCAzNSAwIDI1IEwgMCAxMCBRIDAgMCAxMCAwIFoiIGZpbGw9IiNmZjI0MjQiLz48cGF0aCBkYXRhLXYtODY1ODNhZmQ9IiIgZD0iTSAxMTkuMTE2NjY4NzAxMTcxODggMCBMIDE4NC4yODMzMzQ3MzIwNTU2NiAwIFEgMTk0LjI4MzMzNDczMjA1NTY2IDAgMTk0LjI4MzMzNDczMjA1NTY2IDEwIEwgMTk0LjI4MzMzNDczMjA1NTY2IDI1IFEgMTk0LjI4MzMzNDczMjA1NTY2IDM1IDE4NC4yODMzMzQ3MzIwNTU2NiAzNSBMIDExOS4xMTY2Njg3MDExNzE4OCAzNSBaIiBmaWxsPSIjZGYwMDAwIi8+PCEtLS0tPjx0ZXh0IGRhdGEtdi04NjU4M2FmZD0iIiB4PSI1OS41NTgzMzQzNTA1ODU5NCIgeT0iMTcuNSIgZHk9IjAuMzVlbSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsIHNhbnMtc2VyaWYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSIyIiBmb250LXdlaWdodD0iNjAwIiBmb250LXN0eWxlPSJub3JtYWwiIHRleHQtZGVjb3JhdGlvbj0ibm9uZSIgZmlsbC1vcGFjaXR5PSIxIiBmb250LXZhcmlhbnQ9Im5vcm1hbCIgc3R5bGU9InRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7Ij5NQURFIFdJVEg8L3RleHQ+PGcgZGF0YS12LTg2NTgzYWZkPSIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEyOS4xMTY2Njg3MDExNzE4OCwgOS41KSBzY2FsZSgwLjY2NjY2NjY2NjY2NjY2NjYpIj48cGF0aCBkYXRhLXYtODY1ODNhZmQ9IiIgZD0iTTIyLjM5NCA2Yy0uMTY3LS4yOS0uMzk4LS41NDMtLjY1Mi0uNjlMMTIuOTI2LjIyYy0uNTA5LS4yOTQtMS4zNC0uMjk0LTEuODQ4IDBMMi4yNiA1LjMxYy0uNTA4LjI5My0uOTIzIDEuMDEzLS45MjMgMS42djEwLjE4YzAgLjI5NC4xMDQuNjIuMjcxLjkxLjE2Ny4yOS4zOTguNTQzLjY1Mi42OWw4LjgxNiA1LjA5Yy41MDguMjkzIDEuMzQuMjkzIDEuODQ4IDBsOC44MTYtNS4wOWMuMjU0LS4xNDcuNDg1LS40LjY1Mi0uNjkuMTY3LS4yOS4yNy0uNjE2LjI3LS45MVY2LjkxYy4wMDMtLjI5NC0uMS0uNjItLjI2OC0uOTF6TTEyIDE5LjExYy0zLjkyIDAtNy4xMDktMy4xOS03LjEwOS03LjExIDAtMy45MiAzLjE5LTcuMTEgNy4xMS03LjExYTcuMTMzIDcuMTMzIDAgMDE2LjE1NiAzLjU1M2wtMy4wNzYgMS43OGEzLjU2NyAzLjU2NyAwIDAwLTMuMDgtMS43OEEzLjU2IDMuNTYgMCAwMDguNDQ0IDEyIDMuNTYgMy41NiAwIDAwMTIgMTUuNTU1YTMuNTcgMy41NyAwIDAwMy4wOC0xLjc3OGwzLjA3OCAxLjc4QTcuMTM1IDcuMTM1IDAgMDExMiAxOS4xMXptNy4xMS02LjcxNWgtLjc5di43OWgtLjc5di0uNzloLS43OXYtLjc5aC43OXYtLjc5aC43OXYuNzloLjc5em0yLjk2MiAwaC0uNzl2Ljc5aC0uNzl2LS43OWgtLjc5di0uNzloLjc5di0uNzloLjc5di43OWguNzl6IiBmaWxsPSIjRkZGRkZGIi8+PC9nPjx0ZXh0IGRhdGEtdi04NjU4M2FmZD0iIiB4PSIxNjYuNzAwMDAxNzE2NjEzNzciIHk9IjE3LjUiIGR5PSIwLjM1ZW0iIGZvbnQtc2l6ZT0iMTIiIGZvbnQtZmFtaWx5PSJNb250c2VycmF0LCBzYW5zLXNlcmlmIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIiBsZXR0ZXItc3BhY2luZz0iMiIgZm9udC1zdHlsZT0ibm9ybWFsIiB0ZXh0LWRlY29yYXRpb249Im5vbmUiIGZpbGwtb3BhY2l0eT0iMSIgZm9udC12YXJpYW50PSJub3JtYWwiIHN0eWxlPSJ0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyI+QysrPC90ZXh0PjwhLS0tLT48L3N2Zz4=)](#built-with)
-[![QT6](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtODY1ODNhZmQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMTgxLjc4MzM0NDI2ODc5ODgzIiBoZWlnaHQ9IjM1IiB2aWV3Qm94PSIwIDAgMTgxLjc4MzM0NDI2ODc5ODgzIDM1IiBjbGFzcz0iYmFkZ2Utc3ZnIj48ZGVmcyBkYXRhLXYtODY1ODNhZmQ9IiI+PCEtLS0tPjwhLS0tLT48IS0tLS0+PC9kZWZzPjxwYXRoIGRhdGEtdi04NjU4M2FmZD0iIiBkPSJNIDEwIDAgTCAxMjkuMzgzMzM4OTI4MjIyNjYgMCBMIDEyOS4zODMzMzg5MjgyMjI2NiAzNSBMIDEwIDM1IFEgMCAzNSAwIDI1IEwgMCAxMCBRIDAgMCAxMCAwIFoiIGZpbGw9IiMyNGZmMjkiLz48cGF0aCBkYXRhLXYtODY1ODNhZmQ9IiIgZD0iTSAxMjkuMzgzMzM4OTI4MjIyNjYgMCBMIDE3MS43ODMzNDQyNjg3OTg4MyAwIFEgMTgxLjc4MzM0NDI2ODc5ODgzIDAgMTgxLjc4MzM0NDI2ODc5ODgzIDEwIEwgMTgxLjc4MzM0NDI2ODc5ODgzIDI1IFEgMTgxLjc4MzM0NDI2ODc5ODgzIDM1IDE3MS43ODMzNDQyNjg3OTg4MyAzNSBMIDEyOS4zODMzMzg5MjgyMjI2NiAzNSBaIiBmaWxsPSIjMDBlNjAwIi8+PCEtLS0tPjx0ZXh0IGRhdGEtdi04NjU4M2FmZD0iIiB4PSI2NC42OTE2Njk0NjQxMTEzMyIgeT0iMTcuNSIgZHk9IjAuMzVlbSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsIHNhbnMtc2VyaWYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSIyIiBmb250LXdlaWdodD0iNjAwIiBmb250LXN0eWxlPSJub3JtYWwiIHRleHQtZGVjb3JhdGlvbj0ibm9uZSIgZmlsbC1vcGFjaXR5PSIxIiBmb250LXZhcmlhbnQ9Im5vcm1hbCIgc3R5bGU9InRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7Ij5QT1dFUkVEIEJZPC90ZXh0PjwhLS0tLT48dGV4dCBkYXRhLXYtODY1ODNhZmQ9IiIgeD0iMTU1LjU4MzM0MTU5ODUxMDc0IiB5PSIxNy41IiBkeT0iMC4zNWVtIiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0iTW9udHNlcnJhdCwgc2Fucy1zZXJpZiIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjkwMCIgbGV0dGVyLXNwYWNpbmc9IjIiIGZvbnQtc3R5bGU9Im5vcm1hbCIgdGV4dC1kZWNvcmF0aW9uPSJub25lIiBmaWxsLW9wYWNpdHk9IjEiIGZvbnQtdmFyaWFudD0ibm9ybWFsIiBzdHlsZT0idGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTsiPlFUNjwvdGV4dD48IS0tLS0+PC9zdmc+)](https://www.qt.io/)
-[![garlic](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtODY1ODNhZmQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iNTE5LjQzMzM1NzIzODc2OTUiIGhlaWdodD0iMzUiIHZpZXdCb3g9IjAgMCA1MTkuNDMzMzU3MjM4NzY5NSAzNSIgY2xhc3M9ImJhZGdlLXN2ZyI+PGRlZnMgZGF0YS12LTg2NTgzYWZkPSIiPjwhLS0tLT48IS0tLS0+PCEtLS0tPjwvZGVmcz48cGF0aCBkYXRhLXYtODY1ODNhZmQ9IiIgZD0iTSAxMCAwIEwgMTI5LjM4MzMzODkyODIyMjY2IDAgTCAxMjkuMzgzMzM4OTI4MjIyNjYgMzUgTCAxMCAzNSBRIDAgMzUgMCAyNSBMIDAgMTAgUSAwIDAgMTAgMCBaIiBmaWxsPSIjNmY0NWNmIi8+PHBhdGggZGF0YS12LTg2NTgzYWZkPSIiIGQ9Ik0gMTI5LjM4MzMzODkyODIyMjY2IDAgTCA1MDkuNDMzMzU3MjM4NzY5NTMgMCBRIDUxOS40MzMzNTcyMzg3Njk1IDAgNTE5LjQzMzM1NzIzODc2OTUgMTAgTCA1MTkuNDMzMzU3MjM4NzY5NSAyNSBRIDUxOS40MzMzNTcyMzg3Njk1IDM1IDUwOS40MzMzNTcyMzg3Njk1MyAzNSBMIDEyOS4zODMzMzg5MjgyMjI2NiAzNSBaIiBmaWxsPSIjNTAyZmJmIi8+PCEtLS0tPjx0ZXh0IGRhdGEtdi04NjU4M2FmZD0iIiB4PSI2NC42OTE2Njk0NjQxMTEzMyIgeT0iMTcuNSIgZHk9IjAuMzVlbSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsIHNhbnMtc2VyaWYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSIyIiBmb250LXdlaWdodD0iNjAwIiBmb250LXN0eWxlPSJub3JtYWwiIHRleHQtZGVjb3JhdGlvbj0ibm9uZSIgZmlsbC1vcGFjaXR5PSIxIiBmb250LXZhcmlhbnQ9Im5vcm1hbCIgc3R5bGU9InRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7Ij5QT1dFUkVEIEJZPC90ZXh0PjwhLS0tLT48dGV4dCBkYXRhLXYtODY1ODNhZmQ9IiIgeD0iMzI0LjQwODM0ODA4MzQ5NjEiIHk9IjE3LjUiIGR5PSIwLjM1ZW0iIGZvbnQtc2l6ZT0iMTIiIGZvbnQtZmFtaWx5PSJNb250c2VycmF0LCBzYW5zLXNlcmlmIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIiBsZXR0ZXItc3BhY2luZz0iMiIgZm9udC1zdHlsZT0ibm9ybWFsIiB0ZXh0LWRlY29yYXRpb249Im5vbmUiIGZpbGwtb3BhY2l0eT0iMSIgZm9udC12YXJpYW50PSJub3JtYWwiIHN0eWxlPSJ0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyI+R0FSTElDIERFQ09NUElMRVIgRU5HSU5FIFdSSVRURU4gSU4gQzwvdGV4dD48IS0tLS0+PC9zdmc+)](https://github.com/neocanable/garlic)
-
-[![Open Source](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtODY1ODNhZmQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMTUyLjU4MzM0NzMyMDU1NjY0IiBoZWlnaHQ9IjM1IiB2aWV3Qm94PSIwIDAgMTUyLjU4MzM0NzMyMDU1NjY0IDM1IiBjbGFzcz0iYmFkZ2Utc3ZnIj48ZGVmcyBkYXRhLXYtODY1ODNhZmQ9IiI+PCEtLS0tPjwhLS0tLT48IS0tLS0+PC9kZWZzPjxwYXRoIGRhdGEtdi04NjU4M2FmZD0iIiBkPSJNIDEwIDAgTCA2NC45MDAwMDUzNDA1NzYxNyAwIEwgNjQuOTAwMDA1MzQwNTc2MTcgMzUgTCAxMCAzNSBRIDAgMzUgMCAyNSBMIDAgMTAgUSAwIDAgMTAgMCBaIiBmaWxsPSIjZmYyNDI0Ii8+PHBhdGggZGF0YS12LTg2NTgzYWZkPSIiIGQ9Ik0gNjQuOTAwMDA1MzQwNTc2MTcgMCBMIDE0Mi41ODMzNDczMjA1NTY2NCAwIFEgMTUyLjU4MzM0NzMyMDU1NjY0IDAgMTUyLjU4MzM0NzMyMDU1NjY0IDEwIEwgMTUyLjU4MzM0NzMyMDU1NjY0IDI1IFEgMTUyLjU4MzM0NzMyMDU1NjY0IDM1IDE0Mi41ODMzNDczMjA1NTY2NCAzNSBMIDY0LjkwMDAwNTM0MDU3NjE3IDM1IFoiIGZpbGw9IiNkZjAwMDAiLz48IS0tLS0+PHRleHQgZGF0YS12LTg2NTgzYWZkPSIiIHg9IjMyLjQ1MDAwMjY3MDI4ODA4NiIgeT0iMTcuNSIgZHk9IjAuMzVlbSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsIHNhbnMtc2VyaWYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSIyIiBmb250LXdlaWdodD0iNjAwIiBmb250LXN0eWxlPSJub3JtYWwiIHRleHQtZGVjb3JhdGlvbj0ibm9uZSIgZmlsbC1vcGFjaXR5PSIxIiBmb250LXZhcmlhbnQ9Im5vcm1hbCIgc3R5bGU9InRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7Ij5PUEVOPC90ZXh0PjwhLS0tLT48dGV4dCBkYXRhLXYtODY1ODNhZmQ9IiIgeD0iMTA4Ljc0MTY3NjMzMDU2NjQiIHk9IjE3LjUiIGR5PSIwLjM1ZW0iIGZvbnQtc2l6ZT0iMTIiIGZvbnQtZmFtaWx5PSJNb250c2VycmF0LCBzYW5zLXNlcmlmIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIiBsZXR0ZXItc3BhY2luZz0iMiIgZm9udC1zdHlsZT0ibm9ybWFsIiB0ZXh0LWRlY29yYXRpb249Im5vbmUiIGZpbGwtb3BhY2l0eT0iMSIgZm9udC12YXJpYW50PSJub3JtYWwiIHN0eWxlPSJ0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyI+U09VUkNFPC90ZXh0PjwhLS0tLT48L3N2Zz4=)](https://opensource.org/)
-[![Kritik Agarwal](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtODY1ODNhZmQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMzgyLjQzMzM0OTYwOTM3NSIgaGVpZ2h0PSIzNSIgdmlld0JveD0iMCAwIDM4Mi40MzMzNDk2MDkzNzUgMzUiIGNsYXNzPSJiYWRnZS1zdmciPjxkZWZzIGRhdGEtdi04NjU4M2FmZD0iIj48IS0tLS0+PCEtLS0tPjwhLS0tLT48L2RlZnM+PHBhdGggZGF0YS12LTg2NTgzYWZkPSIiIGQ9Ik0gMTAgMCBMIDIxNi4yMTY2NzQ4MDQ2ODc1IDAgTCAyMTYuMjE2Njc0ODA0Njg3NSAzNSBMIDEwIDM1IFEgMCAzNSAwIDI1IEwgMCAxMCBRIDAgMCAxMCAwIFoiIGZpbGw9IiNmZjI0MjQiLz48cGF0aCBkYXRhLXYtODY1ODNhZmQ9IiIgZD0iTSAyMTYuMjE2Njc0ODA0Njg3NSAwIEwgMzcyLjQzMzM0OTYwOTM3NSAwIFEgMzgyLjQzMzM0OTYwOTM3NSAwIDM4Mi40MzMzNDk2MDkzNzUgMTAgTCAzODIuNDMzMzQ5NjA5Mzc1IDI1IFEgMzgyLjQzMzM0OTYwOTM3NSAzNSAzNzIuNDMzMzQ5NjA5Mzc1IDM1IEwgMjE2LjIxNjY3NDgwNDY4NzUgMzUgWiIgZmlsbD0iI2RmMDAwMCIvPjwhLS0tLT48dGV4dCBkYXRhLXYtODY1ODNhZmQ9IiIgeD0iMTA4LjEwODMzNzQwMjM0Mzc1IiB5PSIxNy41IiBkeT0iMC4zNWVtIiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0iR2VvcmdpYSwgc2Fucy1zZXJpZiIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgbGV0dGVyLXNwYWNpbmc9IjIiIGZvbnQtd2VpZ2h0PSI2MDAiIGZvbnQtc3R5bGU9Im5vcm1hbCIgdGV4dC1kZWNvcmF0aW9uPSJub25lIiBmaWxsLW9wYWNpdHk9IjEiIGZvbnQtdmFyaWFudD0ibm9ybWFsIiBzdHlsZT0idGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTsiPkRFVkVMT1BFRCBXSVRIIOKdpO+4jiBCWTwvdGV4dD48IS0tLS0+PHRleHQgZGF0YS12LTg2NTgzYWZkPSIiIHg9IjI5OS4zMjUwMTIyMDcwMzEyNSIgeT0iMTcuNSIgZHk9IjAuMzVlbSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9Ik1vbnRzZXJyYXQsIHNhbnMtc2VyaWYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI5MDAiIGxldHRlci1zcGFjaW5nPSIyIiBmb250LXN0eWxlPSJub3JtYWwiIHRleHQtZGVjb3JhdGlvbj0ibm9uZSIgZmlsbC1vcGFjaXR5PSIxIiBmb250LXZhcmlhbnQ9Im5vcm1hbCIgc3R5bGU9InRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7Ij5LUklUSUsgQUdBUldBTDwvdGV4dD48IS0tLS0+PC9zdmc+)](https://github.com/AgarwalKritik)
+[![Open Source](icon/open-source.svg)](https://opensource.org/)
+[![LICENSE](icon/license.svg)](LICENSE)
+[![C++](icon/cpp.svg)](#built-with)
+[![QT6](icon/powered-by-qt6.svg)](https://www.qt.io/)
+[![garlic](icon/garlic-powered.svg)](https://github.com/neocanable/garlic)
+[![Kritik Agarwal](icon/developed.svg)](https://github.com/AgarwalKritik)
 
 </div>
 
 ---
 
-## Table of Contents
+## <img src="https://api.iconify.design/heroicons:book-open.svg?color=%233994BC" width="28" align="center" /> Table of Contents
 
-* [About The Project](#about-the-project)
-  * [Key Features](#key-features)
-  * [Built With](#built-with)
-  * [Project Structure](#project-structure)
-* [Getting Started](#getting-started)
-  * [Download](#download)
-  * [Build From Source](#build-from-source)
-* [Roadmap](#roadmap)
-* [Contributing](#contributing)
-* [License](#license)
-* [Contact](#contact)
-* [Acknowledgments](#acknowledgments)
-* [TL;DR](#tldr)
-  * [Usage](#usage)
+- [About The Project](#about-the-project)
+  - [Key Features](#key-features)
+  - [Built With](#built-with)
+  - [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+  - [Usage](#usage)
+  - [Download (Releases)](#download-releases)
+  - [Build From Source](#build-from-source)
+- [Roadmap](#roadmap)
+- [Contributors](#contributors)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact & Links](#contact--links)
+- [Credits & Acknowledgements](#credits--acknowledgements)
 
 ---
 
-## About The Project
+## <img src="https://api.iconify.design/heroicons:light-bulb.svg?color=%233994BC" width="28" align="center" /> About The Project
 
 **Garlic Decompiler GUI** is a modern C++/Qt6 graphical interface for the [Garlic Decompiler](https://github.com/neocanable/garlic). It allows you to:
 
-* Open, decompile, browse, and export Java source code from Android/Java binaries seamlessly.
-* Work with APK, DEX, JAR, and CLASS files at lightning speed.
-* Navigate projects using a beautiful, **VS Code Dark 2026** inspired tabbed editor with precise syntax highlighting.
+- Open, decompile, browse, and export Java source code from Android/Java binaries **seamlessly**.
+- Work with `APK`, `DEX`, `JAR`, and `CLASS` files at lightning speed.
+- Navigate projects using a VS Code-inspired tabbed editor with precise syntax highlighting.
 
-> Garlic Decompiler is a high-performance, fastest decompilation tool for reconstructing Java source code from `.class`, `.jar`, `.dex`, and `.apk` files.
-
-### Key Features
-
-* **Modern IDE Aesthetic**: Built with a beautiful VS Code Dark 2026 theme, complete with a minimal status bar, editor telemetry (line/col tracking), and syntax highlighting.
-* **Advanced Code Editor**: Fully featured code editor with an integrated Find/Replace panel supporting Regular Expressions (Regex), Match Case, and Whole Word searches.
-
-### Built With
-
-* [C++17](https://isocpp.org/)
-* [Qt6](https://www.qt.io/) (GUI Components)
-* [Garlic Decompiler](https://github.com/neocanable/garlic)
-
-### Project Structure
-
-```
-garlic-gui/
-└── src/
-    ├── main.cpp                           # Entry point
-    ├── gui/                               # Qt6 GUI components
-    │   ├── MainWindow.cpp/h               # Main window and status bar
-    │   ├── FileTreeWidget.cpp/h           # File navigation tree
-    │   ├── CodeEditorWidget.cpp/h         # Tabbed code editor with Find/Replace
-    │   ├── WelcomeWidget.cpp/h            # Landing Dashboard
-    │   ├── FindReplaceWidget.cpp/h        # Regex Find/Replace module for Code Editor
-    │   ├── DecompilerInterface.cpp/h      # C++ wrapper for Garlic
-    │   ├── ProjectManager.cpp/h           # Project management
-    │   └── DecompilerProgressDialog.cpp/h # Progress dialog
-    └── garlic/                            # Garlic integration
-        ├── garlic_wrapper.c/h             # C interface wrapper
-        └── ...                            # Garlic "C" source files (from neocanable/garlic)
-
-```
-
-> For full tree with source annotations, see [STRUCTURE.md](STRUCTURE.md)
+> Garlic Decompiler is a high-performance, ultra-fast decompilation tool for reconstructing Java source code directly from raw binaries without needing external Java runtimes.
 
 ---
 
-## Getting Started
+### <img src="https://api.iconify.design/heroicons:sparkles.svg?color=%233994BC" width="24" align="center" /> Key Features
 
-### Download
+| Feature | Description |
+| ------- | ----------- |
+| <img src="https://api.iconify.design/heroicons:paint-brush.svg?color=%233994BC" width="20" align="center" /> **Modern IDE Aesthetic** | Built with a beautiful VS Code Dark 2026 theme, complete with a minimal status bar, cursor position tracking (line/column indicators), and advanced syntax highlighting. |
+| <img src="https://api.iconify.design/heroicons:magnifying-glass.svg?color=%233994BC" width="20" align="center" /> **Advanced Code Editor** | Fully featured code editor with an integrated Find/Replace dock supporting Regular Expressions (Regex), Match Case, and Whole Word searches. |
+| <img src="https://api.iconify.design/heroicons:rocket-launch.svg?color=%233994BC" width="20" align="center" /> **Multithreaded Extraction** | Decompile massive APKs without freezing the UI, thanks to a robust C/C++ multithreading bridge. |
+| <img src="https://api.iconify.design/heroicons:chart-bar.svg?color=%233994BC" width="20" align="center" /> **Real-time Progress** | Watch decompilation happening live with a native status bar and progress tracking system. |
+
+---
+
+### <img src="https://api.iconify.design/heroicons:wrench-screwdriver.svg?color=%233994BC" width="24" align="center" /> Built With
+
+- **C++17** — The robust backend language for the GUI shell.
+- **Qt6** — Industry-standard cross-platform framework for rendering the modern interface.
+- **Garlic Decompiler Engine** — The core pure-C decompilation logic.
+
+---
+
+### <img src="https://api.iconify.design/heroicons:folder-open.svg?color=%233994BC" width="24" align="center" /> Project Structure
+
+Want to dive into the code? The project is carefully separated into a C++ UI layer and a C Core layer.
+
+> For the full, detailed architectural tree, please see our **[STRUCTURE.md](STRUCTURE.md)** guide!
+
+---
+
+## <img src="https://api.iconify.design/heroicons:rocket-launch.svg?color=%233994BC" width="28" align="center" /> Getting Started
+
+### <img src="https://api.iconify.design/heroicons:play.svg?color=%233994BC" width="24" align="center" /> Usage
+
+1. **Open APK/CLASS/JAR/DEX File**: Click "Open File..." on the Welcome dashboard or use `Ctrl+O`.
+2. **Wait for Decompilation**: The progress bar natively updates you in the status bar footer.
+3. **Browse Code**: Use the file tree on the left to navigate decompiled classes.
+4. **View Source**: Click on any Java file to open it in the editor.
+5. **Search**: Press `Ctrl+F` to open the Find/Replace dock and search with Regex.
+6. **Save/Export**: Use the File menu to save or export your project.
+
+### <img src="https://api.iconify.design/heroicons:cube.svg?color=%233994BC" width="24" align="center" /> Download (Releases)
 
 You can download the latest compiled releases directly from the [GitHub Releases](https://github.com/AgarwalKritik/garlic-gui/releases) page. We provide pre-built binaries for:
 
-* **Windows** (`.msi` installer and `.zip` portable)
-* **macOS** (`.dmg` disk image)
-* **Linux** (`.tar.gz` archive)
+- **Windows**: `.msi` system installer and `.zip` portable versions available.
+- **macOS**: `.dmg` disk image.
+- **Linux**: `.tar.gz` archive.
 
-### Build From Source
+### <img src="https://api.iconify.design/heroicons:cog-8-tooth.svg?color=%233994BC" width="24" align="center" /> Build From Source
+
+<details>
+<summary><b>Click to show/hide Build Instructions</b></summary>
 
 #### Prerequisites
 
-* CMake 3.16 or later
-* Qt6 (GUI Components)
-* C/C++ compiler (GCC, Clang, MinGW, or MSVC)
+- CMake 3.16 or later
 
-#### Linux
+- Qt6 (GUI Components)
+- C/C++ compiler (GCC, Clang, MinGW, or MSVC)
+
+#### <img src="https://api.iconify.design/simple-icons:linux.svg?color=%233994BC" width="20" align="center" /> Linux (All Distros)
 
 ```bash
 # Install Qt6 and required build tools
@@ -119,7 +125,7 @@ cmake --build build -j$(nproc)
 ./build/GarlicGUI
 ```
 
-#### macOS
+#### <img src="https://api.iconify.design/simple-icons:apple.svg?color=%233994BC" width="20" align="center" /> macOS
 
 ```bash
 # Install Qt6 and CMake using Homebrew
@@ -138,14 +144,13 @@ cmake --build build -j$(sysctl -n hw.ncpu)
 ./build/GarlicGUI.app/Contents/MacOS/GarlicGUI
 ```
 
-#### Windows
+#### <img src="https://api.iconify.design/simple-icons:windows.svg?color=%233994BC" width="20" align="center" /> Windows
 
 1. Install **Qt6 (Open Source edition)** from [Qt website](https://www.qt.io/download-open-source).
 2. Add Qt6 compiler (MinGW or MSVC) to your `PATH`, e.g., `C:/Qt/6.x.x/mingw_64/bin/`.
+   > **Note**: Replace ```6.x.x``` with the exact version of Qt you downloaded.
 
-> **Note**: Replace ```6.x.x``` with the exact version of Qt you downloaded.
-
-1. Open **Command Prompt** or **PowerShell**, then:
+3. Open **Command Prompt** or **PowerShell**, then:
 
 ```powershell
 # Clone the repository and enter the directory
@@ -153,7 +158,6 @@ git clone https://github.com/AgarwalKritik/garlic-gui.git
 cd garlic-gui
 
 # Configure the build and point CMake to your Qt6 installation
-# (Ensure you replace '6.x.x' and 'mingw_64' with your exact paths)
 cmake -B build -S . -DCMAKE_PREFIX_PATH="C:/Qt/6.x.x/mingw_64" -DCMAKE_BUILD_TYPE=Release
 
 # Compile the application
@@ -167,83 +171,68 @@ cmake --build build --config Release
 .\build\GarlicGUI.exe
 ```
 
----
-
-## Roadmap
-
-The roadmap includes both completed and future goals. Here's what we have accomplished and looking forward to:
-
-* [x] Embed Garlic C source code
-* [x] Match Garlic CLI CMake configuration
-* [x] Support APK, DEX, JAR, CLASS with native detection
-* [x] Apply same compiler flags & optimizations as Garlic
-* [x] Cross-platform GUI for Windows & Linux
-* [x] Modern Dark IDE UI with full status bar tracking
-* [x] Full Code editing support with Regex Find/Replace
-
-> **Future Scope**: Build Garlic entirely in C++ if feasible, and add project workspace configurations.
+</details>
 
 ---
 
-## Contributors
+## <img src="https://api.iconify.design/heroicons:map.svg?color=%233994BC" width="28" align="center" /> Roadmap
 
-* [Kritik Agarwal](https://github.com/AgarwalKritik) - Developed the GUI App.
-* [AbhiTheModder](https://lin.ky/abhithemodder) - Conceptualized and contributed the idea for this GUI App.
+Here's what we have accomplished and what we are looking forward to:
+
+- [x] Embed Garlic C source code
+- [x] Match Garlic CLI CMake configuration
+- [x] Support APK, DEX, JAR, CLASS with native detection
+- [x] Apply same compiler flags & optimizations as Garlic
+- [x] Cross-platform GUI for Windows & Linux
+- [x] Modern Dark IDE UI with full status bar tracking
+- [x] Full Code editing support with Regex Find/Replace
+- [ ] Add project workspace configurations
 
 ---
 
-## Contributing
+## <img src="https://api.iconify.design/heroicons:users.svg?color=%233994BC" width="28" align="center" /> Contributors
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
+- [Kritik Agarwal](https://github.com/AgarwalKritik) - Designed and developed the Garlic GUI.
+- [AbhiTheModder](https://lin.ky/abhithemodder) - Conceived the idea for the Garlic GUI and assisted with testing, feedback, and crash reporting.
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement". Don't forget to give the project a star! Thanks again!
+---
+
+## <img src="https://api.iconify.design/heroicons:document-text.svg?color=%233994BC" width="28" align="center" /> Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated!
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Make changes and test on both Windows & Linux
+3. Make changes and test on Windows, Linux, or macOS.
 4. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 5. Push to the Branch (`git push origin feature/AmazingFeature`)
 6. Open a Pull Request
 
 ---
 
-## License
+## <img src="https://api.iconify.design/heroicons:scale.svg?color=%233994BC" width="28" align="center" /> License
 
-[![LICENSE](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtODY1ODNhZmQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMzA4Ljc0OTk5MjM3MDYwNTQ3IiBoZWlnaHQ9IjM1IiB2aWV3Qm94PSIwIDAgMzA4Ljc0OTk5MjM3MDYwNTQ3IDM1IiBjbGFzcz0iYmFkZ2Utc3ZnIj48ZGVmcyBkYXRhLXYtODY1ODNhZmQ9IiI+PCEtLS0tPjwhLS0tLT48IS0tLS0+PC9kZWZzPjxwYXRoIGRhdGEtdi04NjU4M2FmZD0iIiBkPSJNIDEwIDAgTCAxNjYuNjQ5OTkzODk2NDg0MzggMCBMIDE2Ni42NDk5OTM4OTY0ODQzOCAzNSBMIDEwIDM1IFEgMCAzNSAwIDI1IEwgMCAxMCBRIDAgMCAxMCAwIFoiIGZpbGw9IiNmOWEwMWMiLz48cGF0aCBkYXRhLXYtODY1ODNhZmQ9IiIgZD0iTSAxNjYuNjQ5OTkzODk2NDg0MzggMCBMIDI5OC43NDk5OTIzNzA2MDU0NyAwIFEgMzA4Ljc0OTk5MjM3MDYwNTQ3IDAgMzA4Ljc0OTk5MjM3MDYwNTQ3IDEwIEwgMzA4Ljc0OTk5MjM3MDYwNTQ3IDI1IFEgMzA4Ljc0OTk5MjM3MDYwNTQ3IDM1IDI5OC43NDk5OTIzNzA2MDU0NyAzNSBMIDE2Ni42NDk5OTM4OTY0ODQzOCAzNSBaIiBmaWxsPSIjZjM2YzJiIi8+PCEtLS0tPjx0ZXh0IGRhdGEtdi04NjU4M2FmZD0iIiB4PSI4My4zMjQ5OTY5NDgyNDIxOSIgeT0iMTcuNSIgZHk9IjAuMzVlbSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsIHNhbnMtc2VyaWYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSIyIiBmb250LXdlaWdodD0iNjAwIiBmb250LXN0eWxlPSJub3JtYWwiIHRleHQtZGVjb3JhdGlvbj0ibm9uZSIgZmlsbC1vcGFjaXR5PSIxIiBmb250LXZhcmlhbnQ9Im5vcm1hbCIgc3R5bGU9InRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7Ij5MSUNFTlNFRCBVTkRFUjwvdGV4dD48ZyBkYXRhLXYtODY1ODNhZmQ9IiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTc2LjY0OTk5Mzg5NjQ4NDM4LCA5LjUpIHNjYWxlKDAuNjY2NjY2NjY2NjY2NjY2NikiPjxwYXRoIGRhdGEtdi04NjU4M2FmZD0iIiBkPSJNMTcuODA1IDIuMTk3di4wNjZoLjE1NnYuNDRoLjA3MnYtLjQ0aC4xNTZ2LS4wNjZ6bS45IDBsLS4xNzUuMzUzLS4xNzItLjM1M2gtLjA4N3YuNTA2aC4wNjdWMi4zbC4xNzIuMzVoLjA0NWwuMTcyLS4zNXYuNDA0aC4wNjZ2LS41MDZ6bS00LjI1NyAxYy0uMjA0LjMxLS40MjQuNjYtLjY2IDEuMDZsLS4wNC4wNjJhNDQuNDU3IDQ0LjQ1NyAwIDAwLTEuMjY1IDIuMjljLS4xODcuMzYtLjM4Ljc0Mi0uNTc3IDEuMTQ2bDIuMjY3LS4yNWMuNjYtLjMwMi45NTUtLjU3OCAxLjI0Mi0uOTc2YTE1LjUgMTUuNSAwIDAwLjIzLS4zNDJjLjIzLS4zNjMuNDYtLjc2My42NjMtMS4xNi4xOTctLjM4Ni4zNy0uNzY3LjUwNS0xLjExLjA4My0uMjIuMTUtLjQyMi4xOTgtLjYuMDQyLS4xNTguMDc0LS4zMDcuMS0uNDUtLjg4NC4xNS0xLjk2NS4yOTUtMi42NjguMzN6TTExLjg5NCA3Ljc4bC0uMDc3LjE2Yy0uMDc4LjE2LS4xNTcuMzItLjIzNi40ODgtLjA4Ni4xOC0uMTcyLjM2NC0uMjYuNTUybC0uMTMyLjI4N2E3NS4yNjUgNzUuMjY1IDAgMDAtMS40MjcgMy4zYy0uMTYzLjM5Ny0uMzI3LjgwNy0uNDkzIDEuMjMtLjE1LjM4LS4yOTcuNzY1LS40NSAxLjE2NGwtLjAyLjA2Yy0uMTUuMzk2LS4zLjgwMi0uNDUzIDEuMjJsLS4wMS4wMjcuNzItLjA4YS4yMTMuMjEzIDAgMDEtLjA0Mi0uMDA2Yy44NjMtLjEwNiAyLjAxLS43NSAyLjc1LTEuNTQ3LjM0Mi0uMzY3LjY1Mi0uOC45NC0xLjMwNi4yMTMtLjM3Ny40MTMtLjc5NS42MDQtMS4yNTguMTY4LS40MDUuMzI4LS44NDMuNDgtMS4zMTgtLjE5Ni4xMDUtLjQyMy4xOC0uNjczLjIzNWEyLjE4NCAyLjE4NCAwIDAxLS4yNzMuMDQ2Yy44MDYtLjMxIDEuMzE0LS45MDUgMS42ODMtMS42NGEyLjgxNiAyLjgxNiAwIDAxLS45NjguNDI4Yy0uMDYuMDEyLS4xMTYuMDIyLS4xNzQuMDNsLS4wNDMuMDA2aC4wMDJjLjI3OC0uMTE4LjUxNC0uMjQ4LjcxOC0uNDAzYTIuNTcxIDIuNTcxIDAgMDAuNjM3LS42OThsLjA2My0uMTA0LjA3Ny0uMTU0YTguMTA3IDguMTA3IDAgMDAuMzY3LS44NWwuMDMtLjA4OGEzLjA0IDMuMDQgMCAwMC4xMjMtLjQ2My43MzMuNzMzIDAgMDEtLjA5NC4wNjVjLS4yNDMuMTQ1LS42Ni4yNzctLjk5Ni4zNGwuNjYzLS4wNzQtLjY2NC4wNzNoLS4wMTdsLS4xLjAxN2MuMDA2LS4wMDMuMDEtLjAwNi4wMTctLjAwOGwtMi4yNjUuMjUtLjAxMy4wMjJ6TTguMjcgMTYuNDVjLS4xMTcuMzIzLS4yMzYuNjU0LS4zNTUuOTkybC0uMDA1LjAxNWMtLjAxNi4wNDYtLjAzMi4wOTQtLjA1LjE0Mi0uMDguMjI3LS4xNS40MzItLjMxLjkuMjY0LjEyLjQ3NS40MzUuNjc1Ljc5M2ExLjQ0IDEuNDQgMCAwMC0uNDY2LS45OWMxLjI5My4wNiAyLjQxLS4yNyAyLjk5LTEuMjE3LjA1LS4wODQuMDk2LS4xNzMuMTQtLjI2OC0uMjYuMzMzLS41OS40NzQtMS4yLjQ0IDAgMC0uMDA0IDAtLjAwNS4wMDJsLjAwNC0uMDAyYy45LS40MDQgMS4zNTQtLjc5IDEuNzU0LTEuNDMzLjA5NC0uMTUzLjE4Ni0uMzIuMjgtLjUwMy0uNzg4LjgxLTEuNzAyIDEuMDQtMi42NjQuODY1bC0uNzIuMDc4YTYuNDMgNi40MyAwIDAwLS4wNjcuMTgzek0xNS40Mi4xMTJjLS4zNzYuMjIyLTEgLjg1LTEuNzQ4IDEuNzYzbC42ODYgMS4yOTRjLjQ4LS42ODcuOTctMS4zMDcgMS40NjItMS44MzZsLjA1OC0uMDYyYy0uMDIuMDItLjA0LjA0LS4wNTcuMDYyLS4xNi4xNzYtLjY0NC43NC0xLjM3NSAxLjg2My43MDMtLjAzNSAxLjc4NC0uMTggMi42NjYtLjMzLjI2Mi0xLjQ3LS4yNTgtMi4xNDItLjI1OC0yLjE0MnMtLjY2LTEuMDctMS40MzYtLjYxem0tMy4wODQgNi40MDJhNDAuMjUzIDQwLjI1MyAwIDAxMS4zMDYtMi4yNmwuMDQtLjA2NGMuMjI0LS4zNTIuNDUtLjY5My42NzctMS4wMmwtLjY4NS0xLjI5My0uMTU3LjE5MmMtLjE5Ny4yNDUtLjQwMy41MS0uNjEzLjc5YTM5Ljg1MyAzOS44NTMgMCAwMC0yLjAxNiAyLjk3bC0uMDIyLjAzOC44OTMgMS43NjNjLjE5LS4zNzguMzgtLjc1Mi41NzUtMS4xMTh6bS0zLjczIDguMzJjLjE1OC0uNDA2LjMxOS0uODEuNDgzLTEuMjI1LjE1Ni0uMzk0LjMyLS43OS40ODQtMS4xOWE5MS4xMzMgOTEuMTMzIDAgMDExLjYtMy42MDRsLjIwNS0uNDI0Yy4xMi0uMjQzLjIzNy0uNDg1LjM2LS43MjRhLjEyNS4xMjUgMCAwMS4wMi0uMDRsLS44OTUtMS43NjMtLjA0NC4wN2MtLjIwNy4zNC0uNDE0LjY4Ny0uNjE3IDEuMDQyYTM4LjA1NiAzOC4wNTYgMCAwMC0xLjA5MiAyLjA0bC0uMDk0LjE5M2EyNC41NzMgMjQuNTczIDAgMDAtMS4yNTggMy4wODcgMTguNDkyIDE4LjQ5MiAwIDAwLS41MiAxLjk5N2wuODk2IDEuNzdjLjExNy0uMzE3LjI0LS42MzguMzY0LS45NjN6bS0xLjM3Ni0uNDc2YTEzLjM4IDEzLjM4IDAgMDAtLjIzNCAxLjY5MmMwIC4wMi0uMDA0LjA0LS4wMDUuMDYtLjI4LS40NS0xLjAzLS44ODgtMS4wMjYtLjg4NC41MzcuNzc4Ljk0NCAxLjU1IDEuMDA1IDIuMzEtLjI5LjA1OC0uNjg0LS4wMjctMS4xNC0uMTk1LjQ3NS40MzYuODMuNTU2Ljk3LjU4OC0uNDM0LjAzLS44OS4zMjgtMS4zNDYuNjcuNjY4LS4yNyAxLjIxLS4zOCAxLjU5Ni0uMjktLjYxIDEuNzQtMS4yMyAzLjY1NS0xLjg0MyA1LjY5YS41MzguNTM4IDAgMDAuMzY0LS4zNTRjLjExLS4zNjguODQtMi43ODYgMS45NzgtNS45NjVsLjA5Ny0uMjcuMDI4LS4wNzhjLjEyLS4zMzIuMjQ2LS42NzIuMzc0LTEuMDJsLjA5LS4yMzd2LS4wMDRMNy4yNCAxNC4zYy0uMDAzLjAyLS4wMS4wNC0uMDEyLjA2eiIgZmlsbD0iI0ZGRkZGRiIvPjwvZz48dGV4dCBkYXRhLXYtODY1ODNhZmQ9IiIgeD0iMjQ3LjY5OTk5MzEzMzU0NDkyIiB5PSIxNy41IiBkeT0iMC4zNWVtIiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0iTW9udHNlcnJhdCwgc2Fucy1zZXJpZiIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjkwMCIgbGV0dGVyLXNwYWNpbmc9IjIiIGZvbnQtc3R5bGU9Im5vcm1hbCIgdGV4dC1kZWNvcmF0aW9uPSJub25lIiBmaWxsLW9wYWNpdHk9IjEiIGZvbnQtdmFyaWFudD0ibm9ybWFsIiBzdHlsZT0idGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTsiPkFQQUNIRSAyLjA8L3RleHQ+PCEtLS0tPjwvc3ZnPg==)](LICENSE)
-> This project is distributed and licensed under the **Apache License 2.0** — see [LICENSE](LICENSE) for more information.
+#### This project is licensed under the <img src="https://api.iconify.design/simple-icons:apache.svg?color=%233994BC" width="18" align="center" /><span style="color:#3994BC">**Apache License 2.0**</span> — see [LICENSE](LICENSE) for more information  
 
----
-
-## Contact
-
-If you have any questions or suggestions, feel free to reach out to us:
-
-[![Raise an issue](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtODY1ODNhZmQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iNDQxLjUzMzQ0NzI2NTYyNSIgaGVpZ2h0PSIzNSIgdmlld0JveD0iMCAwIDQ0MS41MzM0NDcyNjU2MjUgMzUiIGNsYXNzPSJiYWRnZS1zdmciPjxkZWZzIGRhdGEtdi04NjU4M2FmZD0iIj48IS0tLS0+PCEtLS0tPjwhLS0tLT48L2RlZnM+PHBhdGggZGF0YS12LTg2NTgzYWZkPSIiIGQ9Ik0gMTAgMCBMIDIyMC43NTAwNjEwMzUxNTYyNSAwIEwgMjIwLjc1MDA2MTAzNTE1NjI1IDM1IEwgMTAgMzUgUSAwIDM1IDAgMjUgTCAwIDEwIFEgMCAwIDEwIDAgWiIgZmlsbD0iIzZmNDVjZiIvPjxwYXRoIGRhdGEtdi04NjU4M2FmZD0iIiBkPSJNIDIyMC43NTAwNjEwMzUxNTYyNSAwIEwgNDMxLjUzMzQ0NzI2NTYyNSAwIFEgNDQxLjUzMzQ0NzI2NTYyNSAwIDQ0MS41MzM0NDcyNjU2MjUgMTAgTCA0NDEuNTMzNDQ3MjY1NjI1IDI1IFEgNDQxLjUzMzQ0NzI2NTYyNSAzNSA0MzEuNTMzNDQ3MjY1NjI1IDM1IEwgMjIwLjc1MDA2MTAzNTE1NjI1IDM1IFoiIGZpbGw9IiM1MDJmYmYiLz48IS0tLS0+PHRleHQgZGF0YS12LTg2NTgzYWZkPSIiIHg9IjExMC4zNzUwMzA1MTc1NzgxMiIgeT0iMTcuNSIgZHk9IjAuMzVlbSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsIHNhbnMtc2VyaWYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSIyIiBmb250LXdlaWdodD0iNjAwIiBmb250LXN0eWxlPSJub3JtYWwiIHRleHQtZGVjb3JhdGlvbj0ibm9uZSIgZmlsbC1vcGFjaXR5PSIxIiBmb250LXZhcmlhbnQ9Im5vcm1hbCIgc3R5bGU9InRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7Ij5SQUlTRSBBTiBJU1NVRSBPTiBUSEU8L3RleHQ+PGcgZGF0YS12LTg2NTgzYWZkPSIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIzMC43NTAwNjEwMzUxNTYyNSwgOS41KSBzY2FsZSgwLjY2NjY2NjY2NjY2NjY2NjYpIj48cGF0aCBkYXRhLXYtODY1ODNhZmQ9IiIgZD0iTTEyIC4yOTdjLTYuNjMgMC0xMiA1LjM3My0xMiAxMiAwIDUuMzAzIDMuNDM4IDkuOCA4LjIwNSAxMS4zODUuNi4xMTMuODItLjI1OC44Mi0uNTc3IDAtLjI4NS0uMDEtMS4wNC0uMDE1LTIuMDQtMy4zMzguNzI0LTQuMDQyLTEuNjEtNC4wNDItMS42MUM0LjQyMiAxOC4wNyAzLjYzMyAxNy43IDMuNjMzIDE3LjdjLTEuMDg3LS43NDQuMDg0LS43MjkuMDg0LS43MjkgMS4yMDUuMDg0IDEuODM4IDEuMjM2IDEuODM4IDEuMjM2IDEuMDcgMS44MzUgMi44MDkgMS4zMDUgMy40OTUuOTk4LjEwOC0uNzc2LjQxNy0xLjMwNS43Ni0xLjYwNS0yLjY2NS0uMy01LjQ2Ni0xLjMzMi01LjQ2Ni01LjkzIDAtMS4zMS40NjUtMi4zOCAxLjIzNS0zLjIyLS4xMzUtLjMwMy0uNTQtMS41MjMuMTA1LTMuMTc2IDAgMCAxLjAwNS0uMzIyIDMuMyAxLjIzLjk2LS4yNjcgMS45OC0uMzk5IDMtLjQwNSAxLjAyLjAwNiAyLjA0LjEzOCAzIC40MDUgMi4yOC0xLjU1MiAzLjI4NS0xLjIzIDMuMjg1LTEuMjMuNjQ1IDEuNjUzLjI0IDIuODczLjEyIDMuMTc2Ljc2NS44NCAxLjIzIDEuOTEgMS4yMyAzLjIyIDAgNC42MS0yLjgwNSA1LjYyNS01LjQ3NSA1LjkyLjQyLjM2LjgxIDEuMDk2LjgxIDIuMjIgMCAxLjYwNi0uMDE1IDIuODk2LS4wMTUgMy4yODYgMCAuMzE1LjIxLjY5LjgyNS41N0MyMC41NjUgMjIuMDkyIDI0IDE3LjU5MiAyNCAxMi4yOTdjMC02LjYyNy01LjM3My0xMi0xMi0xMiIgZmlsbD0iI0ZGRkZGRiIvPjwvZz48dGV4dCBkYXRhLXYtODY1ODNhZmQ9IiIgeD0iMzQxLjE0MTc1NDE1MDM5MDYiIHk9IjE3LjUiIGR5PSIwLjM1ZW0iIGZvbnQtc2l6ZT0iMTIiIGZvbnQtZmFtaWx5PSJNb250c2VycmF0LCBzYW5zLXNlcmlmIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIiBsZXR0ZXItc3BhY2luZz0iMiIgZm9udC1zdHlsZT0ibm9ybWFsIiB0ZXh0LWRlY29yYXRpb249Im5vbmUiIGZpbGwtb3BhY2l0eT0iMSIgZm9udC12YXJpYW50PSJub3JtYWwiIHN0eWxlPSJ0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyI+R0lUSFVCIFJFUE9TSVRPUlk8L3RleHQ+PCEtLS0tPjwvc3ZnPg==)](https://github.com/AgarwalKritik/garlic-gui/issues/new)
-
-[![AbhiTheModder](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtODY1ODNhZmQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMzM3LjMzMzM1ODc2NDY0ODQ0IiBoZWlnaHQ9IjM1IiB2aWV3Qm94PSIwIDAgMzM3LjMzMzM1ODc2NDY0ODQ0IDM1IiBjbGFzcz0iYmFkZ2Utc3ZnIj48ZGVmcyBkYXRhLXYtODY1ODNhZmQ9IiI+PCEtLS0tPjwhLS0tLT48IS0tLS0+PC9kZWZzPjxwYXRoIGRhdGEtdi04NjU4M2FmZD0iIiBkPSJNIDEwIDAgTCAxNDguODgzMzQ2NTU3NjE3MiAwIEwgMTQ4Ljg4MzM0NjU1NzYxNzIgMzUgTCAxMCAzNSBRIDAgMzUgMCAyNSBMIDAgMTAgUSAwIDAgMTAgMCBaIiBmaWxsPSIjMzIzYWUyIi8+PHBhdGggZGF0YS12LTg2NTgzYWZkPSIiIGQ9Ik0gMTQ4Ljg4MzM0NjU1NzYxNzIgMCBMIDMyNy4zMzMzNTg3NjQ2NDg0NCAwIFEgMzM3LjMzMzM1ODc2NDY0ODQ0IDAgMzM3LjMzMzM1ODc2NDY0ODQ0IDEwIEwgMzM3LjMzMzM1ODc2NDY0ODQ0IDI1IFEgMzM3LjMzMzM1ODc2NDY0ODQ0IDM1IDMyNy4zMzMzNTg3NjQ2NDg0NCAzNSBMIDE0OC44ODMzNDY1NTc2MTcyIDM1IFoiIGZpbGw9IiMwMjM2YmYiLz48IS0tLS0+PHRleHQgZGF0YS12LTg2NTgzYWZkPSIiIHg9Ijc0LjQ0MTY3MzI3ODgwODYiIHk9IjE3LjUiIGR5PSIwLjM1ZW0iIGZvbnQtc2l6ZT0iMTIiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzYW5zLXNlcmlmIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBsZXR0ZXItc3BhY2luZz0iMiIgZm9udC13ZWlnaHQ9IjYwMCIgZm9udC1zdHlsZT0ibm9ybWFsIiB0ZXh0LWRlY29yYXRpb249Im5vbmUiIGZpbGwtb3BhY2l0eT0iMSIgZm9udC12YXJpYW50PSJub3JtYWwiIHN0eWxlPSJ0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyI+Q09OTkVDVCBXSVRIPC90ZXh0PjxnIGRhdGEtdi04NjU4M2FmZD0iIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTguODgzMzQ2NTU3NjE3MiwgOS41KSBzY2FsZSgwLjY2NjY2NjY2NjY2NjY2NjYpIj48cGF0aCBkYXRhLXYtODY1ODNhZmQ9IiIgZD0iTTEyIC4yOTdjLTYuNjMgMC0xMiA1LjM3My0xMiAxMiAwIDUuMzAzIDMuNDM4IDkuOCA4LjIwNSAxMS4zODUuNi4xMTMuODItLjI1OC44Mi0uNTc3IDAtLjI4NS0uMDEtMS4wNC0uMDE1LTIuMDQtMy4zMzguNzI0LTQuMDQyLTEuNjEtNC4wNDItMS42MUM0LjQyMiAxOC4wNyAzLjYzMyAxNy43IDMuNjMzIDE3LjdjLTEuMDg3LS43NDQuMDg0LS43MjkuMDg0LS43MjkgMS4yMDUuMDg0IDEuODM4IDEuMjM2IDEuODM4IDEuMjM2IDEuMDcgMS44MzUgMi44MDkgMS4zMDUgMy40OTUuOTk4LjEwOC0uNzc2LjQxNy0xLjMwNS43Ni0xLjYwNS0yLjY2NS0uMy01LjQ2Ni0xLjMzMi01LjQ2Ni01LjkzIDAtMS4zMS40NjUtMi4zOCAxLjIzNS0zLjIyLS4xMzUtLjMwMy0uNTQtMS41MjMuMTA1LTMuMTc2IDAgMCAxLjAwNS0uMzIyIDMuMyAxLjIzLjk2LS4yNjcgMS45OC0uMzk5IDMtLjQwNSAxLjAyLjAwNiAyLjA0LjEzOCAzIC40MDUgMi4yOC0xLjU1MiAzLjI4NS0xLjIzIDMuMjg1LTEuMjMuNjQ1IDEuNjUzLjI0IDIuODczLjEyIDMuMTc2Ljc2NS44NCAxLjIzIDEuOTEgMS4yMyAzLjIyIDAgNC42MS0yLjgwNSA1LjYyNS01LjQ3NSA1LjkyLjQyLjM2LjgxIDEuMDk2LjgxIDIuMjIgMCAxLjYwNi0uMDE1IDIuODk2LS4wMTUgMy4yODYgMCAuMzE1LjIxLjY5LjgyNS41N0MyMC41NjUgMjIuMDkyIDI0IDE3LjU5MiAyNCAxMi4yOTdjMC02LjYyNy01LjM3My0xMi0xMi0xMiIgZmlsbD0iI0ZGRkZGRiIvPjwvZz48dGV4dCBkYXRhLXYtODY1ODNhZmQ9IiIgeD0iMjUzLjEwODM1MjY2MTEzMjgiIHk9IjE3LjUiIGR5PSIwLjM1ZW0iIGZvbnQtc2l6ZT0iMTIiIGZvbnQtZmFtaWx5PSJNb250c2VycmF0LCBzYW5zLXNlcmlmIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIiBsZXR0ZXItc3BhY2luZz0iMiIgZm9udC1zdHlsZT0ibm9ybWFsIiB0ZXh0LWRlY29yYXRpb249Im5vbmUiIGZpbGwtb3BhY2l0eT0iMSIgZm9udC12YXJpYW50PSJub3JtYWwiIHN0eWxlPSJ0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyI+QUJISVRIRU1PRERFUjwvdGV4dD48IS0tLS0+PC9zdmc+)](https://lin.ky/abhithemodder)
-[![AgarwalKritik](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtODY1ODNhZmQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMzM5LjEwMDAyMTM2MjMwNDciIGhlaWdodD0iMzUiIHZpZXdCb3g9IjAgMCAzMzkuMTAwMDIxMzYyMzA0NyAzNSIgY2xhc3M9ImJhZGdlLXN2ZyI+PGRlZnMgZGF0YS12LTg2NTgzYWZkPSIiPjwhLS0tLT48IS0tLS0+PCEtLS0tPjwvZGVmcz48cGF0aCBkYXRhLXYtODY1ODNhZmQ9IiIgZD0iTSAxMCAwIEwgMTQ4Ljg4MzM0NjU1NzYxNzIgMCBMIDE0OC44ODMzNDY1NTc2MTcyIDM1IEwgMTAgMzUgUSAwIDM1IDAgMjUgTCAwIDEwIFEgMCAwIDEwIDAgWiIgZmlsbD0iIzVhMTQ5MSIvPjxwYXRoIGRhdGEtdi04NjU4M2FmZD0iIiBkPSJNIDE0OC44ODMzNDY1NTc2MTcyIDAgTCAzMjkuMTAwMDIxMzYyMzA0NyAwIFEgMzM5LjEwMDAyMTM2MjMwNDcgMCAzMzkuMTAwMDIxMzYyMzA0NyAxMCBMIDMzOS4xMDAwMjEzNjIzMDQ3IDI1IFEgMzM5LjEwMDAyMTM2MjMwNDcgMzUgMzI5LjEwMDAyMTM2MjMwNDcgMzUgTCAxNDguODgzMzQ2NTU3NjE3MiAzNSBaIiBmaWxsPSIjNDMyMDYyIi8+PCEtLS0tPjx0ZXh0IGRhdGEtdi04NjU4M2FmZD0iIiB4PSI3NC40NDE2NzMyNzg4MDg2IiB5PSIxNy41IiBkeT0iMC4zNWVtIiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0iR2VvcmdpYSwgc2Fucy1zZXJpZiIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgbGV0dGVyLXNwYWNpbmc9IjIiIGZvbnQtd2VpZ2h0PSI2MDAiIGZvbnQtc3R5bGU9Im5vcm1hbCIgdGV4dC1kZWNvcmF0aW9uPSJub25lIiBmaWxsLW9wYWNpdHk9IjEiIGZvbnQtdmFyaWFudD0ibm9ybWFsIiBzdHlsZT0idGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTsiPkNPTk5FQ1QgV0lUSDwvdGV4dD48ZyBkYXRhLXYtODY1ODNhZmQ9IiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTU4Ljg4MzM0NjU1NzYxNzIsIDkuNSkgc2NhbGUoMC42NjY2NjY2NjY2NjY2NjY2KSI+PHBhdGggZGF0YS12LTg2NTgzYWZkPSIiIGQ9Ik0xMiAuMjk3Yy02LjYzIDAtMTIgNS4zNzMtMTIgMTIgMCA1LjMwMyAzLjQzOCA5LjggOC4yMDUgMTEuMzg1LjYuMTEzLjgyLS4yNTguODItLjU3NyAwLS4yODUtLjAxLTEuMDQtLjAxNS0yLjA0LTMuMzM4LjcyNC00LjA0Mi0xLjYxLTQuMDQyLTEuNjFDNC40MjIgMTguMDcgMy42MzMgMTcuNyAzLjYzMyAxNy43Yy0xLjA4Ny0uNzQ0LjA4NC0uNzI5LjA4NC0uNzI5IDEuMjA1LjA4NCAxLjgzOCAxLjIzNiAxLjgzOCAxLjIzNiAxLjA3IDEuODM1IDIuODA5IDEuMzA1IDMuNDk1Ljk5OC4xMDgtLjc3Ni40MTctMS4zMDUuNzYtMS42MDUtMi42NjUtLjMtNS40NjYtMS4zMzItNS40NjYtNS45MyAwLTEuMzEuNDY1LTIuMzggMS4yMzUtMy4yMi0uMTM1LS4zMDMtLjU0LTEuNTIzLjEwNS0zLjE3NiAwIDAgMS4wMDUtLjMyMiAzLjMgMS4yMy45Ni0uMjY3IDEuOTgtLjM5OSAzLS40MDUgMS4wMi4wMDYgMi4wNC4xMzggMyAuNDA1IDIuMjgtMS41NTIgMy4yODUtMS4yMyAzLjI4NS0xLjIzLjY0NSAxLjY1My4yNCAyLjg3My4xMiAzLjE3Ni43NjUuODQgMS4yMyAxLjkxIDEuMjMgMy4yMiAwIDQuNjEtMi44MDUgNS42MjUtNS40NzUgNS45Mi40Mi4zNi44MSAxLjA5Ni44MSAyLjIyIDAgMS42MDYtLjAxNSAyLjg5Ni0uMDE1IDMuMjg2IDAgLjMxNS4yMS42OS44MjUuNTdDMjAuNTY1IDIyLjA5MiAyNCAxNy41OTIgMjQgMTIuMjk3YzAtNi42MjctNS4zNzMtMTItMTItMTIiIGZpbGw9IiNGRkZGRkYiLz48L2c+PHRleHQgZGF0YS12LTg2NTgzYWZkPSIiIHg9IjI1My45OTE2ODM5NTk5NjA5NCIgeT0iMTcuNSIgZHk9IjAuMzVlbSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9Ik1vbnRzZXJyYXQsIHNhbnMtc2VyaWYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI5MDAiIGxldHRlci1zcGFjaW5nPSIyIiBmb250LXN0eWxlPSJub3JtYWwiIHRleHQtZGVjb3JhdGlvbj0ibm9uZSIgZmlsbC1vcGFjaXR5PSIxIiBmb250LXZhcmlhbnQ9Im5vcm1hbCIgc3R5bGU9InRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7Ij5LUklUSUsgQUdBUldBTDwvdGV4dD48IS0tLS0+PC9zdmc+)](https://github.com/AgarwalKritik)
+> **Notice:** All decompilation is powered by the Garlic engine; any limitations of Garlic apply here.
 
 ---
 
-## Acknowledgments
+## <img src="https://api.iconify.design/heroicons:envelope.svg?color=%233994BC" width="28" align="center" /> Contact & Links
 
-[![Garlic Decompiler](icon/garlic.svg)](https://github.com/neocanable/garlic)
-[![QT6](icon/qt6.svg)](https://www.qt.io/)
+[![Raise an issue](icon/issue.svg)](https://github.com/AgarwalKritik/garlic-gui/issues/new)
+[![Kritik Agarwal](icon/agarwalkritik.svg)](https://github.com/AgarwalKritik)
+[![AbhiTheModder](icon/abhithemodder.svg)](https://lin.ky/abhithemodder)
 
 ---
 
-## TL;DR
+## <img src="https://api.iconify.design/heroicons:heart.svg?color=%233994BC" width="28" align="center" /> Credits & Acknowledgements
 
-Garlic Decompiler GUI is a modern C++/Qt6 graphical interface for the [Garlic Decompiler](https://github.com/neocanable/garlic) — a lightning-fast decompiler for APK, DEX, JAR, and CLASS files.  
-It lets you open, decompile, browse, and export Java source code from Android/Java binaries in a clean dark-themed UI.
+This project would not be possible without the incredible work of the open-source community. We would like to extend our deepest gratitude to the following projects, developers, and tools:
 
-> **Note:** All decompilation is powered by the Garlic engine; any limitations of Garlic apply here.
+- **[Garlic Decompiler Engine](https://github.com/neocanable/garlic)**: Special thanks to **[neocanable](https://github.com/neocanable)** and the original Garlic contributors for creating the blazing-fast C-based decompilation engine that serves as the foundation of this application and makes it possible.
+- **[AbhiTheModder](https://lin.ky/abhithemodder)**: For leading the ideation and vision of the Garlic GUI.
+- **[The Qt Company](https://www.qt.io/)**: For creating and maintaining the Qt6 cross-platform framework that powers this application.
+- **[CMake](https://cmake.org/)**: For providing robust cross-platform build automation.
 
-### Usage
-
-1. **Open APK/CLASS/JAR/DEX File**: Click "Open File..." on the Welcome dashboard or use `Ctrl+O`.
-2. **Wait for Decompilation**: The progress bar natively updates you in the status bar footer.
-3. **Browse Code**: Use the file tree on the left to navigate decompiled classes.
-4. **View Source**: Click on any Java file to open it in the editor.
-5. **Search**: Press `Ctrl+F` to open the Find/Replace dock and search with Regex.
-6. **Save/Export**: Use the File menu to save or export your project.
+> *If your open-source work is used in this project and we missed you, please open an issue so we can properly add you to this list!*

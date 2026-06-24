@@ -5,11 +5,17 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 99)
 
-# Find Qt6
+# IMPORTANT: Set these BEFORE find_package(Qt6)
 if (APPLE)
     # Prevent CMake's FindOpenGL from adding the deprecated AGL framework
     set(OPENGL_agl_LIBRARY "" CACHE STRING "AGL framework is deprecated" FORCE)
+    set(OpenGL_GL_PREFERENCE GLVND)
+    # Disable deprecated frameworks
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 11.0)
 endif ()
+
+
+# Find Qt6
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
 get_target_property(QT_WIDGETS_LINKS Qt6::Widgets INTERFACE_LINK_LIBRARIES)

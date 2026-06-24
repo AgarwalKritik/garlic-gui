@@ -38,7 +38,6 @@ jobs:
           version: '6.7.2'
           target: 'desktop'
           arch: 'win64_mingw'
-          tools: 'tools_mingw'
 
       - name: Install Dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
@@ -52,7 +51,9 @@ jobs:
 
       - name: Configure CMake (Windows)
         if: matrix.os == 'windows-latest'
-        run: cmake -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition"
+        run: |
+          $env:PATH = "$env:IQTA_TOOLS\mingw1120_64\bin;" + $env:PATH
+          cmake -B build -S . -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition"
 
       - name: Build
         run: cmake --build build -j4

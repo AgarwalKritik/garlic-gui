@@ -53,18 +53,36 @@ jobs:
       - name: Configure CMake (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          $qt_mingw = "$env:IQTA_TOOLS\mingw1120_64\bin"
-          Write-Host "Using Qt MinGW from: $qt_mingw"
-          $env:PATH = "$qt_mingw;" + $env:PATH
-          $env:CC = Join-Path $qt_mingw 'gcc.exe'
-          $env:CXX = Join-Path $qt_mingw 'g++.exe'
-          
-          # Verify the compilers exist
-          if (!(Test-Path $env:CC)) { throw "gcc.exe not found at $($env:CC)" }
-          if (!(Test-Path $env:CXX)) { throw "g++.exe not found at $($env:CXX)" }
-          
-          Write-Host "CC: $env:CC"
-          Write-Host "CXX: $env:CXX"
+          # Prefer QT_ROOT_DIR (set by the install-qt action); fallback to IQTA_TOOLS or Qt folder in repo
+          $qt_root = $env:QT_ROOT_DIR
+          if (-not $qt_root -or -not (Test-Path $qt_root)) {
+            if ($env:IQTA_TOOLS -and (Test-Path $env:IQTA_TOOLS)) {
+              $qt_root = $env:IQTA_TOOLS
+            } else {
+              $fallback = Join-Path $PWD 'Qt'
+              if (Test-Path $fallback) { $qt_root = $fallback }
+            }
+          }
+
+          Write-Host "Using Qt root: $qt_root"
+
+          # Find gcc.exe (search under qt_root)
+          $gcc = Get-ChildItem -Path $qt_root -Filter gcc.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $gcc) {
+            throw "gcc.exe not found under Qt root: $qt_root"
+          }
+
+          $gccPath = $gcc.FullName
+          $binDir = Split-Path $gccPath -Parent
+          $gppPath = Join-Path $binDir 'g++.exe'
+
+          # Export env vars for CMake
+          $env:PATH = "$binDir;$env:PATH"
+          $env:CC = $gccPath
+          $env:CXX = $gppPath
+
+          Write-Host "Found gcc: $env:CC"
+          Write-Host "Found g++: $env:CXX"
 
           if (Test-Path build) { Remove-Item -Recurse -Force build }
 

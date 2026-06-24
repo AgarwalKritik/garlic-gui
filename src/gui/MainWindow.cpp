@@ -125,6 +125,13 @@ void MainWindow::setupMenuBar()
     QMenu *editMenu = m_menuBar->addMenu("&Edit");
     editMenu->addAction("Undo");
     editMenu->addAction("Redo");
+    editMenu->addSeparator();
+
+    QAction *findReplaceAction = new QAction("&Find/Replace", this);
+    findReplaceAction->setShortcut(QKeySequence("Ctrl+F"));
+    findReplaceAction->setStatusTip("Find or replace text in the current file");
+    connect(findReplaceAction, &QAction::triggered, m_codeEditorWidget, &CodeEditorWidget::showFindReplace);
+    editMenu->addAction(findReplaceAction);
 
     QMenu *viewMenu = m_menuBar->addMenu("&View");
     viewMenu->addAction("Explorer");
@@ -288,17 +295,28 @@ void MainWindow::exportProject()
 void MainWindow::aboutApplication()
 {
     QMessageBox::about(this, "About Garlic Decompiler GUI",
-                       "<h3>Garlic Decompiler GUI</h3>"
-                       "<h4>Version 1.0</h4>"
-                       "<p>A fast Android APK/CLASS/JAR/DEX decompiler with modern GUI interface.</p>"
-                       "<p>Built with Qt6 with C++ and powered by Garlic decompiler engine written in C.</p>"
-                       "<p>Acknowledgements:</p>"
-                       "<p>1. <a href='https://github.com/neocanable/garlic'>Garlic Decompiler</a></p>"
-                       "<p>2. <a href='https://www.qt.io/'>Qt Framework</a></p>"
-                       "<p>3. GUI Concept and idea by <a href='https://lin.ky/abhithemodder'>AbhiTheModder</a>.</p>"
-                       "<br>"
-                       "<p>Designed and developed with ❤︎</p>"
-                       "<p>© 2026 <a href='https://github.com/AgarwalKritik'>Kritik Agarwal</a>. All rights reserved.</p>");
+                       "<div style='font-family: \"Segoe UI\", -apple-system, sans-serif;'>"
+                       "<h2 style='color: #4da6ff; margin-bottom: 5px; margin-top: 0px;'>Garlic Decompiler GUI</h2>"
+                       "<h4 style='color: #a0a0a0; margin-top: 0px; margin-bottom: 15px;'>Version 1.0</h4>"
+                       "<p style='font-size: 13px; color: #e0e0e0;'>"
+                       "A lightning-fast Android <b>APK / CLASS / JAR / DEX</b> decompiler featuring a modern, responsive interface."
+                       "</p>"
+                       "<hr style='border: none; height: 1px; background-color: #333; margin: 15px 0px;'/>"
+                       "<p style='font-size: 13px; color: #e0e0e0;'>"
+                       "<b style='color: #ffffff;'>Powered By:</b><br/>"
+                       "&nbsp;•&nbsp; <a style='color: #4da6ff; text-decoration: none;' href='https://github.com/neocanable/garlic'>Garlic Decompiler Engine</a> (C)<br/>"
+                       "&nbsp;•&nbsp; <a style='color: #4da6ff; text-decoration: none;' href='https://www.qt.io/'>Qt 6 Framework</a> (C++)"
+                       "</p>"
+                       "<p style='font-size: 13px; color: #e0e0e0;'>"
+                       "<b style='color: #ffffff;'>Acknowledgements:</b><br/>"
+                       "&nbsp;•&nbsp; GUI Concept & Idea by <a style='color: #4da6ff; text-decoration: none;' href='https://lin.ky/abhithemodder'>AbhiTheModder</a>"
+                       "</p>"
+                       "<hr style='border: none; height: 1px; background-color: #333; margin: 15px 0px;'/>"
+                       "<p style='font-size: 12px; color: #888; text-align: center; margin-bottom: 0px;'>"
+                       "Designed and developed with ❤︎ by Kritik Agarwal.<br/>"
+                       "&copy; 2026 <a style='color: #4da6ff; text-decoration: none;' href='https://github.com/AgarwalKritik'>Kritik Agarwal</a>. All rights reserved."
+                       "</p>"
+                       "</div>");
 }
 
 void MainWindow::onDecompilationStarted()
@@ -377,19 +395,25 @@ void MainWindow::appendLogMessage(const QString &message)
         QTextCursor cursor = m_logTextEdit->textCursor();
         cursor.beginEditBlock();
         cursor.movePosition(QTextCursor::End);
-        
-        for (int i = 0; i < message.length(); ++i) {
+
+        for (int i = 0; i < message.length(); ++i)
+        {
             QChar c = message[i];
-            if (c == '\b') {
+            if (c == '\b')
+            {
                 cursor.deletePreviousChar();
-            } else if (c == '\r') {
+            }
+            else if (c == '\r')
+            {
                 cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
                 cursor.removeSelectedText();
-            } else {
+            }
+            else
+            {
                 cursor.insertText(QString(c));
             }
         }
-        
+
         cursor.endEditBlock();
         m_logTextEdit->setTextCursor(cursor);
         QScrollBar *bar = m_logTextEdit->verticalScrollBar();

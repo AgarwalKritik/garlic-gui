@@ -108,7 +108,7 @@ void FileTreeWidget::populateTree(const QString &rootPath, const QString &projec
     if (!rootDir.exists())
         return;
 
-    QProgressDialog progress("Loading project files into Explorer...", "Cancel", 0, 0, this);
+    QProgressDialog progress("Please Wait... Loading the decompiled files into Explorer... This may a few seconds...", "Cancel", 0, 0, this);
     progress.setWindowModality(Qt::WindowModal);
     progress.setMinimumDuration(0); // Show immediately
     progress.setValue(0);
@@ -118,12 +118,13 @@ void FileTreeWidget::populateTree(const QString &rootPath, const QString &projec
     m_treeWidget->addTopLevelItem(rootItem);
 
     addDirectoryToTree(rootItem, rootPath, &progress);
-    
-    if (progress.wasCanceled()) {
+
+    if (progress.wasCanceled())
+    {
         clearProject();
         return;
     }
-    
+
     rootItem->setExpanded(true);
 }
 
@@ -142,7 +143,8 @@ void FileTreeWidget::addDirectoryToTree(QTreeWidgetItem *parentItem, const QStri
             return;
 
         // Process events every 50 items to keep UI responsive
-        if (++count % 50 == 0) {
+        if (++count % 50 == 0)
+        {
             QCoreApplication::processEvents();
         }
 

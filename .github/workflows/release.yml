@@ -55,6 +55,10 @@ jobs:
           $env:PATH = "$env:IQTA_TOOLS\mingw1120_64\bin;" + $env:PATH
           cmake -B build -S . -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release
 
+      - name: Fix AGL framework bug on macOS
+        if: matrix.os == 'macos-26'
+        run: find build -name "link.txt" -exec sed -i '' 's/-framework AGL//g' {} +
+
       - name: Build
         run: cmake --build build -j4
 

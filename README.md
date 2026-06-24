@@ -118,16 +118,24 @@ cmake --build build -j$(nproc)
 1. Open **Command Prompt** or **PowerShell**, then:
 
 ```cmd
+# Clone the repository and enter the directory
 git clone https://github.com/AgarwalKritik/garlic-gui.git
 cd garlic-gui
-cmake -B build -DCMAKE_PREFIX_PATH="C:/Qt/6.x.x/mingw_64"
-cmake --build build --config Release
+
+# Configure the build and point CMake to your Qt6 installation
+# (Ensure you replace '6.x.x' and 'mingw_64' with your exact paths)
+cmake -B build -S . -DCMAKE_PREFIX_PATH="C:/Qt/6.x.x/mingw_64" -DCMAKE_BUILD_TYPE=Release
+
+# Compile the application using all available CPU cores
+cmake --build build --config Release -j %NUMBER_OF_PROCESSORS%
+
 ```
 
 1. Run the application:
 
 ```cmd
-.\build\GarlicGUI.exe
+# Run the executable
+.\build\Release\GarlicGUI.exe
 ```
 
 ---

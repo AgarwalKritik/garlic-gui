@@ -92,15 +92,17 @@ garlic-gui/
 #### Linux
 
 ```bash
-# Install Qt6 and build tools
-sudo apt install qt6-base-dev cmake build-essential
+# Install Qt6 and required build tools
+sudo apt update && sudo apt install -y qt6-base-dev cmake build-essential
 
-# Clone the repository
+# Clone the repository and enter the directory
 git clone https://github.com/AgarwalKritik/garlic-gui.git && cd garlic-gui
 
-# Create build directory and compile
-cmake -B build
-make -j$(nproc)
+# Create build directory and generate build files
+cmake -B build -S .
+
+# Compile the application using CMake's build tool wrapper
+cmake --build build -j$(nproc)
 
 # Run the application
 ./build/GarlicGUI

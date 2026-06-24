@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 99)
 
 # Find Qt6
+if (APPLE)
+    # Prevent CMake's FindOpenGL from adding the deprecated AGL framework
+    set(OPENGL_agl_LIBRARY "" CACHE STRING "AGL framework is deprecated" FORCE)
+endif ()
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
 get_target_property(QT_WIDGETS_LINKS Qt6::Widgets INTERFACE_LINK_LIBRARIES)
@@ -29,8 +33,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration -Wno-inco
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-misleading-indentation -Wno-format")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-sign-compare -Wno-type-limits")
 
-if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-old-style-declaration")
+if (CMAKE_C_COMPILER_ID MATCHES "GNU")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--gc-sections")
 endif ()

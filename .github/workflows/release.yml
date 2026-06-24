@@ -25,9 +25,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
-          version: '6.5.3'
+          version: '6.7.2'
           target: 'desktop'
 
       - name: Install Dependencies (Linux)
@@ -89,7 +89,7 @@ jobs:
           path: artifacts
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             artifacts/GarlicGUI-Windows/GarlicGUI-Windows.zip

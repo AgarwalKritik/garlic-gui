@@ -1,18 +1,24 @@
-//  Copyright 2026 Kritik Agarwal
+// ==============================================================================
+//               Copyright 2026 Kritik Agarwal
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//          http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
-
+// ==============================================================================
+//
+// File: FileTreeWidget.cpp
+// Description: Implementation of the file tree browser for APK and DEX structures.
+//
+// ==============================================================================
 #include "FileTreeWidget.h"
 #include <QDir>
 #include <QFileInfo>
@@ -23,12 +29,18 @@
 #include <QHeaderView>
 #include <QIcon>
 
+// ==============================================================================
+// Method: FileTreeWidget::FileTreeWidget
+// ==============================================================================
 FileTreeWidget::FileTreeWidget(QWidget *parent)
     : QWidget(parent), m_layout(nullptr), m_titleLabel(nullptr), m_searchEdit(nullptr), m_treeWidget(nullptr)
 {
     setupUI();
 }
 
+// ==============================================================================
+// Method: FileTreeWidget::setupUI
+// ==============================================================================
 void FileTreeWidget::setupUI()
 {
     m_layout = new QVBoxLayout(this);
@@ -84,10 +96,17 @@ void FileTreeWidget::setupUI()
     setLayout(m_layout);
 }
 
-void FileTreeWidget::loadProject(const QString &projectPath, const QString &projectName)
+// ==============================================================================
+// Method: FileTreeWidget::loadProject
+// ==============================================================================
+void FileTreeWidget::loadProject(const QString &projectPath, const QString &projectName, bool clearExisting)
 {
     m_currentProjectPath = projectPath;
-    m_treeWidget->clear();
+    
+    if (clearExisting)
+    {
+        m_treeWidget->clear();
+    }
 
     if (!projectPath.isEmpty() && QDir(projectPath).exists())
     {
@@ -96,12 +115,18 @@ void FileTreeWidget::loadProject(const QString &projectPath, const QString &proj
     }
 }
 
+// ==============================================================================
+// Method: FileTreeWidget::clearProject
+// ==============================================================================
 void FileTreeWidget::clearProject()
 {
     m_currentProjectPath.clear();
     m_treeWidget->clear();
 }
 
+// ==============================================================================
+// Method: FileTreeWidget::populateTree
+// ==============================================================================
 void FileTreeWidget::populateTree(const QString &rootPath, const QString &projectName)
 {
     QDir rootDir(rootPath);
@@ -128,6 +153,9 @@ void FileTreeWidget::populateTree(const QString &rootPath, const QString &projec
     rootItem->setExpanded(true);
 }
 
+// ==============================================================================
+// Method: FileTreeWidget::addDirectoryToTree
+// ==============================================================================
 void FileTreeWidget::addDirectoryToTree(QTreeWidgetItem *parentItem, const QString &dirPath, QProgressDialog *progress)
 {
     if (progress && progress->wasCanceled())
@@ -165,6 +193,9 @@ void FileTreeWidget::addDirectoryToTree(QTreeWidgetItem *parentItem, const QStri
     }
 }
 
+// ==============================================================================
+// Method: FileTreeWidget::isJavaFile
+// ==============================================================================
 bool FileTreeWidget::isJavaFile(const QString &fileName)
 {
     return fileName.endsWith(".java", Qt::CaseInsensitive) ||
@@ -190,6 +221,9 @@ QTreeWidgetItem *FileTreeWidget::createTreeItem(const QString &name, const QStri
     return item;
 }
 
+// ==============================================================================
+// Method: FileTreeWidget::onItemClicked
+// ==============================================================================
 void FileTreeWidget::onItemClicked(QTreeWidgetItem *item, int column)
 {
     Q_UNUSED(column)
@@ -206,11 +240,17 @@ void FileTreeWidget::onItemClicked(QTreeWidgetItem *item, int column)
     }
 }
 
+// ==============================================================================
+// Method: FileTreeWidget::onSearchTextChanged
+// ==============================================================================
 void FileTreeWidget::onSearchTextChanged(const QString &text)
 {
     filterTree(text);
 }
 
+// ==============================================================================
+// Method: FileTreeWidget::filterTree
+// ==============================================================================
 void FileTreeWidget::filterTree(const QString &searchText)
 {
     if (m_treeWidget->topLevelItemCount() == 0)
@@ -233,6 +273,9 @@ void FileTreeWidget::filterTree(const QString &searchText)
     }
 }
 
+// ==============================================================================
+// Method: FileTreeWidget::setItemVisible
+// ==============================================================================
 void FileTreeWidget::setItemVisible(QTreeWidgetItem *item, bool visible)
 {
     if (!item)
@@ -248,6 +291,9 @@ void FileTreeWidget::setItemVisible(QTreeWidgetItem *item, bool visible)
     }
 }
 
+// ==============================================================================
+// Method: FileTreeWidget::itemMatchesSearch
+// ==============================================================================
 bool FileTreeWidget::itemMatchesSearch(QTreeWidgetItem *item, const QString &searchText)
 {
     if (!item || searchText.isEmpty())

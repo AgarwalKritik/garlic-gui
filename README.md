@@ -106,15 +106,15 @@ You can download the latest compiled releases directly from the [GitHub Releases
 
 Here's what we have accomplished and what we are looking forward to:
 
-- [x] Embed Garlic C source code
-- [x] Match Garlic CLI CMake configuration
-- [x] Support APK, DEX, JAR, CLASS with native detection
-- [x] Apply same compiler flags & optimizations as Garlic
-- [x] Cross-platform GUI for Windows & Linux
-- [x] Modern Dark IDE UI with full status bar tracking
-- [x] Full Code editing support with Regex Find/Replace
+- [x] **Embed Garlic C source code**: Directly integrated the core Garlic C decompilation engine into the Qt6 build system for native execution without external binary dependencies.
+- [x] **Match Garlic CLI CMake configuration**: Replicated the exact build steps, macros, and include directories used by the original command-line tool.
+- [x] **Native file detection**: Automatically parse file headers to seamlessly identify and process APK, DEX, JAR, and CLASS files perfectly.
+- [x] **Apply original compiler flags & optimizations**: Maintained the exact `-O3` and aggressive compiler optimization flags used by the core engine to ensure maximum decompilation speed.
+- [x] **Cross-platform GUI**: Successfully target and natively compile Windows `.exe`, Linux `.AppImage`/`.deb`/`.rpm`, and macOS `.dmg`/`.app` bundles.
+- [x] **Modern Dark IDE UI**: Designed a sleek, VS Code-inspired dark interface with a comprehensive status bar tracking progress and output logs.
+- [x] **Full Code editing support**: Integrated a highly responsive text editor featuring active line highlighting, line numbers, and full Regex Find/Replace capabilities.
 - [x] **Multiple file explore support**: When opening a new file (like `classes3.dex`) while another is already decompiled, prompt the user to either clear the workspace or keep the current files open to allow simultaneous analysis of multiple files.
-- [ ] Add project workspace configurations
+- [ ] **Add project workspace configurations**: Allow users to save their current multi-file workspace and layout into a unique configuration file that can be instantly reloaded later.
 
 ---
 

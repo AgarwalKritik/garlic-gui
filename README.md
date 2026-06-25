@@ -17,6 +17,23 @@
 
 ---
 
+## <img src="https://api.iconify.design/heroicons:shield-check.svg?color=%233994BC" width="28" align="center" /> Ethical & Legal Use
+
+Garlic Decompiler GUI is intended for legitimate software analysis and reverse engineering, including:
+
+- Security research
+- Malware analysis
+- Software interoperability
+- Digital preservation
+- Education and learning
+- Reverse engineering of software that you own or are explicitly authorized to analyze
+
+Users are solely responsible for ensuring their use of this software complies with applicable laws, software licenses, intellectual property rights, and organizational policies.
+
+This project does **not** endorse or encourage unauthorized access, software piracy, copyright infringement, or any unlawful activity.
+
+---
+
 ## <img src="https://api.iconify.design/heroicons:book-open.svg?color=%233994BC" width="28" align="center" /> Table of Contents
 
 - [About The Project](#-about-the-project)
@@ -142,7 +159,9 @@ Contributions are what make the open source community such an amazing place to l
 
 #### This project is licensed under the <img src="https://api.iconify.design/simple-icons:apache.svg?color=%233994BC" width="18" align="center" /><span style="color:#3994BC">**Apache License 2.0**</span> — see [LICENSE](LICENSE) for more information  
 
-> **Notice:** All decompilation is powered by the Garlic engine; any limitations of Garlic apply here.
+> **Notice**
+>
+> Garlic Decompiler GUI is a graphical interface for the Garlic decompiler engine. The decompilation engine itself is developed and maintained independently by the Garlic project. Any limitations, supported formats, or decompilation behavior originate from the underlying Garlic engine.
 
 ---
 
@@ -156,11 +175,11 @@ Contributions are what make the open source community such an amazing place to l
 
 ## <img src="https://api.iconify.design/heroicons:heart.svg?color=%233994BC" width="28" align="center" /> Credits & Acknowledgements
 
-This project would not be possible without the incredible work of the open-source community. We would like to extend our deepest gratitude to the following projects, developers, and tools:
+Garlic Decompiler GUI is built upon the excellent work of several open-source projects.
 
-- **[Garlic Decompiler Engine](https://github.com/neocanable/garlic)**: Special thanks to **[neocanable](https://github.com/neocanable)** and the original Garlic contributors for creating the blazing-fast C-based decompilation engine that serves as the foundation of this application and makes it possible.
-- **[AbhiTheModder](https://lin.ky/abhithemodder)**: For leading the ideation and vision of the Garlic GUI.
-- **[The Qt Company](https://www.qt.io/)**: For creating and maintaining the Qt6 cross-platform framework that powers this application.
-- **[CMake](https://cmake.org/)**: For providing robust cross-platform build automation.
+- **[Garlic Decompiler Engine](https://github.com/neocanable/garlic)** — Developed by **[neocanable](https://github.com/neocanable)** and contributors. Garlic GUI embeds the original Garlic C engine without modification to its core decompilation logic.
+- **[AbhiTheModder](https://lin.ky/abhithemodder)** — Original concept for a graphical interface, project ideation, testing, and feedback throughout development.
+- **[The Qt Company](https://www.qt.io/)** — Cross-platform application framework.
+- **[CMake](https://cmake.org/)** — Cross-platform build system.
 
-> *If your open-source work is used in this project and we missed you, please open an issue so we can properly add you to this list!*
+*If your work is included in this project and has not been acknowledged, please open an issue or pull request so proper attribution can be added.*

@@ -1,18 +1,24 @@
-//  Copyright 2026 Kritik Agarwal
+// ==============================================================================
+//               Copyright 2026 Kritik Agarwal
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//          http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
-
+// ==============================================================================
+//
+// File: MainWindow.cpp
+// Description: Implementation of the main application window and global layout.
+//
+// ==============================================================================
 #include "MainWindow.h"
 #include "FileTreeWidget.h"
 #include "CodeEditorWidget.h"
@@ -45,6 +51,9 @@ inline void ensureOutputDir(const QString &path)
     }
 }
 
+// ==============================================================================
+// Constructor & Destructor
+// ==============================================================================
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), m_menuBar(nullptr), m_statusBar(nullptr), m_centralSplitter(nullptr), m_fileTreeWidget(nullptr), m_codeEditorWidget(nullptr), m_logDock(nullptr), m_logTextEdit(nullptr), m_decompiler(nullptr), m_projectManager(nullptr), m_statusLabel(nullptr), m_progressBar(nullptr), m_progressDialog(nullptr)
 {
@@ -70,10 +79,16 @@ MainWindow::MainWindow(QWidget *parent)
     updateWindowTitle();
 }
 
+// ==============================================================================
+// Method: MainWindow::~MainWindow
+// ==============================================================================
 MainWindow::~MainWindow()
 {
 }
 
+// ==============================================================================
+// UI Initialization Methods
+// ==============================================================================
 void MainWindow::setupUI()
 {
     setMinimumSize(1200, 800);
@@ -84,6 +99,9 @@ void MainWindow::setupUI()
     setupCentralWidget();
 }
 
+// ==============================================================================
+// Method: MainWindow::setupMenuBar
+// ==============================================================================
 void MainWindow::setupMenuBar()
 {
     m_menuBar = menuBar();
@@ -138,6 +156,9 @@ void MainWindow::setupMenuBar()
     helpMenu->addAction(m_aboutAction);
 }
 
+// ==============================================================================
+// Method: MainWindow::setupStatusBar
+// ==============================================================================
 void MainWindow::setupStatusBar()
 {
     m_statusBar = statusBar();
@@ -178,6 +199,9 @@ void MainWindow::setupStatusBar()
     m_statusBar->addPermanentWidget(m_fileTypeLabel);
 }
 
+// ==============================================================================
+// Method: MainWindow::setupCentralWidget
+// ==============================================================================
 void MainWindow::setupCentralWidget()
 {
     m_centralSplitter = new QSplitter(Qt::Horizontal, this);
@@ -221,6 +245,9 @@ void MainWindow::setupCentralWidget()
     addDockWidget(Qt::BottomDockWidgetArea, m_logDock);
 }
 
+// ==============================================================================
+// Slots (Action Handlers)
+// ==============================================================================
 void MainWindow::openFile()
 {
     QString fileName = QFileDialog::getOpenFileName(
@@ -231,6 +258,29 @@ void MainWindow::openFile()
 
     if (!fileName.isEmpty())
     {
+        if (!m_currentProject.isEmpty())
+        {
+            QMessageBox::StandardButton reply = QMessageBox::question(
+                this, 
+                "Clear Workspace?", 
+                "A project is already open.\n\nDo you want to CLEAR the current workspace before opening this new file?\n\nSelect 'Yes' to clear, or 'No' to keep the current files open for simultaneous analysis.",
+                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel
+            );
+
+            if (reply == QMessageBox::Cancel) {
+                return;
+            } else if (reply == QMessageBox::Yes) {
+                m_clearWorkspaceOnDecompile = true;
+                m_codeEditorWidget->closeAllTabs();
+            } else {
+                m_clearWorkspaceOnDecompile = false;
+            }
+        }
+        else
+        {
+            m_clearWorkspaceOnDecompile = true;
+        }
+
         m_currentFile = fileName;
         m_currentFileType = m_decompiler->getFileTypeString(fileName);
         m_statusLabel->setText(QString("Loading %1 file...").arg(m_currentFileType));
@@ -251,6 +301,9 @@ void MainWindow::openFile()
     }
 }
 
+// ==============================================================================
+// Method: MainWindow::saveProject
+// ==============================================================================
 void MainWindow::saveProject()
 {
     if (!m_currentProject.isEmpty())
@@ -260,6 +313,9 @@ void MainWindow::saveProject()
     }
 }
 
+// ==============================================================================
+// Method: MainWindow::exportProject
+// ==============================================================================
 void MainWindow::exportProject()
 {
     if (m_currentProject.isEmpty())
@@ -274,19 +330,34 @@ void MainWindow::exportProject()
     {
         if (m_projectManager->exportProject(m_currentProject, exportDir))
         {
+
+// ==============================================================================
+// Method: QMessageBox::information
+// ==============================================================================
             QMessageBox::information(this, "Export Complete",
                                      QString("Project exported successfully to:\n%1").arg(exportDir));
         }
         else
         {
+
+// ==============================================================================
+// Method: QMessageBox::warning
+// ==============================================================================
             QMessageBox::warning(this, "Export Failed",
                                  "Failed to export project. Please check the destination directory.");
         }
     }
 }
 
+// ==============================================================================
+// Method: MainWindow::aboutApplication
+// ==============================================================================
 void MainWindow::aboutApplication()
 {
+
+// ==============================================================================
+// Method: QMessageBox::about
+// ==============================================================================
     QMessageBox::about(this, "About Garlic Decompiler GUI",
                        "<div style='font-family: \"Segoe UI\", -apple-system, sans-serif;'>"
                        "<h2 style='color: #4da6ff; margin-bottom: 5px; margin-top: 0px;'>Garlic Decompiler GUI</h2>"
@@ -312,6 +383,9 @@ void MainWindow::aboutApplication()
                        "</div>");
 }
 
+// ==============================================================================
+// Method: MainWindow::onDecompilationStarted
+// ==============================================================================
 void MainWindow::onDecompilationStarted()
 {
     m_statusLabel->setText(QString("Decompiling %1...").arg(m_currentFileType));
@@ -320,6 +394,9 @@ void MainWindow::onDecompilationStarted()
     m_openAction->setEnabled(false);
 }
 
+// ==============================================================================
+// Method: MainWindow::onDecompilationFinished
+// ==============================================================================
 void MainWindow::onDecompilationFinished(bool success)
 {
     m_progressBar->setVisible(false);
@@ -336,7 +413,9 @@ void MainWindow::onDecompilationFinished(bool success)
     {
         QString outputDir = m_decompiler->getOutputDirectory();
         QFileInfo fileInfo(m_currentFile);
-        m_fileTreeWidget->loadProject(outputDir, fileInfo.fileName());
+        
+        m_fileTreeWidget->loadProject(outputDir, fileInfo.fileName(), m_clearWorkspaceOnDecompile);
+        
         m_currentProject = outputDir;
         updateWindowTitle(m_currentFile);
 
@@ -348,28 +427,44 @@ void MainWindow::onDecompilationFinished(bool success)
     else
     {
         m_statusLabel->setText("Decompilation failed");
+
+// ==============================================================================
+// Method: QMessageBox::warning
+// ==============================================================================
         QMessageBox::warning(this, "Decompilation Error",
                              "Failed to decompile the selected file. Please check if the file is valid.");
     }
 }
 
+// ==============================================================================
+// Method: MainWindow::onDecompilationProgress
+// ==============================================================================
 void MainWindow::onDecompilationProgress(int progress)
 {
     m_progressBar->setValue(progress);
     m_statusLabel->setText(QString("Decompiling %1... %2%").arg(m_currentFileType).arg(progress));
 }
 
+// ==============================================================================
+// Method: MainWindow::updateCursorPosition
+// ==============================================================================
 void MainWindow::updateCursorPosition(int line, int col)
 {
     m_cursorPositionLabel->setText(QString("Ln %1, Col %2").arg(line).arg(col));
 }
 
+// ==============================================================================
+// Method: MainWindow::updateFileType
+// ==============================================================================
 void MainWindow::updateFileType(const QString &type)
 {
     m_fileTypeLabel->setText(type);
     m_currentFileType = type;
 }
 
+// ==============================================================================
+// Method: MainWindow::updateWindowTitle
+// ==============================================================================
 void MainWindow::updateWindowTitle(const QString &projectPath)
 {
     QString title = "Garlic Decompiler";
@@ -381,6 +476,9 @@ void MainWindow::updateWindowTitle(const QString &projectPath)
     setWindowTitle(title);
 }
 
+// ==============================================================================
+// Method: MainWindow::appendLogMessage
+// ==============================================================================
 void MainWindow::appendLogMessage(const QString &message)
 {
     if (m_logTextEdit)

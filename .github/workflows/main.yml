@@ -189,18 +189,21 @@ jobs:
 
       - name: Package AppImage
         run: |
+          # Create AppDir structure
           mkdir -p AppDir/usr/bin
           mkdir -p AppDir/usr/share/applications
           mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
 
-          # Binary
+          # Install application binary
           install -Dm755 build/GarlicGUI AppDir/usr/bin/GarlicGUI
 
-          # Icon
-          install -Dm644 icon/garlic.png \
-            AppDir/usr/share/icons/hicolor/256x256/apps/garlicgui.png
+          # Install icon into icon theme
+          install -Dm644 icon/garlic.png AppDir/usr/share/icons/hicolor/256x256/apps/garlicgui.png
 
-          # AppRun
+          # REQUIRED: Root icon for appimagetool
+          install -Dm644 icon/garlic.png  AppDir/garlicgui.png
+
+          # AppRun launcher
           cat > AppDir/AppRun <<'EOF'
           #!/bin/sh
           HERE="$(dirname "$(readlink -f "$0")")"
@@ -208,7 +211,7 @@ jobs:
           EOF
           chmod +x AppDir/AppRun
 
-          # Desktop file (REQUIRED AT APPDIR ROOT)
+          # REQUIRED: Desktop file at AppDir root
           cat > AppDir/garlicgui.desktop <<EOF
           [Desktop Entry]
           Type=Application
@@ -219,19 +222,33 @@ jobs:
           Categories=Development;
           EOF
 
-          # Optional copy
-          cp AppDir/garlicgui.desktop \
-            AppDir/usr/share/applications/garlicgui.desktop
+          # Optional desktop file location
+          cp AppDir/garlicgui.desktop AppDir/usr/share/applications/garlicgui.desktop
 
+          # Diagnostics
           echo "===== AppDir ====="
-          find AppDir
+          find AppDir -type f
+
+          echo
+          echo "===== Root ====="
+          ls -lah AppDir
+
+          echo
+          echo "===== Binary ====="
+          ls -lah AppDir/usr/bin
+
+          echo
+          echo "===== Icons ====="
+          ls -lah AppDir/usr/share/icons/hicolor/256x256/apps
+
+          test -f AppDir/AppRun
+          test -f AppDir/garlicgui.desktop
+          test -f AppDir/garlicgui.png
+          test -x AppDir/usr/bin/GarlicGUI
 
           export VERSION=${APP_VERSION#v}
 
-          ./appimagetool-x86_64.AppImage \
-            --verbose \
-            AppDir \
-            Garlic-GUI-${APP_VERSION}-Linux-x64.AppImage
+          ./appimagetool-x86_64.AppImage --verbose AppDir Garlic-GUI-${APP_VERSION}-Linux-x64.AppImage
 
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v7

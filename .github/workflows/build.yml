@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-26.04
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Qt
         uses: ./.github/actions/setup-qt
@@ -61,7 +61,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Qt
         uses: ./.github/actions/setup-qt

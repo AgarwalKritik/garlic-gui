@@ -36,7 +36,7 @@ jobs:
         uses: ./.github/actions/cmake-build
 
   build-linux:
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7

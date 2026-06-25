@@ -1,18 +1,24 @@
-//  Copyright 2026 Kritik Agarwal
+// ==============================================================================
+//               Copyright 2026 Kritik Agarwal
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//          http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
-
+// ==============================================================================
+//
+// File: DecompilerInterface.cpp
+// Description: Bridge between the Garlic C-core and Qt6 frontend.
+//
+// ==============================================================================
 #include "DecompilerInterface.h"
 #include "../garlic/garlic_wrapper.h"
 #include <QDir>
@@ -48,6 +54,9 @@
 // Static instance for callback
 DecompilerInterface *DecompilerInterface::s_instance = nullptr;
 
+// ==============================================================================
+// Method: DecompilerInterface::DecompilerInterface
+// ==============================================================================
 DecompilerInterface::DecompilerInterface(QObject *parent)
     : QObject(parent)
 {
@@ -57,12 +66,18 @@ DecompilerInterface::DecompilerInterface(QObject *parent)
     garlic_set_progress_callback(DecompilerInterface::progressCallback);
 }
 
+// ==============================================================================
+// Method: DecompilerInterface::~DecompilerInterface
+// ==============================================================================
 DecompilerInterface::~DecompilerInterface()
 {
     if (s_instance == this)
         s_instance = nullptr;
 }
 
+// ==============================================================================
+// Method: DecompilerInterface::decompileFile
+// ==============================================================================
 void DecompilerInterface::decompileFile(const QString &inputPath)
 {
     // Validate input file using Garlic's validation
@@ -144,6 +159,10 @@ void DecompilerInterface::decompileFile(const QString &inputPath)
             if (now - lastEmitTime > 50 || rawBuffer.endsWith('\n')) {
                 if (!rawBuffer.isEmpty() && self) {
                     QString chunk = rawBuffer;
+
+// ==============================================================================
+// Method: QMetaObject::invokeMethod
+// ==============================================================================
                     QMetaObject::invokeMethod(self, [self, chunk]() {
                         emit self->logMessage(chunk);
                     }, Qt::QueuedConnection);
@@ -155,6 +174,10 @@ void DecompilerInterface::decompileFile(const QString &inputPath)
         
         if (!rawBuffer.isEmpty() && self) {
             QString chunk = rawBuffer;
+
+// ==============================================================================
+// Method: QMetaObject::invokeMethod
+// ==============================================================================
             QMetaObject::invokeMethod(self, [self, chunk]() {
                 emit self->logMessage(chunk);
             }, Qt::QueuedConnection);
@@ -183,6 +206,10 @@ void DecompilerInterface::decompileFile(const QString &inputPath)
         
         if (self) {
             // Emit result on main thread
+
+// ==============================================================================
+// Method: QMetaObject::invokeMethod
+// ==============================================================================
             QMetaObject::invokeMethod(self, [self, result]() {
                 emit self->decompilationFinished(result == 1);
             }, Qt::QueuedConnection);
@@ -193,16 +220,26 @@ void DecompilerInterface::decompileFile(const QString &inputPath)
     workerThread->start();
 }
 
+// ==============================================================================
+// Method: DecompilerInterface::getOutputDirectory
+// ==============================================================================
 QString DecompilerInterface::getOutputDirectory() const
 {
     return m_currentOutputDir;
 }
 
+// ==============================================================================
+// Method: DecompilerInterface::progressCallback
+// ==============================================================================
 void DecompilerInterface::progressCallback(int progress)
 {
     if (s_instance)
     {
         // Emit signal on main thread
+
+// ==============================================================================
+// Method: QMetaObject::invokeMethod
+// ==============================================================================
         QMetaObject::invokeMethod(s_instance, [progress]()
                                   { s_instance->progressUpdated(progress); }, Qt::QueuedConnection);
     }
@@ -210,6 +247,9 @@ void DecompilerInterface::progressCallback(int progress)
 
 #include <QDateTime>
 
+// ==============================================================================
+// Method: DecompilerInterface::createTempOutputDirectory
+// ==============================================================================
 QString DecompilerInterface::createTempOutputDirectory(const QString &inputPath)
 {
     QString tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
@@ -234,6 +274,9 @@ QString DecompilerInterface::createTempOutputDirectory(const QString &inputPath)
     return outputDir;
 }
 
+// ==============================================================================
+// Method: DecompilerInterface::getFileTypeString
+// ==============================================================================
 QString DecompilerInterface::getFileTypeString(const QString &filePath)
 {
     const char *typeStr = garlic_get_file_type_string(filePath.toLocal8Bit().constData());

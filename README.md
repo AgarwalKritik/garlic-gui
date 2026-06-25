@@ -8,7 +8,7 @@
 
 [![Open Source](icon/open-source.svg)](https://opensource.org/)
 [![LICENSE](icon/license.svg)](LICENSE)
-[![C++](icon/cpp.svg)](#built-with)
+[![C++](icon/cpp.svg)](#-built-with)
 [![QT6](icon/powered-by-qt6.svg)](https://www.qt.io/)
 [![garlic](icon/garlic-powered.svg)](https://github.com/neocanable/garlic)
 [![Kritik Agarwal](icon/developed.svg)](https://github.com/AgarwalKritik)
@@ -19,20 +19,20 @@
 
 ## <img src="https://api.iconify.design/heroicons:book-open.svg?color=%233994BC" width="28" align="center" /> Table of Contents
 
-- [About The Project](#about-the-project)
-  - [Key Features](#key-features)
-  - [Built With](#built-with)
-  - [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-  - [Usage](#usage)
-  - [Download (Releases)](#download-releases)
-  - [Build From Source](#build-from-source)
-- [Roadmap](#roadmap)
-- [Contributors](#contributors)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact & Links](#contact--links)
-- [Credits & Acknowledgements](#credits--acknowledgements)
+- [About The Project](#-about-the-project)
+  - [Key Features](#-key-features)
+  - [Built With](#-built-with)
+  - [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+  - [Build From Source](#-build-from-source)
+  - [Download (Releases)](#-download-releases)
+  - [Usage](#-usage)
+- [Roadmap](#-roadmap)
+- [Contributors](#-contributors)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Contact & Links](#-contact--links)
+- [Credits & Acknowledgements](#-credits--acknowledgements)
 
 ---
 
@@ -77,6 +77,20 @@ Want to dive into the code? The project is carefully separated into a C++ UI lay
 
 ## <img src="https://api.iconify.design/heroicons:rocket-launch.svg?color=%233994BC" width="28" align="center" /> Getting Started
 
+### <img src="https://api.iconify.design/heroicons:cog-8-tooth.svg?color=%233994BC" width="24" align="center" /> Build From Source
+
+Interested in compiling GarlicGUI yourself or building the native system installers?
+
+Please see our comprehensive **[Build Guide](BUILD.md)** for detailed, step-by-step instructions for Windows, macOS, and Linux.
+
+### <img src="https://api.iconify.design/heroicons:cube.svg?color=%233994BC" width="24" align="center" /> Download (Releases)
+
+You can download the latest compiled releases directly from the [GitHub Releases](https://github.com/AgarwalKritik/garlic-gui/releases) page. We provide pre-built binaries for:
+
+- **Windows**: `.exe` system installer and `.zip` portable versions available.
+- **macOS**: `.dmg` disk image and `.app` bundle.
+- **Linux**: `.deb`, `.rpm`, `.AppImage`, and `.tar.gz` available.
+
 ### <img src="https://api.iconify.design/heroicons:play.svg?color=%233994BC" width="24" align="center" /> Usage
 
 1. **Open APK/CLASS/JAR/DEX File**: Click "Open File..." on the Welcome dashboard or use `Ctrl+O`.
@@ -85,93 +99,6 @@ Want to dive into the code? The project is carefully separated into a C++ UI lay
 4. **View Source**: Click on any Java file to open it in the editor.
 5. **Search**: Press `Ctrl+F` to open the Find/Replace dock and search with Regex.
 6. **Save/Export**: Use the File menu to save or export your project.
-
-### <img src="https://api.iconify.design/heroicons:cube.svg?color=%233994BC" width="24" align="center" /> Download (Releases)
-
-You can download the latest compiled releases directly from the [GitHub Releases](https://github.com/AgarwalKritik/garlic-gui/releases) page. We provide pre-built binaries for:
-
-- **Windows**: `.msi` system installer and `.zip` portable versions available.
-- **macOS**: `.dmg` disk image.
-- **Linux**: `.tar.gz` archive.
-
-### <img src="https://api.iconify.design/heroicons:cog-8-tooth.svg?color=%233994BC" width="24" align="center" /> Build From Source
-
-<details>
-<summary><b>Click to show/hide Build Instructions</b></summary>
-
-#### Prerequisites
-
-- CMake 3.16 or later
-
-- Qt6 (GUI Components)
-- C/C++ compiler (GCC, Clang, MinGW)
-
-#### <img src="https://api.iconify.design/simple-icons:linux.svg?color=%233994BC" width="20" align="center" /> Linux (All Distros)
-
-```bash
-# Install Qt6 and required build tools
-sudo apt update && sudo apt install -y qt6-base-dev cmake build-essential
-
-# Clone the repository and enter the directory
-git clone https://github.com/AgarwalKritik/garlic-gui.git && cd garlic-gui
-
-# Create build directory and generate build files
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
-
-# Compile the application using CMake's build tool wrapper
-cmake --build build -j$(nproc)
-
-# Run the application
-./build/GarlicGUI
-```
-
-#### <img src="https://api.iconify.design/simple-icons:apple.svg?color=%233994BC" width="20" align="center" /> macOS
-
-```bash
-# Install Qt6 and CMake using Homebrew
-brew install qt6 cmake
-
-# Clone the repository and enter the directory
-git clone https://github.com/AgarwalKritik/garlic-gui.git && cd garlic-gui
-
-# Create build directory and configure CMake (tell CMake where Qt6 is)
-cmake -B build -S . -DCMAKE_PREFIX_PATH="$(brew --prefix qt6)" -DCMAKE_BUILD_TYPE=Release
-
-# Compile the application
-cmake --build build -j$(sysctl -n hw.ncpu)
-
-# Run the application
-./build/GarlicGUI.app/Contents/MacOS/GarlicGUI
-```
-
-#### <img src="https://api.iconify.design/simple-icons:windows.svg?color=%233994BC" width="20" align="center" /> Windows
-
-1. Install **Qt6 (Open Source edition)** from [Qt website](https://www.qt.io/download-open-source).
-2. Add Qt6 compiler (MinGW) to your `PATH`, e.g., `C:/Qt/6.x.x/mingw_64/bin/`.
-   > **Note**: Replace ```6.x.x``` with the exact version of Qt you downloaded.
-
-3. Open **Command Prompt** or **PowerShell**, then:
-
-```powershell
-# Clone the repository and enter the directory
-git clone https://github.com/AgarwalKritik/garlic-gui.git
-cd garlic-gui
-
-# Configure the build and point CMake to your Qt6 installation
-cmake -B build -S . -DCMAKE_PREFIX_PATH="C:/Qt/6.x.x/mingw_64" -DCMAKE_BUILD_TYPE=Release
-
-# Compile the application
-cmake --build build -j4
-```
-
-1. Run the application:
-
-```powershell
-# Run the executable
-.\build\GarlicGUI.exe
-```
-
-</details>
 
 ---
 
@@ -186,6 +113,7 @@ Here's what we have accomplished and what we are looking forward to:
 - [x] Cross-platform GUI for Windows & Linux
 - [x] Modern Dark IDE UI with full status bar tracking
 - [x] Full Code editing support with Regex Find/Replace
+- [x] **Multiple file explore support**: When opening a new file (like `classes3.dex`) while another is already decompiled, prompt the user to either clear the workspace or keep the current files open to allow simultaneous analysis of multiple files.
 - [ ] Add project workspace configurations
 
 ---

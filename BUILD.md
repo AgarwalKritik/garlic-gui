@@ -19,7 +19,7 @@ Follow these detailed instructions to compile and build GarlicGUI natively on yo
 ## Prerequisites
 
 - **CMake** (`v3.16` or newer): Used to configure the cross-platform build environment.
-- **Qt6** (`v6.9.2` or newer): Required for compiling the modern GUI components.
+- **Qt6** (`v6.8.7` or newer): Required for compiling the modern GUI components.
 - **C/C++ Compiler** (GCC, Clang, or MinGW): Must support the `C++17` & `C99` standard or newer. *(Note: On Windows, MinGW is highly preferred over MSVC for compatibility).*
 
 ---
@@ -27,12 +27,14 @@ Follow these detailed instructions to compile and build GarlicGUI natively on yo
 ## <img src="https://api.iconify.design/simple-icons:linux.svg?color=%233994BC" width="20" align="center" /> Linux (All Distros)
 
 ### 1. Install Dependencies
+
 ```bash
 # Install Qt6 and required build tools
 sudo apt update && sudo apt install -y qt6-base-dev cmake build-essential
 ```
 
 ### 2. Build the Application
+
 ```bash
 # Clone the repository
 git clone https://github.com/AgarwalKritik/garlic-gui.git 
@@ -46,6 +48,7 @@ cmake --build build -j$(nproc)
 ```
 
 ### 3. Run
+
 ```bash
 # Run the compiled executable
 ./build/GarlicGUI
@@ -56,12 +59,14 @@ cmake --build build -j$(nproc)
 ## <img src="https://api.iconify.design/simple-icons:apple.svg?color=%233994BC" width="20" align="center" /> macOS
 
 ### 1. Install Dependencies
+
 ```bash
 # Install Qt6 and CMake using Homebrew
 brew install qt6 cmake
 ```
 
 ### 2. Build the Application
+
 ```bash
 # Clone the repository
 git clone https://github.com/AgarwalKritik/garlic-gui.git 
@@ -75,6 +80,7 @@ cmake --build build -j$(sysctl -n hw.ncpu)
 ```
 
 ### 3. Run
+
 ```bash
 # Run the application bundle
 ./build/GarlicGUI.app/Contents/MacOS/GarlicGUI
@@ -85,11 +91,13 @@ cmake --build build -j$(sysctl -n hw.ncpu)
 ## <img src="https://api.iconify.design/simple-icons:windows.svg?color=%233994BC" width="20" align="center" /> Windows
 
 ### 1. Install Dependencies
+
 1. Install **Qt6 (Open Source edition)** from the [Qt website](https://www.qt.io/download-open-source).
 2. Add the Qt6 MinGW compiler to your `PATH` environment variable. For example, add: `C:/Qt/6.x.x/mingw_64/bin/`.
    > **Note**: Replace `6.x.x` with the exact version of Qt you downloaded.
 
 ### 2. Build the Application
+
 Open **Command Prompt** or **PowerShell**:
 
 ```powershell
@@ -105,12 +113,14 @@ cmake --build build -j4
 ```
 
 ### 3. Run
+
 ```powershell
 # Run the executable
 .\build\GarlicGUI.exe
 ```
 
 ### 4. Build the Windows Installer (.exe) (Optional)
+
 If you want to package your freshly built binary into a professional `.exe` system installer (complete with Desktop shortcuts and PATH integration):
 
 1. **Download Inno Setup**: Download and install Inno Setup from [jrsoftware.org](https://jrsoftware.org/isdl.php).

@@ -1,0 +1,156 @@
+name: 'Setup Qt'
+description: 'Installs and configures Qt for the specified platform using the official online installer'
+inputs:
+  version:
+    description: 'Qt version to install'
+    required: false
+    default: '6.12.0'
+  target:
+    description: 'Qt target (desktop, android, ios)'
+    required: false
+    default: 'desktop'
+  arch:
+    description: 'Qt architecture (win64_mingw, gcc_64, macos)'
+    required: false
+  tools:
+    description: 'Comma-separated list of Qt tools to install'
+    required: false
+  qt_email:
+    description: 'Qt Account Email'
+    required: true
+  qt_password:
+    description: 'Qt Account Password'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate QIF Script
+      shell: bash
+      run: |
+        cat << 'EOF' > qt-script.qs
+        function Controller() {
+            installer.autoRejectMessageBoxes();
+            installer.installationFinished.connect(function() {
+                gui.clickButton(buttons.NextButton);
+            });
+        }
+        
+        Controller.prototype.WelcomePageCallback = function() {
+            gui.clickButton(buttons.NextButton, 3000);
+        }
+        
+        Controller.prototype.CredentialsPageCallback = function() {
+            var page = gui.pageWidgetByObjectName("CredentialsPage");
+            page.loginWidget.EmailLineEdit.setText("${{ inputs.qt_email }}");
+            page.loginWidget.PasswordLineEdit.setText("${{ inputs.qt_password }}");
+            gui.clickButton(buttons.NextButton, 3000);
+        }
+        
+        Controller.prototype.ObligationsPageCallback = function() {
+            var page = gui.pageWidgetByObjectName("ObligationsPage");
+            page.obligationsAgreement.setChecked(true);
+            page.completeChanged();
+            gui.clickButton(buttons.NextButton, 3000);
+        }
+        
+        Controller.prototype.TelemetryPageCallback = function() {
+            var page = gui.pageWidgetByObjectName("TelemetryPage");
+            page.cbDisableTelemetry.setChecked(true);
+            gui.clickButton(buttons.NextButton, 3000);
+        }
+        
+        Controller.prototype.TargetDirectoryPageCallback = function() {
+            var page = gui.pageWidgetByObjectName("TargetDirectoryPage");
+            var runnerOs = "${{ runner.os }}";
+            var targetDir = "/opt/Qt";
+            if (runnerOs === "Windows") {
+                targetDir = "C:\\Qt";
+            } else if (runnerOs === "macOS") {
+                targetDir = "/Users/runner/Qt";
+            }
+            page.TargetDirectoryLineEdit.setText(targetDir);
+            gui.clickButton(buttons.NextButton, 3000);
+        }
+        
+        Controller.prototype.ComponentSelectionPageCallback = function() {
+            var page = gui.pageWidgetByObjectName("ComponentSelectionPage");
+            var version = "${{ inputs.version }}".replace(/\./g, "");
+            
+            var arch = "${{ inputs.arch }}";
+            if (!arch) {
+                if ("${{ runner.os }}" == "Windows") arch = "win64_mingw";
+                else if ("${{ runner.os }}" == "macOS") arch = "macos";
+                else arch = "gcc_64";
+            }
+            
+            installer.core.deselectAll();
+            installer.core.selectComponent("qt.qt6." + version + "." + arch);
+            
+            var tools = "${{ inputs.tools }}";
+            if (tools) {
+                var toolArray = tools.split(',');
+                for (var i = 0; i < toolArray.length; i++) {
+                    installer.core.selectComponent(toolArray[i].trim());
+                }
+            }
+            
+            gui.clickButton(buttons.NextButton, 3000);
+        }
+        
+        Controller.prototype.LicenseAgreementPageCallback = function() {
+            var page = gui.pageWidgetByObjectName("LicenseAgreementPage");
+            page.AcceptLicenseRadioButton.setChecked(true);
+            gui.clickButton(buttons.NextButton, 3000);
+        }
+        
+        Controller.prototype.StartMenuDirectoryPageCallback = function() {
+            gui.clickButton(buttons.NextButton, 3000);
+        }
+        
+        Controller.prototype.ReadyForInstallationPageCallback = function() {
+            gui.clickButton(buttons.NextButton, 3000);
+        }
+        
+        Controller.prototype.FinishedPageCallback = function() {
+            var page = gui.pageWidgetByObjectName("FinishedPage");
+            page.RunItCheckBox.setChecked(false);
+            gui.clickButton(buttons.CommitButton, 3000);
+        }
+        EOF
+
+    - name: Install Qt (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -Uri "https://d13lb3tujcjcv7.cloudfront.net/online/qtsdkrepository/windows_x86/root/qt-unified-windows-x86-online.exe" -OutFile "qt-installer.exe"
+        .\qt-installer.exe --script qt-script.qs --accept-licenses --accept-messages --confirm-command
+        $arch = if ("${{ inputs.arch }}") { "${{ inputs.arch }}" } else { "win64_mingw" }
+        $qtDir = "C:\Qt\${{ inputs.version }}\" + $arch.Replace('win64_mingw', 'mingw_64')
+        echo "QT_ROOT_DIR=$qtDir" >> $env:GITHUB_ENV
+        echo "$qtDir\bin" >> $env:GITHUB_PATH
+
+    - name: Install Qt (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update && sudo apt-get install -y libxcb-xinerama0 libxcb-cursor0
+        wget -q "https://d13lb3tujcjcv7.cloudfront.net/online/qtsdkrepository/linux_x64/root/qt-unified-linux-x64-online.run" -O qt-installer.run
+        chmod +x qt-installer.run
+        sudo ./qt-installer.run --script qt-script.qs --accept-licenses --accept-messages --confirm-command
+        ARCH="${{ inputs.arch }}"
+        [ -z "$ARCH" ] && ARCH="gcc_64"
+        echo "QT_ROOT_DIR=/opt/Qt/${{ inputs.version }}/$ARCH" >> $GITHUB_ENV
+        echo "/opt/Qt/${{ inputs.version }}/$ARCH/bin" >> $GITHUB_PATH
+
+    - name: Install Qt (macOS)
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        wget -q "https://d13lb3tujcjcv7.cloudfront.net/online/qtsdkrepository/mac_x64/root/qt-unified-mac-x64-online.dmg" -O qt-installer.dmg
+        hdiutil attach qt-installer.dmg
+        /Volumes/qt-unified-mac-x64-online/qt-unified-mac-x64-online.app/Contents/MacOS/qt-unified-mac-x64-online --script qt-script.qs --accept-licenses --accept-messages --confirm-command
+        hdiutil detach /Volumes/qt-unified-mac-x64-online
+        ARCH="${{ inputs.arch }}"
+        [ -z "$ARCH" ] && ARCH="macos"
+        echo "QT_ROOT_DIR=/Users/runner/Qt/${{ inputs.version }}/$ARCH" >> $GITHUB_ENV
+        echo "/Users/runner/Qt/${{ inputs.version }}/$ARCH/bin" >> $GITHUB_PATH

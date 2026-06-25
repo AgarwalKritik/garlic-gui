@@ -1,0 +1,77 @@
+name: Pull Request Check
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  APP_VERSION: pr-${{ github.event.pull_request.number }}
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Setup Qt
+        uses: ./.github/actions/setup-qt
+        with:
+          version: '6.12.0'
+          target: 'desktop'
+          arch: 'win64_mingw'
+          tools: 'tools_mingw1310'
+          qt_email: ${{ secrets.QT_EMAIL }}
+          qt_password: ${{ secrets.QT_PASSWORD }}
+
+      - name: Configure CMake
+        uses: ./.github/actions/configure-cmake
+        with:
+          generator: 'MinGW Makefiles'
+          extra_args: >
+            -DCMAKE_PREFIX_PATH="${{ env.QT_ROOT_DIR }}"
+            -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition"
+
+      - name: Build CMake
+        uses: ./.github/actions/cmake-build
+
+  build-linux:
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Setup Qt
+        uses: ./.github/actions/setup-qt
+        with:
+          version: '6.12.0'
+          target: 'desktop'
+
+      - name: Configure CMake
+        uses: ./.github/actions/configure-cmake
+
+      - name: Build CMake
+        uses: ./.github/actions/cmake-build
+
+  build-macos:
+    strategy:
+      matrix:
+        include:
+          - os: macos-26-intel
+          - os: macos-26
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Setup Qt
+        uses: ./.github/actions/setup-qt
+        with:
+          version: '6.12.0'
+          target: 'desktop'
+
+      - name: Configure CMake
+        uses: ./.github/actions/configure-cmake
+
+      - name: Build CMake
+        uses: ./.github/actions/cmake-build

@@ -1,0 +1,19 @@
+name: 'Package MacOS'
+description: 'Packages the MacOS build into a DMG and zipped APP bundle'
+inputs:
+  app_version:
+    description: 'Application version (e.g. v1.0.0)'
+    required: true
+  arch:
+    description: 'Architecture (intel-x64 or arm64)'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Deploy and Package
+      shell: bash
+      run: |
+        macdeployqt build/GarlicGUI.app -dmg
+        mv build/GarlicGUI.dmg Garlic-GUI-${{ inputs.app_version }}-MacOS-${{ inputs.arch }}.dmg
+        cd build
+        zip -r ../Garlic-GUI-${{ inputs.app_version }}-MacOS-${{ inputs.arch }}.app.zip GarlicGUI.app

@@ -1,0 +1,27 @@
+name: 'Configure CMake'
+description: 'Configures the CMake project for building'
+inputs:
+  build_type:
+    description: 'CMake build type (Release, Debug, etc.)'
+    required: false
+    default: 'Release'
+  generator:
+    description: 'CMake generator'
+    required: false
+  extra_args:
+    description: 'Extra arguments to pass to CMake'
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - name: Configure CMake
+      shell: bash
+      run: |
+        GENERATOR_ARG=""
+        if [ -n "${{ inputs.generator }}" ]; then
+          GENERATOR_ARG="-G \"${{ inputs.generator }}\""
+        fi
+        
+        cmake -B build -S . $GENERATOR_ARG \
+          -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} \
+          ${{ inputs.extra_args }}

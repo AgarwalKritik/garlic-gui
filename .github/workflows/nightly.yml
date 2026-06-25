@@ -1,11 +1,11 @@
-name: Build and Release
+name: Nightly Build
 on:
-  push:
-    tags:
-      - 'v*'
+  schedule:
+    - cron: '0 0 * * *' # Run at midnight every day
+  workflow_dispatch:
 
 env:
-  APP_VERSION: ${{ github.ref_name }}
+  APP_VERSION: nightly
 
 jobs:
   build-windows:
@@ -121,12 +121,11 @@ jobs:
             Garlic-GUI-${{ env.APP_VERSION }}-MacOS-${{ matrix.arch }}.app.zip
 
   release:
-    name: Publish Release
+    name: Publish Nightly Release
     needs: [build-windows, build-linux, build-macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
@@ -155,7 +154,17 @@ jobs:
           name: macos-arm64-artifacts
           path: artifacts/
 
+      # Delete previous nightly tag and release so it can be overwritten
+      - name: Delete existing nightly release
+        run: |
+          gh release delete nightly --yes || true
+          git push --delete origin nightly || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Publish Release
         uses: ./.github/actions/publish-release
         with:
           files: artifacts/*
+          prerelease: 'true'
+          tag_name: 'nightly'

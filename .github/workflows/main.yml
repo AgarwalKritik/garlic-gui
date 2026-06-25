@@ -184,10 +184,8 @@ jobs:
           Type=Application
           Categories=Development;
           EOF
-          fpm -s dir -t deb -n garlicgui -v ${APP_VERSION#v} -C dist/linux .
-          fpm -s dir -t rpm -n garlicgui -v ${APP_VERSION#v} -C dist/linux .
-          cp dist/linux/garlicgui_*.deb Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.deb
-          cp dist/linux/garlicgui-*.x86_64.rpm Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.rpm
+          fpm -s dir -t deb -n garlicgui -v ${APP_VERSION#v} -p "Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.deb" -C dist/linux .
+          fpm -s dir -t rpm -n garlicgui -v ${APP_VERSION#v} -p "Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.rpm" -C dist/linux .
 
       - name: Package AppImage
         run: |

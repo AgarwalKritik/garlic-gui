@@ -49,7 +49,7 @@ jobs:
             Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64-installer.exe
 
   build-linux:
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7

@@ -1,18 +1,24 @@
-//  Copyright 2026 Kritik Agarwal
+// ==============================================================================
+//               Copyright 2026 Kritik Agarwal
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//          http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
-
+// ==============================================================================
+//
+// File: CodeEditorWidget.h
+// Description: Header for the CodeEditorWidget.
+//
+// ==============================================================================
 #ifndef CODEEDITORWIDGET_H
 #define CODEEDITORWIDGET_H
 
@@ -41,6 +47,9 @@ class CodeEditor : public QPlainTextEdit
     Q_OBJECT
 
 public:
+    // ==============================================================================
+    // Public Interface
+    // ==============================================================================
     CodeEditor(QWidget *parent = nullptr);
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
@@ -50,17 +59,26 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private slots:
+    // ==============================================================================
+    // Private Slots
+    // ==============================================================================
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
     void updateLineNumberArea(const QRect &rect, int dy);
 
 private:
+    // ==============================================================================
+    // Private Members & Methods
+    // ==============================================================================
     QWidget *lineNumberArea;
 };
 
 class LineNumberArea : public QWidget
 {
 public:
+    // ==============================================================================
+    // Public Interface
+    // ==============================================================================
     LineNumberArea(CodeEditor *editor) : QWidget(editor), codeEditor(editor)
     {
     }
@@ -77,6 +95,9 @@ protected:
     }
 
 private:
+    // ==============================================================================
+    // Private Members & Methods
+    // ==============================================================================
     CodeEditor *codeEditor;
 };
 
@@ -85,19 +106,31 @@ class CodeEditorWidget : public QWidget
     Q_OBJECT
 
 public:
+    // ==============================================================================
+    // Public Interface
+    // ==============================================================================
     explicit CodeEditorWidget(QWidget *parent = nullptr);
 
 public slots:
+    // ==============================================================================
+    // Public Slots
+    // ==============================================================================
     void openFile(const QString &filePath);
     void closeTab(int index);
     void closeAllTabs();
 
 signals:
+    // ==============================================================================
+    // Signals
+    // ==============================================================================
     void cursorPositionChanged(int line, int col);
     void fileTypeChanged(const QString &fileType);
     void openFileRequested();
 
 private slots:
+    // ==============================================================================
+    // Private Slots
+    // ==============================================================================
     void onTabCloseRequested(int index);
     void showFindReplace();
     void hideFindReplace();
@@ -108,6 +141,9 @@ private slots:
     void updateTabVisibility();
 
 private:
+    // ==============================================================================
+    // Private Members & Methods
+    // ==============================================================================
     void setupUI();
     CodeEditor *createTextEditor();
     QString readFileContent(const QString &filePath);
@@ -128,12 +164,18 @@ class JavaSyntaxHighlighter : public QSyntaxHighlighter
     Q_OBJECT
 
 public:
+    // ==============================================================================
+    // Public Interface
+    // ==============================================================================
     explicit JavaSyntaxHighlighter(QTextDocument *parent = nullptr);
 
 protected:
     void highlightBlock(const QString &text) override;
 
 private:
+    // ==============================================================================
+    // Private Members & Methods
+    // ==============================================================================
     struct HighlightingRule
     {
         QRegularExpression pattern;

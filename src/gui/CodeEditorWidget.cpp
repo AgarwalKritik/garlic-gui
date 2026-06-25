@@ -1,18 +1,24 @@
-//  Copyright 2026 Kritik Agarwal
+// ==============================================================================
+//               Copyright 2026 Kritik Agarwal
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//          http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
-
+// ==============================================================================
+//
+// File: CodeEditorWidget.cpp
+// Description: Implementation of the advanced code editor widget with syntax highlighting.
+//
+// ==============================================================================
 #include "CodeEditorWidget.h"
 #include "WelcomeWidget.h"
 #include "FindReplaceWidget.h"
@@ -24,7 +30,9 @@
 #include <QPainter>
 #include <QTextBlock>
 
-// --- CodeEditor Implementation ---
+// ==============================================================================
+// CodeEditor Sub-Widget Implementation
+// ==============================================================================
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
     lineNumberArea = new LineNumberArea(this);
@@ -37,6 +45,9 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     highlightCurrentLine();
 }
 
+// ==============================================================================
+// Method: CodeEditor::lineNumberAreaWidth
+// ==============================================================================
 int CodeEditor::lineNumberAreaWidth()
 {
     int digits = 1;
@@ -51,11 +62,17 @@ int CodeEditor::lineNumberAreaWidth()
     return space;
 }
 
+// ==============================================================================
+// Method: CodeEditor::updateLineNumberAreaWidth
+// ==============================================================================
 void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
 {
     setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
 }
 
+// ==============================================================================
+// Method: CodeEditor::updateLineNumberArea
+// ==============================================================================
 void CodeEditor::updateLineNumberArea(const QRect &rect, int dy)
 {
     if (dy)
@@ -67,6 +84,9 @@ void CodeEditor::updateLineNumberArea(const QRect &rect, int dy)
         updateLineNumberAreaWidth(0);
 }
 
+// ==============================================================================
+// Method: CodeEditor::resizeEvent
+// ==============================================================================
 void CodeEditor::resizeEvent(QResizeEvent *e)
 {
     QPlainTextEdit::resizeEvent(e);
@@ -74,6 +94,9 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
+// ==============================================================================
+// Method: CodeEditor::highlightCurrentLine
+// ==============================================================================
 void CodeEditor::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
@@ -93,6 +116,9 @@ void CodeEditor::highlightCurrentLine()
     setExtraSelections(extraSelections);
 }
 
+// ==============================================================================
+// Method: CodeEditor::lineNumberAreaPaintEvent
+// ==============================================================================
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
     QPainter painter(lineNumberArea);
@@ -121,12 +147,18 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 }
 // ---------------------------------
 
+// ==============================================================================
+// Method: CodeEditorWidget::CodeEditorWidget
+// ==============================================================================
 CodeEditorWidget::CodeEditorWidget(QWidget *parent)
     : QWidget(parent), m_layout(nullptr), m_tabWidget(nullptr)
 {
     setupUI();
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::setupUI
+// ==============================================================================
 void CodeEditorWidget::setupUI()
 {
     m_layout = new QVBoxLayout(this);
@@ -206,6 +238,9 @@ void CodeEditorWidget::setupUI()
     connect(m_findShortcut, &QShortcut::activated, this, &CodeEditorWidget::showFindReplace);
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::openFile
+// ==============================================================================
 void CodeEditorWidget::openFile(const QString &filePath)
 {
     if (filePath.isEmpty())
@@ -281,6 +316,9 @@ CodeEditor *CodeEditorWidget::createTextEditor()
     return textEdit;
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::readFileContent
+// ==============================================================================
 QString CodeEditorWidget::readFileContent(const QString &filePath)
 {
     QFile file(filePath);
@@ -294,6 +332,9 @@ QString CodeEditorWidget::readFileContent(const QString &filePath)
     return stream.readAll();
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::findExistingTab
+// ==============================================================================
 int CodeEditorWidget::findExistingTab(const QString &filePath)
 {
     for (int i = 0; i < m_openFiles.size(); ++i)
@@ -306,11 +347,17 @@ int CodeEditorWidget::findExistingTab(const QString &filePath)
     return -1;
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::onTabCloseRequested
+// ==============================================================================
 void CodeEditorWidget::onTabCloseRequested(int index)
 {
     closeTab(index);
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::closeTab
+// ==============================================================================
 void CodeEditorWidget::closeTab(int index)
 {
     if (index >= 0 && index < m_tabWidget->count())
@@ -324,6 +371,9 @@ void CodeEditorWidget::closeTab(int index)
     updateTabVisibility();
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::closeAllTabs
+// ==============================================================================
 void CodeEditorWidget::closeAllTabs()
 {
     m_tabWidget->clear();
@@ -331,6 +381,9 @@ void CodeEditorWidget::closeAllTabs()
     updateTabVisibility();
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::showFindReplace
+// ==============================================================================
 void CodeEditorWidget::showFindReplace()
 {
     if (m_stackedWidget->currentWidget() == m_tabWidget)
@@ -340,6 +393,9 @@ void CodeEditorWidget::showFindReplace()
     }
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::hideFindReplace
+// ==============================================================================
 void CodeEditorWidget::hideFindReplace()
 {
     m_findReplaceWidget->hide();
@@ -349,6 +405,9 @@ void CodeEditorWidget::hideFindReplace()
     }
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::updateTabVisibility
+// ==============================================================================
 void CodeEditorWidget::updateTabVisibility()
 {
     if (m_tabWidget->count() > 0)
@@ -362,6 +421,9 @@ void CodeEditorWidget::updateTabVisibility()
     }
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::findNext
+// ==============================================================================
 void CodeEditorWidget::findNext()
 {
     CodeEditor *editor = qobject_cast<CodeEditor *>(m_tabWidget->currentWidget());
@@ -407,6 +469,9 @@ void CodeEditorWidget::findNext()
     }
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::findPrev
+// ==============================================================================
 void CodeEditorWidget::findPrev()
 {
     CodeEditor *editor = qobject_cast<CodeEditor *>(m_tabWidget->currentWidget());
@@ -452,6 +517,9 @@ void CodeEditorWidget::findPrev()
     }
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::replaceCurrent
+// ==============================================================================
 void CodeEditorWidget::replaceCurrent()
 {
     CodeEditor *editor = qobject_cast<CodeEditor *>(m_tabWidget->currentWidget());
@@ -466,6 +534,9 @@ void CodeEditorWidget::replaceCurrent()
     findNext();
 }
 
+// ==============================================================================
+// Method: CodeEditorWidget::replaceAll
+// ==============================================================================
 void CodeEditorWidget::replaceAll()
 {
     CodeEditor *editor = qobject_cast<CodeEditor *>(m_tabWidget->currentWidget());
@@ -509,6 +580,10 @@ void CodeEditorWidget::replaceAll()
 }
 
 // Java Syntax Highlighter Implementation
+
+// ==============================================================================
+// Method: JavaSyntaxHighlighter::JavaSyntaxHighlighter
+// ==============================================================================
 JavaSyntaxHighlighter::JavaSyntaxHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
@@ -589,6 +664,9 @@ JavaSyntaxHighlighter::JavaSyntaxHighlighter(QTextDocument *parent)
     xmlCommentFormat.setForeground(QColor(139, 148, 158)); // #8B949E (Gray-Blue)
 }
 
+// ==============================================================================
+// Method: JavaSyntaxHighlighter::highlightBlock
+// ==============================================================================
 void JavaSyntaxHighlighter::highlightBlock(const QString &text)
 {
     foreach (const HighlightingRule &rule, highlightingRules)

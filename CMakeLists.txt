@@ -1,11 +1,64 @@
 cmake_minimum_required(VERSION 3.16)
+
+# ==============================================================================
+#               Copyright 2026 Kritik Agarwal
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#          http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ==============================================================================
+#
+# Garlic GUI
+#
+# A modern Qt6-based graphical front-end for the Garlic Decompiler.
+#
+# The project consists of two major components:
+#   • GUI Layer    (C++17 / Qt6)
+#   • Garlic Core  (C99)
+#
+# The Garlic Core is embedded under `src/garlic` and periodically synchronized
+# with the upstream Garlic repository using `scripts/sync_garlic.py`.
+#
+# ==============================================================================
+#
+# Build Overview
+#
+# Sections:
+#   1. Project Configuration
+#   2. Qt Configuration
+#   3. Garlic Core Configuration
+#   4. Source Collection
+#   5. Build Target
+#   6. Platform Configuration
+#   7. Compiler Configuration
+#   8. Maintenance Targets
+#   9. Installation
+#  10. Packaging
+#
+# ==============================================================================
+# Project Configuration
+# ==============================================================================
 project(GarlicGUI VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 99)
 
-# IMPORTANT: Set these BEFORE find_package(Qt6)
+# ==============================================================================
+# Apple Platform Configuration
+#
+# Configure OpenGL discovery before locating Qt to prevent CMake from linking
+# against deprecated Apple frameworks.
+# ==============================================================================
 if (APPLE)
     # Prevent CMake's FindOpenGL from adding the deprecated AGL framework
     set(OPENGL_agl_LIBRARY "" CACHE STRING "AGL framework is deprecated" FORCE)
@@ -15,7 +68,9 @@ if (APPLE)
 endif ()
 
 
-# Find Qt6
+# ==============================================================================
+# Qt Configuration
+# ==============================================================================
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
 get_target_property(QT_WIDGETS_LINKS Qt6::Widgets INTERFACE_LINK_LIBRARIES)
@@ -27,12 +82,24 @@ message(STATUS "Qt6::Core => ${QT_CORE_LINKS}")
 get_target_property(QT_GUI_LINKS Qt6::Gui INTERFACE_LINK_LIBRARIES)
 message(STATUS "Qt6::Gui => ${QT_GUI_LINKS}")
 
-# Enable Qt MOC
+# ==============================================================================
+# Qt Automatic Code Generation
+#
+# Enable automatic processing of:
+#   • MOC (Meta-Object Compiler)
+#   • UIC (User Interface Compiler)
+#   • RCC (Qt Resource Compiler)
+# ==============================================================================
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-# Garlic C compiler flags (adapted from original Garlic CMakeLists.txt)
+# ==============================================================================
+# Garlic Core Compiler Configuration
+#
+# These flags mirror the upstream Garlic project to ensure identical compiler
+# behavior and optimized performance.
+# ==============================================================================
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-variable -Wno-unused-function -Wno-unused-parameter -Wno-unused-but-set-variable")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration -Wno-incompatible-pointer-types")
@@ -52,10 +119,14 @@ if(NOT WIN32)
 endif ()
 
 if (UNIX)
-    SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -pthread")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -pthread")
 endif ()
 
-# Include directories (matching Garlic's structure)
+# ==============================================================================
+# Garlic Core Include Directories
+#
+# Public include paths required by the embedded Garlic source tree.
+# ==============================================================================
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/garlic)
 include_directories(${CMAKE_SOURCE_DIR}/src/garlic/common)
@@ -71,7 +142,13 @@ include_directories(${CMAKE_SOURCE_DIR}/src/garlic/libs/trie)
 include_directories(${CMAKE_SOURCE_DIR}/src/garlic/jar)
 include_directories(${CMAKE_SOURCE_DIR}/src/garlic/dalvik)
 
-# Garlic source files (matching original structure)
+# ==============================================================================
+# Garlic Core Source Groups
+#
+# Collect all C source files from each Garlic component directory into
+# individual source groups. These groups are later combined into
+# `GARLIC_SOURCES`.
+# ==============================================================================
 aux_source_directory(src/garlic/common COMMON)
 aux_source_directory(src/garlic/libs/list LIST)
 aux_source_directory(src/garlic/libs/hashmap HASHMAP)
@@ -92,7 +169,19 @@ aux_source_directory(src/garlic/apk APK)
 aux_source_directory(src/garlic/dalvik DEX)
 aux_source_directory(src/garlic/libs/trie TRIE)
 
-# Combine all Garlic sources
+# ==============================================================================
+# Garlic Core Source Collection
+#
+# Source Groups:
+#   • Core utilities      : COMMON, MEMORY_POOL, LIST, HASHMAP, BITSET,
+#                           DQUEUE, STR, TRIE
+#   • Decompiler engine   : DECOMPILER, TRANSFORMER
+#   • Binary parsers      : CLASS_PARSER, DEX_PARSER, PE_PARSER
+#   • Runtime support     : JVM, JAR, APK, DEX, ZIP
+#   • Parallel execution  : THREADPOOL
+#
+# These sources form the embedded Garlic decompiler engine.
+# ==============================================================================
 set(GARLIC_SOURCES
     ${COMMON}
     ${MEMORY_POOL}
@@ -115,7 +204,18 @@ set(GARLIC_SOURCES
     ${THREADPOOL}
 )
 
-# GUI sources
+# ==============================================================================
+# Garlic GUI Source Files
+#
+# Source files comprising the Garlic GUI application.
+#
+# This includes:
+#   • Qt widgets and dialogs
+#   • Project management
+#   • Decompiler interface
+#   • The C wrapper bridging Qt and the Garlic core
+#   • Embedded application resources
+# ==============================================================================
 set(GUI_SOURCES
     src/main.cpp
     src/gui/MainWindow.cpp
@@ -139,18 +239,36 @@ set(GUI_SOURCES
     resources.qrc
 )
 
+# ==============================================================================
+# Enable verbose compiler and linker output to simplify debugging of
+# build failures and CI logs.
+# ==============================================================================
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-# Create executable
+# ==============================================================================
+# Build Target
+#
+# Build the Garlic GUI executable by combining:
+#   • Qt frontend
+#   • Embedded Garlic core
+#   • C/C++ bridge layer
+# ==============================================================================
 add_executable(GarlicGUI 
     ${GUI_SOURCES}
     ${GARLIC_SOURCES}
 )
 
-# Link Qt6
+# ==============================================================================
+# Link Required Libraries
+# ==============================================================================
 target_link_libraries(GarlicGUI Qt6::Core Qt6::Widgets)
 
-# Platform specific libraries (matching Garlic's requirements)
+# ==============================================================================
+# Platform-Specific Configuration
+#
+# Configure platform-specific libraries and executable properties for
+# Linux, Windows, and macOS.
+# ==============================================================================
 if (UNIX)
     target_link_libraries(GarlicGUI pthread)
 endif ()
@@ -164,7 +282,13 @@ if (APPLE)
     set_target_properties(GarlicGUI PROPERTIES MACOSX_BUNDLE TRUE)
 endif ()
 
-# Compiler specific settings
+# ==============================================================================
+# Compiler Warning Configuration
+#
+# Configure compiler warnings separately for:
+#   • MSVC
+#   • GCC / Clang
+# ==============================================================================
 if(MSVC)
     target_compile_options(GarlicGUI PRIVATE /W3)
 else()
@@ -177,7 +301,11 @@ else()
     target_compile_options(GarlicGUI PRIVATE $<$<COMPILE_LANGUAGE:C>:-Wextra>)
 endif()
 
-# Strip binary on Unix (like original Garlic)
+# ==============================================================================
+# Post-Build Optimization
+#
+# Strip debug symbols from Release builds on Unix platforms.
+# ==============================================================================
 if (UNIX)
     add_custom_command(
         TARGET GarlicGUI POST_BUILD
@@ -185,20 +313,41 @@ if (UNIX)
     )
 endif()
 
-# Install
+# ==============================================================================
+# Upstream Garlic Synchronization
+#
+# Synchronizes the embedded Garlic source tree by:
+#   • Fetching the latest upstream Garlic repository
+#   • Updating `shell/`
+#   • Updating `src/garlic/`
+#   • Preserving Garlic GUI wrapper files
+#   • Applying Garlic GUI-specific patches
+#
+# This target is intended for project maintenance and should be executed
+# manually whenever the upstream Garlic repository is updated.
+#
+# Usage:
+#   cmake --build build --target sync_garlic
+# ==============================================================================
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+add_custom_target(sync_garlic
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_SOURCE_DIR}/scripts/sync_garlic.py
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Synchronizing Garlic core from upstream..."
+)
+
+# ==============================================================================
+# Installation
+#
+# Install the GarlicGUI executable and, on Windows, deploy the required Qt
+# runtime libraries for redistribution.
+# ==============================================================================
 install(TARGETS GarlicGUI DESTINATION bin)
 
 if(WIN32)
     # Run windeployqt during install step so CPack includes the Qt DLLs
     install(CODE "execute_process(COMMAND windeployqt \"\${CMAKE_INSTALL_PREFIX}/bin/GarlicGUI.exe\")")
 endif()
-
-# CPack configuration
-set(CPACK_PACKAGE_NAME "GarlicGUI")
-set(CPACK_PACKAGE_VENDOR "AgarwalKritik")
-set(CPACK_PACKAGE_VERSION "1.0.0")
-if(WIN32)
-    set(CPACK_GENERATOR "WIX;ZIP")
-    set(CPACK_WIX_UPGRADE_GUID "D981D396-DF46-45EE-B23B-D577CCF82B84")
-endif()
-include(CPack)
+

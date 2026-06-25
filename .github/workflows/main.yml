@@ -151,7 +151,7 @@ jobs:
       - name: Install packaging dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libgl1-mesa-dev dpkg-dev rpm ruby ruby-dev pkg-config
+          sudo apt-get install -y build-essential libgl1-mesa-dev dpkg-dev rpm ruby ruby-dev pkg-config libfuse2
           sudo gem install --no-document fpm
           wget -O appimagetool-x86_64.AppImage "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
           chmod +x appimagetool-x86_64.AppImage
@@ -192,19 +192,46 @@ jobs:
           mkdir -p AppDir/usr/bin
           mkdir -p AppDir/usr/share/applications
           mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
-          cp build/GarlicGUI AppDir/usr/bin/
-          cp icon/garlic.png AppDir/usr/share/icons/hicolor/256x256/apps/garlicgui.png
-          cat > AppDir/usr/share/applications/garlicgui.desktop <<EOF
+
+          # Binary
+          install -Dm755 build/GarlicGUI AppDir/usr/bin/GarlicGUI
+
+          # Icon
+          install -Dm644 icon/garlic.png \
+            AppDir/usr/share/icons/hicolor/256x256/apps/garlicgui.png
+
+          # AppRun
+          cat > AppDir/AppRun <<'EOF'
+          #!/bin/sh
+          HERE="$(dirname "$(readlink -f "$0")")"
+          exec "$HERE/usr/bin/GarlicGUI" "$@"
+          EOF
+          chmod +x AppDir/AppRun
+
+          # Desktop file (REQUIRED AT APPDIR ROOT)
+          cat > AppDir/garlicgui.desktop <<EOF
           [Desktop Entry]
-          Name=Garlic-GUI
+          Type=Application
+          Name=Garlic GUI
           Exec=GarlicGUI
           Icon=garlicgui
           Terminal=false
-          Type=Application
           Categories=Development;
           EOF
+
+          # Optional copy
+          cp AppDir/garlicgui.desktop \
+            AppDir/usr/share/applications/garlicgui.desktop
+
+          echo "===== AppDir ====="
+          find AppDir
+
           export VERSION=${APP_VERSION#v}
-          ./appimagetool-x86_64.AppImage AppDir Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.AppImage
+
+          ./appimagetool-x86_64.AppImage \
+            --verbose \
+            AppDir \
+            Garlic-GUI-${APP_VERSION}-Linux-x64.AppImage
 
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v7
@@ -217,7 +244,7 @@ jobs:
             Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.AppImage
 
   build-macos-intel:
-    runs-on: macos-15
+    runs-on: macos-26-intel
     outputs:
       macos-artifacts: ${{ steps.export.outputs.artifacts }}
     steps:
@@ -254,7 +281,7 @@ jobs:
             Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.app.zip
 
   build-macos:
-    runs-on: macos-15
+    runs-on: macos-26
     outputs:
       macos-artifacts: ${{ steps.export.outputs.artifacts }}
     steps:

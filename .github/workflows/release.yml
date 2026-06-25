@@ -6,52 +6,25 @@ on:
       - 'v*' # Trigger on version tags (e.g., v1.0, v1.0.1)
   workflow_dispatch: # Allow manual triggering
 
-jobs:
-  build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            artifact_name: GarlicGUI-Linux
-          - os: windows-latest
-            artifact_name: GarlicGUI-Windows
-          - os: macos-26
-            artifact_name: GarlicGUI-MacOS
+env:
+  APP_VERSION: ${{ github.ref_name }}
 
+jobs:
+  build-windows:
+    runs-on: windows-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
-
-      - name: Install Qt (Linux/macOS)
-        if: matrix.os != 'windows-latest'
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.7.2'
-          target: 'desktop'
+        uses: actions/checkout@v7
 
       - name: Install Qt (Windows)
-        if: matrix.os == 'windows-latest'
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.9.2'
+          version: '6.11.1'
           target: 'desktop'
           arch: 'win64_mingw'
           tools: 'tools_mingw1310'
 
-      - name: Install Dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libgl1-mesa-dev
-
-      - name: Configure CMake (Linux/macOS)
-        if: matrix.os != 'windows-latest'
-        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
-
       - name: Configure CMake (Windows)
-        if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
             Write-Host "QT_ROOT_DIR: $env:QT_ROOT_DIR"
@@ -78,68 +51,239 @@ jobs:
               -DCMAKE_CXX_COMPILER="$env:CXX" `
               -DCMAKE_MAKE_PROGRAM="$($make.Source)"
 
+      - name: Build
+        run: cmake --build build --clean-first -j4
+
+      - name: Package Windows ZIP
+        shell: pwsh
+        run: |
+          cmake --install build --prefix install_dir
+          Compress-Archive -Path install_dir/bin/* -DestinationPath Garlic-GUI-Windows-${{ env.APP_VERSION }}.zip
+
+      - name: Generate Inno Setup Script
+        shell: bash
+        run: |
+          mkdir -p windows
+          cat > windows/installer.iss << EOL
+          [Setup]
+          AppName=GarlicGUI
+          AppVersion=${APP_VERSION#v}
+          WizardStyle=modern
+          DefaultDirName={autopf}\GarlicGUI
+          DefaultGroupName=GarlicGUI
+          UninstallDisplayIcon={app}\GarlicGUI.exe
+          Compression=lzma2
+          SolidCompression=yes
+          OutputBaseFilename=Garlic-GUI-Windows-installer-${APP_VERSION}
+          OutputDir=Output
+
+          [Files]
+          Source: "..\install_dir\bin\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+
+          [Icons]
+          Name: "{group}\GarlicGUI"; Filename: "{app}\GarlicGUI.exe"
+          Name: "{commondesktop}\GarlicGUI"; Filename: "{app}\GarlicGUI.exe"
+          
+          [Registry]
+          Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Check: NeedsAddPath(ExpandConstant('{app}'))
+
+          [Code]
+          function NeedsAddPath(Param: string): boolean;
+          var
+            OrigPath: string;
+          begin
+            if not RegQueryStringValue(HKEY_LOCAL_MACHINE,
+              'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+              'Path', OrigPath)
+            then begin
+              Result := True;
+              exit;
+            end;
+            Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
+          end;
+          EOL
+
+      - name: Set up Inno Setup
+        run: |
+          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "inno-setup.exe"
+          .\inno-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-
+          $isccPath = Get-ChildItem -Path "C:\Program Files*\Inno Setup*" -Recurse -Filter "iscc.exe" -ErrorAction SilentlyContinue
+          if ($isccPath) {
+              $isccDir = Split-Path -Path $isccPath.FullName -Parent
+              $env:Path += ";$isccDir"
+              Write-Output "Inno Setup is installed at: $isccDir"
+          } else {
+              Write-Output "Inno Setup is not installed."
+          }
+        shell: pwsh
+
+      - name: Create Windows Installer
+        run: |
+          iscc windows/installer.iss
+          Move-Item windows/Output/Garlic-GUI-Windows-installer-${{ env.APP_VERSION }}.exe Garlic-GUI-Windows-installer-${{ env.APP_VERSION }}.exe
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-artifacts
+          path: |
+            Garlic-GUI-Windows-${{ env.APP_VERSION }}.zip
+            Garlic-GUI-Windows-installer-${{ env.APP_VERSION }}.exe
+
+  build-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.11.1'
+          target: 'desktop'
+
+      - name: Install packaging dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libgl1-mesa-dev dpkg-dev rpm ruby ruby-dev
+          sudo gem install --no-document fpm
+          wget -O appimagetool-x86_64.AppImage "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod +x appimagetool-x86_64.AppImage
+          wget -O linuxdeployqt-x86_64.AppImage "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+          chmod +x linuxdeployqt-x86_64.AppImage
+          sudo mv linuxdeployqt-x86_64.AppImage /usr/local/bin/linuxdeployqt
+          sudo mv appimagetool-x86_64.AppImage /usr/local/bin/appimagetool
+
+      - name: Configure CMake
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --clean-first -j4
+
+      - name: Prepare AppDir with linuxdeployqt
+        run: |
+          mkdir -p AppDir/usr/bin
+          mkdir -p AppDir/usr/share/applications
+          mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+          cp build/GarlicGUI AppDir/usr/bin/
+          cp icon/garlic.png AppDir/usr/share/icons/hicolor/256x256/apps/garlicgui.png
+          cat > AppDir/usr/share/applications/garlicgui.desktop <<EOF
+          [Desktop Entry]
+          Name=GarlicGUI
+          Exec=GarlicGUI
+          Icon=garlicgui
+          Terminal=false
+          Type=Application
+          Categories=Development;
+          EOF
+          export VERSION=${APP_VERSION#v}
+          linuxdeployqt AppDir/usr/share/applications/garlicgui.desktop -appimage -executable=AppDir/usr/bin/GarlicGUI -unsupported-allow-new-glibc
+          mv GarlicGUI-*.AppImage Garlic-GUI-Linux-${{ env.APP_VERSION }}.AppImage
+
+      - name: Package tar.gz
+        run: |
+          tar -czvf Garlic-GUI-Linux-${{ env.APP_VERSION }}.tar.gz AppDir
+
+      - name: Package DEB and RPM via FPM
+        run: |
+          mkdir -p dist/linux/opt/garlicgui
+          mkdir -p dist/linux/usr/share/applications
+          mkdir -p dist/linux/usr/local/bin
+          cp -r AppDir/* dist/linux/opt/garlicgui/
+          ln -s /opt/garlicgui/usr/bin/GarlicGUI dist/linux/usr/local/bin/garlicgui
+          cp AppDir/usr/share/applications/garlicgui.desktop dist/linux/usr/share/applications/
+          fpm -s dir -t deb -n garlicgui -v ${APP_VERSION#v} -C dist/linux .
+          fpm -s dir -t rpm -n garlicgui -v ${APP_VERSION#v} -C dist/linux .
+          mv garlicgui_*.deb Garlic-GUI-Linux-${{ env.APP_VERSION }}.deb
+          mv garlicgui-*.rpm Garlic-GUI-Linux-${{ env.APP_VERSION }}.rpm
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux-artifacts
+          path: |
+            Garlic-GUI-Linux-${{ env.APP_VERSION }}.deb
+            Garlic-GUI-Linux-${{ env.APP_VERSION }}.rpm
+            Garlic-GUI-Linux-${{ env.APP_VERSION }}.tar.gz
+            Garlic-GUI-Linux-${{ env.APP_VERSION }}.AppImage
+
+  build-macos:
+    runs-on: macos-26
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.11.1'
+          target: 'desktop'
+
+      - name: Configure CMake
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
 
       - name: Fix AGL framework bug on macOS
-        if: matrix.os == 'macos-26'
         run: find build -name "link.txt" -exec sed -i '' 's/-framework AGL//g' {} +
 
       - name: Build
         run: cmake --build build --clean-first -j4
 
-      - name: Deploy and Package (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          cd build
-          cpack -C Release
-          Move-Item GarlicGUI-*-win64.zip ..\GarlicGUI-Windows.zip
-          Move-Item GarlicGUI-*-win64.msi ..\GarlicGUI-Windows.msi
-
-      - name: Deploy and Package (macOS)
-        if: matrix.os == 'macos-26'
+      - name: Deploy and Package
         run: |
           macdeployqt build/GarlicGUI.app -dmg
-          mv build/GarlicGUI.dmg GarlicGUI-MacOS.dmg
-
-      - name: Deploy and Package (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          # Package the standalone binary
+          mv build/GarlicGUI.dmg Garlic-GUI-MacOS-${{ env.APP_VERSION }}.dmg
           cd build
-          tar -czvf ../GarlicGUI-Linux.tar.gz GarlicGUI
-          cd ..
+          zip -r ../Garlic-GUI-MacOS-${{ env.APP_VERSION }}.app.zip GarlicGUI.app
 
-      - name: Upload Artifact
+      - name: Upload MacOS Artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.artifact_name }}
+          name: macos-artifacts
           path: |
-            GarlicGUI-Windows.zip
-            GarlicGUI-Windows.msi
-            GarlicGUI-MacOS.dmg
-            GarlicGUI-Linux.tar.gz
-          if-no-files-found: ignore
+            Garlic-GUI-MacOS-${{ env.APP_VERSION }}.dmg
+            Garlic-GUI-MacOS-${{ env.APP_VERSION }}.app.zip
 
   release:
     name: Publish Release
-    needs: build
+    needs: [build-windows, build-linux, build-macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - name: Download Artifacts
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Download Windows Artifacts
         uses: actions/download-artifact@v8
         with:
-          path: artifacts
+          name: windows-artifacts
+          path: artifacts/
+
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: linux-artifacts
+          path: artifacts/
+
+      - name: Download MacOS Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: macos-artifacts
+          path: artifacts/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           files: |
-            artifacts/GarlicGUI-Windows/GarlicGUI-Windows.zip
-            artifacts/GarlicGUI-Windows/GarlicGUI-Windows.msi
-            artifacts/GarlicGUI-MacOS/GarlicGUI-MacOS.dmg
-            artifacts/GarlicGUI-Linux/GarlicGUI-Linux.tar.gz
+            artifacts/Garlic-GUI-Windows-${{ env.APP_VERSION }}.zip
+            artifacts/Garlic-GUI-Windows-installer-${{ env.APP_VERSION }}.exe
+            artifacts/Garlic-GUI-Linux-${{ env.APP_VERSION }}.deb
+            artifacts/Garlic-GUI-Linux-${{ env.APP_VERSION }}.rpm
+            artifacts/Garlic-GUI-Linux-${{ env.APP_VERSION }}.tar.gz
+            artifacts/Garlic-GUI-Linux-${{ env.APP_VERSION }}.AppImage
+            artifacts/Garlic-GUI-MacOS-${{ env.APP_VERSION }}.dmg
+            artifacts/Garlic-GUI-MacOS-${{ env.APP_VERSION }}.app.zip
           draft: false
           prerelease: false
         env:

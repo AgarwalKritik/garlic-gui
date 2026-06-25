@@ -19,7 +19,7 @@ Follow these detailed instructions to compile and build GarlicGUI natively on yo
 ## Prerequisites
 
 - **CMake** (`v3.16` or newer): Used to configure the cross-platform build environment.
-- **Qt6** (`v6.8.7` or newer): Required for compiling the modern GUI components.
+- **Qt6** (`v6.9.2` or newer): Required for compiling the modern GUI components.
 - **C/C++ Compiler** (GCC, Clang, or MinGW): Must support the `C++17` & `C99` standard or newer. *(Note: On Windows, MinGW is highly preferred over MSVC for compatibility).*
 
 ---
@@ -124,7 +124,7 @@ cmake --build build -j4
 If you want to package your freshly built binary into a professional `.exe` system installer (complete with Desktop shortcuts and PATH integration):
 
 1. **Download Inno Setup**: Download and install Inno Setup from [jrsoftware.org](https://jrsoftware.org/isdl.php).
-2. **Add to PATH**: Ensure `iscc.exe` is in your system's `PATH`. It is usually located at `C:\Program Files (x86)\Inno Setup 6\`.
+2. **Add to PATH**: Ensure `iscc.exe` is in your system's `PATH`. It is usually located at `C:\Program Files\Inno Setup 6\`.
 3. **Compile the Installer**: Run the following commands in the root of the repository:
 
 ```powershell
@@ -135,7 +135,7 @@ cmake --install build --prefix install_dir
 iscc windows/installer.iss
 ```
 
-Your fully packaged installer will be generated in `windows/Output/Garlic-GUI-Windows-installer.exe`!
+Your fully packaged installer will be generated in `windows/Output/Garlic-GUI-Windows-installer-*.exe`!
 
 ---
 

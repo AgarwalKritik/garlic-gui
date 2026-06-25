@@ -1,27 +1,39 @@
-//  Copyright 2026 Kritik Agarwal
+// ==============================================================================
+//               Copyright 2026 Kritik Agarwal
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//          http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
-
+// ==============================================================================
+//
+// File: FindReplaceWidget.cpp
+// Description: Implementation of the Find/Replace dock.
+//
+// ==============================================================================
 #include "FindReplaceWidget.h"
 #include <QLabel>
 #include <QToolButton>
 
+// ==============================================================================
+// Method: FindReplaceWidget::FindReplaceWidget
+// ==============================================================================
 FindReplaceWidget::FindReplaceWidget(QWidget *parent) : QWidget(parent)
 {
     setupUI();
 }
 
+// ==============================================================================
+// Method: FindReplaceWidget::setupUI
+// ==============================================================================
 void FindReplaceWidget::setupUI()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
@@ -85,9 +97,32 @@ void FindReplaceWidget::setupUI()
     connect(m_replaceInput, &QLineEdit::returnPressed, this, &FindReplaceWidget::replaceRequested);
 }
 
+// ==============================================================================
+// Method: FindReplaceWidget::getFindText
+// ==============================================================================
 QString FindReplaceWidget::getFindText() const { return m_findInput->text(); }
+
+// ==============================================================================
+// Method: FindReplaceWidget::getReplaceText
+// ==============================================================================
 QString FindReplaceWidget::getReplaceText() const { return m_replaceInput->text(); }
+
+// ==============================================================================
+// Method: FindReplaceWidget::isRegex
+// ==============================================================================
 bool FindReplaceWidget::isRegex() const { return m_regexCheck->isChecked(); }
+
+// ==============================================================================
+// Method: FindReplaceWidget::isMatchCase
+// ==============================================================================
 bool FindReplaceWidget::isMatchCase() const { return m_matchCaseCheck->isChecked(); }
+
+// ==============================================================================
+// Method: FindReplaceWidget::isWholeWord
+// ==============================================================================
 bool FindReplaceWidget::isWholeWord() const { return m_wholeWordCheck->isChecked(); }
+
+// ==============================================================================
+// Method: FindReplaceWidget::focusFindInput
+// ==============================================================================
 void FindReplaceWidget::focusFindInput() { m_findInput->setFocus(); m_findInput->selectAll(); }

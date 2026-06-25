@@ -1,18 +1,24 @@
-//  Copyright 2026 Kritik Agarwal
+// ==============================================================================
+//               Copyright 2026 Kritik Agarwal
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//          http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
-
+// ==============================================================================
+//
+// File: ProjectManager.cpp
+// Description: Handles workspace state, file saving, and project configurations.
+//
+// ==============================================================================
 #include "ProjectManager.h"
 #include <QDir>
 #include <QFile>
@@ -22,11 +28,17 @@
 #include <QDateTime>
 #include <QDebug>
 
+// ==============================================================================
+// Method: ProjectManager::ProjectManager
+// ==============================================================================
 ProjectManager::ProjectManager(QObject *parent)
     : QObject(parent)
 {
 }
 
+// ==============================================================================
+// Method: ProjectManager::saveProject
+// ==============================================================================
 bool ProjectManager::saveProject(const QString &projectPath)
 {
     if (projectPath.isEmpty())
@@ -42,6 +54,9 @@ bool ProjectManager::saveProject(const QString &projectPath)
     return false;
 }
 
+// ==============================================================================
+// Method: ProjectManager::exportProject
+// ==============================================================================
 bool ProjectManager::exportProject(const QString &projectPath, const QString &exportPath)
 {
     if (projectPath.isEmpty() || exportPath.isEmpty())
@@ -60,6 +75,9 @@ bool ProjectManager::exportProject(const QString &projectPath, const QString &ex
     return false;
 }
 
+// ==============================================================================
+// Method: ProjectManager::loadProject
+// ==============================================================================
 bool ProjectManager::loadProject(const QString &projectPath)
 {
     QDir projectDir(projectPath);
@@ -70,6 +88,9 @@ bool ProjectManager::loadProject(const QString &projectPath)
     return true;
 }
 
+// ==============================================================================
+// Method: ProjectManager::copyDirectoryRecursively
+// ==============================================================================
 bool ProjectManager::copyDirectoryRecursively(const QString &sourceDir, const QString &targetDir)
 {
     QDir source(sourceDir);
@@ -117,6 +138,9 @@ bool ProjectManager::copyDirectoryRecursively(const QString &sourceDir, const QS
     return true;
 }
 
+// ==============================================================================
+// Method: ProjectManager::createProjectMetadata
+// ==============================================================================
 bool ProjectManager::createProjectMetadata(const QString &projectPath)
 {
     QJsonObject metadata;

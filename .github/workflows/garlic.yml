@@ -292,7 +292,7 @@ jobs:
       - name: Upload MacOS Artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: macos-artifacts
+          name: macos-intel-artifacts
           path: |
             Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.dmg
             Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.app.zip
@@ -335,7 +335,7 @@ jobs:
             Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
 
   release:
-    needs: [build-windows, build-linux, build-macos-intel, build-macos]
+    needs: [build-windows, build-linux, build-macos, build-macos-intel]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -358,6 +358,12 @@ jobs:
           name: macos-artifacts
           path: artifacts/
 
+      - name: Download MacOS (Intel) Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: macos-intel-artifacts
+          path: artifacts/
+
       - name: List downloaded artifacts
         run: ls -l artifacts/
 
@@ -376,9 +382,9 @@ jobs:
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.rpm
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.tar.gz
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.AppImage
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.dmg
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.app.zip
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.dmg
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
+            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.dmg
+            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.app.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

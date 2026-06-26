@@ -24,7 +24,6 @@
 
 #include <QMainWindow>
 #include <QMenuBar>
-#include <QToolBar>
 #include <QStatusBar>
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -87,7 +86,6 @@ private:
     // UI Components
     // ==============================================================================
     QMenuBar *m_menuBar;
-    QToolBar *m_toolBar;
     QStatusBar *m_statusBar;
     QSplitter *m_centralSplitter;
 

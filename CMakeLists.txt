@@ -71,7 +71,7 @@ endif ()
 # ==============================================================================
 # Qt Configuration
 # ==============================================================================
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 
 get_target_property(QT_WIDGETS_LINKS Qt6::Widgets INTERFACE_LINK_LIBRARIES)
 message(STATUS "Qt6::Widgets => ${QT_WIDGETS_LINKS}")
@@ -100,23 +100,26 @@ set(CMAKE_AUTORCC ON)
 # These flags mirror the upstream Garlic project to ensure identical compiler
 # behavior and optimized performance.
 # ==============================================================================
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden -Wall")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-variable -Wno-unused-function -Wno-unused-parameter -Wno-unused-but-set-variable")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration -Wno-incompatible-pointer-types")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-misleading-indentation -Wno-format")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-sign-compare -Wno-type-limits")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-variable")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-parameter")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-incompatible-pointer-types")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-sign-compare")
 
-if (CMAKE_C_COMPILER_ID MATCHES "GNU")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--gc-sections")
-endif ()
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -Wno-unused-but-set-variable -Wno-misleading-indentation -Wno-type-limits -ffunction-sections -fdata-sections -Wl,--gc-sections")
+endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 
-if(NOT WIN32)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-ignored-optimization-argument")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux"
+   AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flto")
-endif ()
+endif()
 
 if (UNIX)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -pthread")
@@ -245,6 +248,14 @@ set(GUI_SOURCES
 # ==============================================================================
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
+if(APPLE)
+    configure_file(
+        ${CMAKE_SOURCE_DIR}/cmake/Info.plist.in
+        ${CMAKE_BINARY_DIR}/Info.plist
+        @ONLY
+    )
+endif()
+
 # ==============================================================================
 # Build Target
 #
@@ -261,7 +272,7 @@ add_executable(GarlicGUI
 # ==============================================================================
 # Link Required Libraries
 # ==============================================================================
-target_link_libraries(GarlicGUI Qt6::Core Qt6::Widgets)
+target_link_libraries(GarlicGUI Qt6::Core Qt6::Gui Qt6::Widgets)
 
 # ==============================================================================
 # Platform-Specific Configuration
@@ -279,7 +290,23 @@ if (WIN32)
 endif ()
 
 if (APPLE)
-    set_target_properties(GarlicGUI PROPERTIES MACOSX_BUNDLE TRUE)
+    set_target_properties(GarlicGUI PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.agarwalkritik.garlicgui"
+        MACOSX_BUNDLE_BUNDLE_NAME "Garlic Decompiler"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_ICON_FILE "garlic.icns"
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"
+    )
+    # Bundle the .icns icon into the .app Resources directory
+    set(MACOS_ICON "${CMAKE_SOURCE_DIR}/icon/garlic.icns")
+    if (EXISTS "${MACOS_ICON}")
+        target_sources(GarlicGUI PRIVATE "${MACOS_ICON}")
+        set_source_files_properties("${MACOS_ICON}" PROPERTIES
+            MACOSX_PACKAGE_LOCATION "Resources")
+    endif ()
 endif ()
 
 # ==============================================================================
@@ -306,7 +333,9 @@ endif()
 #
 # Strip debug symbols from Release builds on Unix platforms.
 # ==============================================================================
-if (UNIX)
+# Strip debug symbols on Linux only.
+# Excluded on macOS: stripping before code signing invalidates the signature.
+if (UNIX AND NOT APPLE)
     add_custom_command(
         TARGET GarlicGUI POST_BUILD
         COMMAND strip $<TARGET_FILE:GarlicGUI>
@@ -344,10 +373,39 @@ add_custom_target(sync_garlic
 # Install the GarlicGUI executable and, on Windows, deploy the required Qt
 # runtime libraries for redistribution.
 # ==============================================================================
-install(TARGETS GarlicGUI DESTINATION bin)
+# On macOS, use BUNDLE DESTINATION to preserve the full .app bundle structure.
+# On other platforms, install the binary to bin/.
+install(TARGETS GarlicGUI
+    BUNDLE DESTINATION .
+    RUNTIME DESTINATION bin
+)
 
 if(WIN32)
     # Run windeployqt during install step so CPack includes the Qt DLLs
     install(CODE "execute_process(COMMAND windeployqt \"\${CMAKE_INSTALL_PREFIX}/bin/GarlicGUI.exe\")")
 endif()
-
+
+if(APPLE)
+    # Run macdeployqt to embed Qt frameworks and platform plugins into the .app.
+    find_program(
+        MACDEPLOYQT_EXECUTABLE
+        NAMES macdeployqt
+        HINTS
+            "${Qt6_DIR}/../../../bin"
+            "$ENV{QTDIR}/bin"
+            "/opt/homebrew/bin"
+            "/usr/local/bin"
+    )
+    if (MACDEPLOYQT_EXECUTABLE)
+        install(CODE [[
+            execute_process(
+                COMMAND "${MACDEPLOYQT_EXECUTABLE}"
+                        "${CMAKE_INSTALL_PREFIX}/GarlicGUI.app"
+                        -always-overwrite
+            )
+        ]])
+    else()
+        message(WARNING "macdeployqt not found. Qt frameworks will not be bundled automatically. "
+                        "Run macdeployqt manually on the .app after install.")
+    endif()
+endif()

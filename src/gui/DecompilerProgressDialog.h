@@ -25,9 +25,7 @@
 #include <QDialog>
 #include <QProgressBar>
 #include <QLabel>
-#include <QPushButton>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 
 class DecompilerProgressDialog : public QDialog
 {
@@ -46,18 +44,6 @@ public slots:
     void updateProgress(int progress);
     void setStatusText(const QString &text);
 
-private slots:
-    // ==============================================================================
-    // Private Slots
-    // ==============================================================================
-    void onCancelClicked();
-
-signals:
-    // ==============================================================================
-    // Signals
-    // ==============================================================================
-    void cancelled();
-
 private:
     // ==============================================================================
     // Private Members & Methods
@@ -68,7 +54,6 @@ private:
     QLabel *m_titleLabel;
     QLabel *m_statusLabel;
     QProgressBar *m_progressBar;
-    QPushButton *m_cancelButton;
 };
 
 #endif // DECOMPILERPROGRESSDIALOG_H

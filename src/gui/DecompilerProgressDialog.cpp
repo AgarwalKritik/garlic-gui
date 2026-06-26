@@ -90,12 +90,4 @@ void DecompilerProgressDialog::setStatusText(const QString &text)
 {
     m_statusLabel->setText(text);
 }
-
-// ==============================================================================
-// Method: DecompilerProgressDialog::onCancelClicked
-// ==============================================================================
-void DecompilerProgressDialog::onCancelClicked()
-{
-    emit cancelled();
-    reject();
-}
+

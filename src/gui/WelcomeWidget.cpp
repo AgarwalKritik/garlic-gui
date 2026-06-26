@@ -21,6 +21,7 @@
 // ==============================================================================
 #include "WelcomeWidget.h"
 #include <QHBoxLayout>
+#include <QKeySequence>
 
 // ==============================================================================
 // Method: WelcomeWidget::WelcomeWidget
@@ -42,7 +43,16 @@ void WelcomeWidget::setupUI()
     QLabel *logoLabel = new QLabel(this);
     QPixmap logo(":/icon/garlic.png");
     if (!logo.isNull()) {
-        logoLabel->setPixmap(logo.scaled(128, 128, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        // Scale the logo with devicePixelRatio awareness for crisp Retina rendering.
+        int logicalSize = 128;
+        qreal dpr = devicePixelRatioF();
+        QPixmap scaled = logo.scaled(
+            static_cast<int>(logicalSize * dpr),
+            static_cast<int>(logicalSize * dpr),
+            Qt::KeepAspectRatio,
+            Qt::SmoothTransformation);
+        scaled.setDevicePixelRatio(dpr);
+        logoLabel->setPixmap(scaled);
     }
     logoLabel->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(logoLabel);
@@ -61,7 +71,11 @@ void WelcomeWidget::setupUI()
                        "QPushButton:hover { background-color: #3994BC; color: white; } "
                        "QPushButton:pressed { background-color: #2b7a9e; }";
 
-    QPushButton *openFileBtn = new QPushButton("Open File... (Ctrl+O)", this);
+    // Build a platform-native shortcut hint for the button label.
+    // QKeySequence::Open maps to Cmd+O (⌘O) on macOS and Ctrl+O on Windows/Linux.
+    QString shortcutHint = QKeySequence(QKeySequence::Open).toString(QKeySequence::NativeText);
+    QPushButton *openFileBtn = new QPushButton(
+        QString("Open File... (%1)").arg(shortcutHint), this);
     openFileBtn->setCursor(Qt::PointingHandCursor);
     openFileBtn->setStyleSheet(btnStyle);
     connect(openFileBtn, &QPushButton::clicked, this, &WelcomeWidget::openFileRequested);

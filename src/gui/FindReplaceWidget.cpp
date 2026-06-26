@@ -22,6 +22,7 @@
 #include "FindReplaceWidget.h"
 #include <QLabel>
 #include <QToolButton>
+#include <QShortcut>
 
 // ==============================================================================
 // Method: FindReplaceWidget::FindReplaceWidget
@@ -95,6 +96,10 @@ void FindReplaceWidget::setupUI()
     connect(closeBtn, &QPushButton::clicked, this, &FindReplaceWidget::closeRequested);
     connect(m_findInput, &QLineEdit::returnPressed, this, &FindReplaceWidget::findNextRequested);
     connect(m_replaceInput, &QLineEdit::returnPressed, this, &FindReplaceWidget::replaceRequested);
+
+    // Escape key dismisses the Find/Replace panel (universal desktop convention).
+    QShortcut *escapeShortcut = new QShortcut(Qt::Key_Escape, this);
+    connect(escapeShortcut, &QShortcut::activated, this, &FindReplaceWidget::closeRequested);
 }
 
 // ==============================================================================

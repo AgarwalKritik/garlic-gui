@@ -22,25 +22,31 @@
 #include "MainWindow.h"
 #include "FileTreeWidget.h"
 #include "CodeEditorWidget.h"
+#include "WelcomeWidget.h"
 #include "DecompilerInterface.h"
 #include "ProjectManager.h"
 #include "DecompilerProgressDialog.h"
 
-#include <QToolBar>
-#include <QToolButton>
-#include <QIcon>
 #include <QDockWidget>
 #include <QPlainTextEdit>
 #include <QScrollBar>
 
 #include <QApplication>
+#include <QScreen>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QDialog>
+#include <QTextBrowser>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
 #include <QStandardPaths>
 #include <QDir>
 #include <QThread>
-#include <QDir>
 #include <QFileInfo>
+
+#ifdef Q_OS_MACOS
+#include <QWindow>
+#endif
 
 inline void ensureOutputDir(const QString &path)
 {
@@ -91,8 +97,19 @@ MainWindow::~MainWindow()
 // ==============================================================================
 void MainWindow::setupUI()
 {
+#ifdef Q_OS_MACOS
+    // macOS: reduce minimum size to fit 13" MacBook screens (1280×800 logical).
+    // The Dock and menu bar consume ~100px vertically, so 900×600 is safe.
+    setMinimumSize(960, 600);
+    // Size the window to 85% of the available screen area on macOS.
+    QRect available = QGuiApplication::primaryScreen()->availableGeometry();
+    int w = qMin(1400, static_cast<int>(available.width() * 0.90));
+    int h = qMin(900,  static_cast<int>(available.height() * 0.85));
+    resize(w, h);
+#else
     setMinimumSize(1200, 800);
     resize(1400, 900);
+#endif
 
     setupMenuBar();
     setupStatusBar();
@@ -137,7 +154,11 @@ void MainWindow::setupMenuBar()
     m_exitAction->setShortcut(QKeySequence::Quit);
     m_exitAction->setStatusTip("Exit the application");
     connect(m_exitAction, &QAction::triggered, this, &QWidget::close);
+#ifndef Q_OS_MACOS
+    // On macOS, the OS provides Quit (Cmd+Q) in the application menu.
+    // Adding it to the File menu duplicates the action against macOS HIG.
     fileMenu->addAction(m_exitAction);
+#endif
 
     // Edit, View, Go, Run Menus (Placeholders for VS Code aesthetic)
     QMenu *editMenu = m_menuBar->addMenu("&Edit");
@@ -224,6 +245,15 @@ void MainWindow::setupCentralWidget()
     connect(m_codeEditorWidget, &CodeEditorWidget::fileTypeChanged, this, &MainWindow::updateFileType);
     connect(m_codeEditorWidget, &CodeEditorWidget::openFileRequested, m_openAction, &QAction::trigger);
 
+    // Connect the WelcomeWidget "Open File" button to the open action.
+    // Note: WelcomeWidget is created inside CodeEditorWidget; we access it via signal.
+    // The WelcomeWidget's openFileRequested signal is forwarded by CodeEditorWidget.
+    // Direct connection to ensure the open dialog is triggered on all platforms.
+    WelcomeWidget *welcome = m_codeEditorWidget->findChild<WelcomeWidget *>();
+    if (welcome) {
+        connect(welcome, &WelcomeWidget::openFileRequested, m_openAction, &QAction::trigger);
+    }
+
     m_centralSplitter->addWidget(m_fileTreeWidget);
     m_centralSplitter->addWidget(m_codeEditorWidget);
 
@@ -239,7 +269,14 @@ void MainWindow::setupCentralWidget()
 
     m_logTextEdit = new QPlainTextEdit(m_logDock);
     m_logTextEdit->setReadOnly(true);
-    m_logTextEdit->setStyleSheet("QPlainTextEdit { background-color: #1e1e1e; color: #d4d4d4; font-family: Consolas, monospace; }");
+    // Use a platform-appropriate monospace font cascade.
+    // SF Mono / Menlo are native on macOS; Consolas on Windows; DejaVu on Linux.
+    m_logTextEdit->setStyleSheet(
+        "QPlainTextEdit { "
+        "  background-color: #1e1e1e; "
+        "  color: #d4d4d4; "
+        "  font-family: 'SF Mono', Menlo, Monaco, Consolas, 'Courier New', monospace; "
+        "}");
     m_logDock->setWidget(m_logTextEdit);
 
     addDockWidget(Qt::BottomDockWidgetArea, m_logDock);
@@ -250,11 +287,25 @@ void MainWindow::setupCentralWidget()
 // ==============================================================================
 void MainWindow::openFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(
+    QString fileName;
+
+#ifdef Q_OS_MACOS
+    // On macOS Sequoia, the native NSOpenPanel can silently fail without a
+    // proper bundle identifier. Force Qt's own cross-platform dialog instead.
+    fileName = QFileDialog::getOpenFileName(
+        this,
+        "Open Android/Java File",
+        QString(),
+        "Android/Java Files (*.apk *.dex *.jar *.class);;APK Files (*.apk);;DEX Files (*.dex);;JAR Files (*.jar);;Class Files (*.class);;All Files (*)",
+        nullptr,
+        QFileDialog::DontUseNativeDialog);
+#else
+    fileName = QFileDialog::getOpenFileName(
         this,
         "Open Android/Java File",
         QString(),
         "Android/Java Files (*.apk *.dex *.jar *.class);;APK Files (*.apk);;DEX Files (*.dex);;JAR Files (*.jar);;Class Files (*.class);;All Files (*)");
+#endif
 
     if (!fileName.isEmpty())
     {
@@ -292,6 +343,16 @@ void MainWindow::openFile()
         m_progressDialog = new DecompilerProgressDialog(this);
         m_progressDialog->show();
 
+        // Disconnect any existing connections to the previous dialog before
+        // reconnecting — prevents duplicate signal firings on subsequent file opens.
+        disconnect(m_decompiler, &DecompilerInterface::progressUpdated, nullptr, nullptr);
+        disconnect(m_decompiler, &DecompilerInterface::logMessage, nullptr, nullptr);
+
+        // Reconnect to the new dialog and to the persistent log dock.
+        connect(m_decompiler, &DecompilerInterface::progressUpdated,
+                this, &MainWindow::onDecompilationProgress);
+        connect(m_decompiler, &DecompilerInterface::logMessage,
+                this, &MainWindow::appendLogMessage);
         connect(m_decompiler, &DecompilerInterface::progressUpdated,
                 m_progressDialog, &DecompilerProgressDialog::updateProgress);
         connect(m_decompiler, &DecompilerInterface::logMessage,
@@ -321,10 +382,21 @@ void MainWindow::exportProject()
     if (m_currentProject.isEmpty())
         return;
 
-    QString exportDir = QFileDialog::getExistingDirectory(
+    QString exportDir;
+
+#ifdef Q_OS_MACOS
+    // Force non-native dialog on macOS Sequoia for reliability.
+    exportDir = QFileDialog::getExistingDirectory(
+        this,
+        "Export Project To",
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontUseNativeDialog);
+#else
+    exportDir = QFileDialog::getExistingDirectory(
         this,
         "Export Project To",
         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+#endif
 
     if (!exportDir.isEmpty())
     {
@@ -355,32 +427,51 @@ void MainWindow::exportProject()
 void MainWindow::aboutApplication()
 {
 
-// ==============================================================================
-// Method: QMessageBox::about
-// ==============================================================================
-    QMessageBox::about(this, "About Garlic Decompiler GUI",
-                       "<div style='font-family: \"Segoe UI\", -apple-system, sans-serif;'>"
-                       "<h2 style='color: #4da6ff; margin-bottom: 5px; margin-top: 0px;'>Garlic Decompiler GUI</h2>"
-                       "<h4 style='color: #a0a0a0; margin-top: 0px; margin-bottom: 15px;'>Version 1.0</h4>"
-                       "<p style='font-size: 13px; color: #e0e0e0;'>"
-                       "A lightning-fast Android <b>APK / CLASS / JAR / DEX</b> decompiler featuring a modern, responsive interface."
-                       "</p>"
-                       "<hr style='border: none; height: 1px; background-color: #333; margin: 15px 0px;'/>"
-                       "<p style='font-size: 13px; color: #e0e0e0;'>"
-                       "<b style='color: #ffffff;'>Powered By:</b><br/>"
-                       "&nbsp;•&nbsp; <a style='color: #4da6ff; text-decoration: none;' href='https://github.com/neocanable/garlic'>Garlic Decompiler Engine</a> (C)<br/>"
-                       "&nbsp;•&nbsp; <a style='color: #4da6ff; text-decoration: none;' href='https://www.qt.io/'>Qt 6 Framework</a> (C++)"
-                       "</p>"
-                       "<p style='font-size: 13px; color: #e0e0e0;'>"
-                       "<b style='color: #ffffff;'>Acknowledgements:</b><br/>"
-                       "&nbsp;•&nbsp; GUI Concept & Idea by <a style='color: #4da6ff; text-decoration: none;' href='https://lin.ky/abhithemodder'>AbhiTheModder</a>"
-                       "</p>"
-                       "<hr style='border: none; height: 1px; background-color: #333; margin: 15px 0px;'/>"
-                       "<p style='font-size: 12px; color: #888; text-align: center; margin-bottom: 0px;'>"
-                       "Designed and developed with ❤︎ by Kritik Agarwal.<br/>"
-                       "&copy; 2026 <a style='color: #4da6ff; text-decoration: none;' href='https://github.com/AgarwalKritik'>Kritik Agarwal</a>. All rights reserved."
-                       "</p>"
-                       "</div>");
+    // Use a custom QDialog with QTextBrowser so HTML links are clickable.
+    // QMessageBox::about() does not support clickable links on macOS.
+    QDialog *aboutDlg = new QDialog(this);
+    aboutDlg->setWindowTitle("About Garlic Decompiler GUI");
+    aboutDlg->setMinimumSize(480, 320);
+
+    QVBoxLayout *layout = new QVBoxLayout(aboutDlg);
+    layout->setContentsMargins(20, 20, 20, 16);
+
+    QTextBrowser *browser = new QTextBrowser(aboutDlg);
+    browser->setOpenExternalLinks(true);
+    browser->setStyleSheet(
+        "QTextBrowser { background-color: #1e1e1e; color: #e0e0e0; "
+        "border: none; font-family: -apple-system, 'Segoe UI', sans-serif; }");
+    browser->setHtml(
+        "<div style='font-family: -apple-system, \"Segoe UI\", sans-serif;'>"
+        "<h2 style='color: #4da6ff; margin-bottom: 5px; margin-top: 0px;'>Garlic Decompiler GUI</h2>"
+        "<h4 style='color: #a0a0a0; margin-top: 0px; margin-bottom: 15px;'>Version 1.0</h4>"
+        "<p style='font-size: 13px; color: #e0e0e0;'>"
+        "A lightning-fast Android <b>APK / CLASS / JAR / DEX</b> decompiler featuring a modern, responsive interface."
+        "</p>"
+        "<hr style='border: none; height: 1px; background-color: #333; margin: 15px 0px;'/>"
+        "<p style='font-size: 13px; color: #e0e0e0;'>"
+        "<b style='color: #ffffff;'>Powered By:</b><br/>"
+        "&nbsp;&bull;&nbsp; <a style='color: #4da6ff;' href='https://github.com/neocanable/garlic'>Garlic Decompiler Engine</a> (C)<br/>"
+        "&nbsp;&bull;&nbsp; <a style='color: #4da6ff;' href='https://www.qt.io/'>Qt 6 Framework</a> (C++)"
+        "</p>"
+        "<p style='font-size: 13px; color: #e0e0e0;'>"
+        "<b style='color: #ffffff;'>Acknowledgements:</b><br/>"
+        "&nbsp;&bull;&nbsp; GUI Concept &amp; Idea by <a style='color: #4da6ff;' href='https://lin.ky/abhithemodder'>AbhiTheModder</a>"
+        "</p>"
+        "<hr style='border: none; height: 1px; background-color: #333; margin: 15px 0px;'/>"
+        "<p style='font-size: 12px; color: #888; text-align: center; margin-bottom: 0px;'>"
+        "Designed and developed with ❤︎ by Kritik Agarwal.<br/>"
+        "&copy; 2026 <a style='color: #4da6ff;' href='https://github.com/AgarwalKritik'>Kritik Agarwal</a>. All rights reserved."
+        "</p>"
+        "</div>");
+    layout->addWidget(browser);
+
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok, aboutDlg);
+    connect(buttons, &QDialogButtonBox::accepted, aboutDlg, &QDialog::accept);
+    layout->addWidget(buttons);
+
+    aboutDlg->exec();
+    aboutDlg->deleteLater();
 }
 
 // ==============================================================================
@@ -472,6 +563,13 @@ void MainWindow::updateWindowTitle(const QString &projectPath)
     {
         QFileInfo fileInfo(projectPath);
         title += " - " + fileInfo.fileName();
+
+#ifdef Q_OS_MACOS
+        // Set the macOS proxy icon in the title bar so users can
+        // drag the file from the title bar directly to Finder.
+        if (windowHandle())
+            windowHandle()->setFilePath(projectPath);
+#endif
     }
     setWindowTitle(title);
 }

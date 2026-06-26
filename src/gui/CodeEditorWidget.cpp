@@ -236,6 +236,14 @@ void CodeEditorWidget::setupUI()
 
     m_findShortcut = new QShortcut(QKeySequence("Ctrl+F"), this);
     connect(m_findShortcut, &QShortcut::activated, this, &CodeEditorWidget::showFindReplace);
+
+    // Cmd+W (macOS) / Ctrl+W (Windows/Linux) closes the current editor tab.
+    QShortcut *closeTabShortcut = new QShortcut(QKeySequence::Close, this);
+    connect(closeTabShortcut, &QShortcut::activated, this, [this]() {
+        int idx = m_tabWidget->currentIndex();
+        if (idx >= 0)
+            closeTab(idx);
+    });
 }
 
 // ==============================================================================
@@ -295,12 +303,26 @@ CodeEditor *CodeEditorWidget::createTextEditor()
     CodeEditor *textEdit = new CodeEditor();
     textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
 
-    // Set font
+    // Set font — use a platform-native monospace font for best legibility.
+    // macOS: SF Mono (preferred) → Menlo → Monaco
+    // Windows: Consolas → Courier New
+    // Linux: DejaVu Sans Mono → Liberation Mono
+#if defined(Q_OS_MACOS)
+    QFont font("SF Mono", 12);
+    if (!font.exactMatch()) {
+        font.setFamily("Menlo");
+        if (!font.exactMatch())
+            font.setFamily("Monaco");
+    }
+#elif defined(Q_OS_WIN)
     QFont font("Consolas", 10);
     if (!font.exactMatch())
-    {
         font.setFamily("Courier New");
-    }
+#else
+    QFont font("DejaVu Sans Mono", 10);
+    if (!font.exactMatch())
+        font.setFamily("Liberation Mono");
+#endif
     font.setFixedPitch(true);
     textEdit->setFont(font);
 

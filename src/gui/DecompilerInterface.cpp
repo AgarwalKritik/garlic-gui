@@ -81,7 +81,7 @@ DecompilerInterface::~DecompilerInterface()
 void DecompilerInterface::decompileFile(const QString &inputPath)
 {
     // Validate input file using Garlic's validation
-    if (!garlic_is_valid_file(inputPath.toLocal8Bit().constData()))
+    if (!garlic_is_valid_file(inputPath.toUtf8().constData()))
     {
         emit decompilationFinished(false);
         return;
@@ -190,8 +190,8 @@ void DecompilerInterface::decompileFile(const QString &inputPath)
     QThread *workerThread = QThread::create([self, inputPath, outputDir, threadNum, pipeFds, oldStdout, oldStderr, fdOut, fdErr]() {
         // Call Garlic decompiler
         int result = garlic_decompile_file(
-            inputPath.toLocal8Bit().constData(),
-            outputDir.toLocal8Bit().constData(),
+            inputPath.toUtf8().constData(),
+            outputDir.toUtf8().constData(),
             threadNum
         );
         
@@ -279,6 +279,6 @@ QString DecompilerInterface::createTempOutputDirectory(const QString &inputPath)
 // ==============================================================================
 QString DecompilerInterface::getFileTypeString(const QString &filePath)
 {
-    const char *typeStr = garlic_get_file_type_string(filePath.toLocal8Bit().constData());
+    const char *typeStr = garlic_get_file_type_string(filePath.toUtf8().constData());
     return typeStr ? QString::fromLocal8Bit(typeStr) : QString();
 }

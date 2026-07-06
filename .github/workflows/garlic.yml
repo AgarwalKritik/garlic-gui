@@ -77,58 +77,38 @@ jobs:
   # ============================================================================
   # Standalone (Static Qt6) Windows Build
   #
-  # Produces a single .exe with zero DLL dependencies. The binary includes
-  # the platform plugin compiled in via Q_IMPORT_PLUGIN.
+  # Builds with MSVC + static Qt6 to produce a single .exe with zero DLL
+  # dependencies. The binary includes the platform plugin compiled in via
+  # Q_IMPORT_PLUGIN.
   # ============================================================================
-  build-windows-static:
-    if: false
+  build-windows-standalone:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install Qt (Windows)
+      - name: Install Qt (MSVC static)
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
           target: "desktop"
-          arch: "win64_mingw_static"
-          tools: "tools_mingw1310"
+          arch: "win64_msvc2022_64_static"
 
-      - name: Configure CMake (static)
+      - name: Configure CMake (MSVC static)
         shell: pwsh
         run: |
-            $gcc = Get-Command gcc.exe -ErrorAction Stop
-            $gpp = Get-Command g++.exe -ErrorAction Stop
-            $make = Get-Command mingw32-make.exe -ErrorAction Stop
-
-            $env:CC = $gcc.Source
-            $env:CXX = $gpp.Source
-
-            cmake -B build -S . -G "MinGW Makefiles" `
+            cmake -B build -S . -G "Visual Studio 17 2022" -A x64 `
               -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" `
               -DGARLIC_STATIC_QT=ON `
-              -DCMAKE_BUILD_TYPE=Release `
-              -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition -static -static-libgcc -static-libstdc++" `
-              -DCMAKE_C_COMPILER="$env:CC" `
-              -DCMAKE_CXX_COMPILER="$env:CXX" `
-              -DCMAKE_MAKE_PROGRAM="$($make.Source)"
+              -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build (static)
-        run: cmake --build build --clean-first -j4
+      - name: Build
+        run: cmake --build build --config Release -j4
 
-      - name: Package (standalone)
-        shell: pwsh
-        run: |
-            mkdir standalone
-            cp build/GarlicGUI.exe standalone/
-            cp icon/garlic.png standalone/
-            Compress-Archive -Path standalone/* -DestinationPath Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64-standalone.zip
-
-      - name: Upload Standalone Artifacts
+      - name: Upload Standalone Executable
         uses: actions/upload-artifact@v7
         with:
           name: windows-standalone-artifacts
-          path: Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64-standalone.zip
+          path: build/Release/GarlicGUI.exe
 
   build-linux:
     runs-on: ubuntu-24.04
@@ -331,7 +311,7 @@ jobs:
             Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
 
   release:
-    needs: [build-windows, build-linux, build-macos, build-macos-intel]
+    needs: [build-windows, build-linux, build-macos, build-macos-intel, build-windows-standalone]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -360,6 +340,12 @@ jobs:
           name: macos-intel-artifacts
           path: artifacts/
 
+      - name: Download Windows Standalone Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: windows-standalone-artifacts
+          path: artifacts/
+
       - name: List downloaded artifacts
         run: ls -l artifacts/
 
@@ -381,5 +367,6 @@ jobs:
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.dmg
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.app.zip
+            artifacts/GarlicGUI.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

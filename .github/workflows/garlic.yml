@@ -77,29 +77,36 @@ jobs:
   # ============================================================================
   # Standalone (Static Qt6) Windows Build
   #
-  # Builds with MSVC + static Qt6 to produce a single .exe with zero DLL
-  # dependencies. The binary includes the platform plugin compiled in via
-  # Q_IMPORT_PLUGIN.
+  # Uses vcpkg to install Qt 6 statically (MSVC), producing a single .exe
+  # with zero DLL dependencies. vcpkg handles building Qt from source with
+  # static linkage, with GitHub Actions cache for subsequent runs.
   # ============================================================================
   build-windows-standalone:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install Qt (MSVC static)
-        uses: jurplel/install-qt-action@v4
+      - name: Restore vcpkg cache
+        uses: actions/cache@v4
         with:
-          version: ${{ env.QT_VERSION }}
-          target: "desktop"
-          arch: "win64_msvc2022_64_static"
+          path: C:\vcpkg\installed
+          key: vcpkg-x64-windows-static-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            vcpkg-x64-windows-static-
 
-      - name: Configure CMake (MSVC static)
+      - name: Install Qt (static via vcpkg)
         shell: pwsh
         run: |
-            cmake -B build -S . -G "Visual Studio 17 2022" -A x64 `
-              -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" `
-              -DGARLIC_STATIC_QT=ON `
-              -DCMAKE_BUILD_TYPE=Release
+          vcpkg install qt6[core,gui,widgets,svg]:x64-windows-static --no-print-usage
+
+      - name: Configure CMake
+        shell: pwsh
+        run: |
+          cmake -B build -S . -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+            -DGARLIC_STATIC_QT=ON `
+            -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --config Release -j4

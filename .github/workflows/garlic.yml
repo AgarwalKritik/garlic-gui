@@ -81,6 +81,7 @@ jobs:
   # the platform plugin compiled in via Q_IMPORT_PLUGIN.
   # ============================================================================
   build-windows-static:
+    if: false
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
@@ -330,7 +331,7 @@ jobs:
             Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
 
   release:
-    needs: [build-windows, build-linux, build-macos, build-macos-intel, build-windows-static]
+    needs: [build-windows, build-linux, build-macos, build-macos-intel]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

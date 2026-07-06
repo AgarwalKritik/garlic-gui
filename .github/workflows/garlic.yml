@@ -360,12 +360,6 @@ jobs:
           name: macos-intel-artifacts
           path: artifacts/
 
-      - name: Download Standalone Artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: windows-standalone-artifacts
-          path: artifacts/
-
       - name: List downloaded artifacts
         run: ls -l artifacts/
 
@@ -387,6 +381,5 @@ jobs:
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.dmg
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.app.zip
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64-standalone.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

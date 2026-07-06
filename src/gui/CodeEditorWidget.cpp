@@ -28,7 +28,13 @@
 #include <QMessageBox>
 #include <QFont>
 #include <QPainter>
+#include <QPointer>
 #include <QTextBlock>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
+#include <QEasingCurve>
+#include <QLabel>
+#include <QFontDatabase>
 
 // ==============================================================================
 // CodeEditor Sub-Widget Implementation
@@ -180,6 +186,7 @@ void CodeEditorWidget::setupUI()
     connect(m_welcomeWidget, &WelcomeWidget::openFileRequested, this, &CodeEditorWidget::openFileRequested);
 
     m_tabWidget = new QTabWidget();
+    m_tabWidget->setObjectName("editorTabs");
     m_tabWidget->setTabsClosable(true);
     m_tabWidget->setMovable(true);
     m_tabWidget->setStyleSheet(
@@ -262,6 +269,20 @@ void CodeEditorWidget::openFile(const QString &filePath)
         return;
     }
 
+    // Check file size — warn for files > 50 MB
+    QFileInfo sizeInfo(filePath);
+    if (sizeInfo.size() > 50 * 1024 * 1024)
+    {
+        QMessageBox::StandardButton reply = QMessageBox::warning(
+            this, "Large File",
+            QString("This file is %1 MB. Opening very large files may slow down the application.\n\n"
+                    "Do you want to continue?")
+                .arg(sizeInfo.size() / (1024 * 1024)),
+            QMessageBox::Yes | QMessageBox::No);
+        if (reply != QMessageBox::Yes)
+            return;
+    }
+
     // Read file content
     QString content = readFileContent(filePath);
     if (content.isNull())
@@ -272,7 +293,13 @@ void CodeEditorWidget::openFile(const QString &filePath)
 
     // Create new text editor
     CodeEditor *textEdit = createTextEditor();
-    textEdit->setPlainText(content);
+    try {
+        textEdit->setPlainText(content);
+    } catch (...) {
+        QMessageBox::warning(this, "Error", "Failed to load file content: " + filePath);
+        delete textEdit;
+        return;
+    }
 
     // Add syntax highlighting for Java files
     if (filePath.endsWith(".java", Qt::CaseInsensitive))
@@ -285,14 +312,26 @@ void CodeEditorWidget::openFile(const QString &filePath)
     int tabIndex = m_tabWidget->addTab(textEdit, fileInfo.fileName());
     m_tabWidget->setTabToolTip(tabIndex, filePath);
 
-    connect(textEdit, &CodeEditor::cursorPositionChanged, this, [this, textEdit]()
+    QPointer<CodeEditor> safeEditor(textEdit);
+    connect(textEdit, &CodeEditor::cursorPositionChanged, this, [this, safeEditor]()
             {
-        if (m_tabWidget->currentWidget() == textEdit) {
-            QTextCursor cursor = textEdit->textCursor();
+        if (safeEditor && m_tabWidget->currentWidget() == safeEditor) {
+            QTextCursor cursor = safeEditor->textCursor();
             emit cursorPositionChanged(cursor.blockNumber() + 1, cursor.columnNumber() + 1);
         } });
 
     m_tabWidget->setCurrentIndex(tabIndex);
+
+    // Tab content fade-in (150ms)
+    QGraphicsOpacityEffect *fadeIn = new QGraphicsOpacityEffect(textEdit);
+    textEdit->setGraphicsEffect(fadeIn);
+    fadeIn->setOpacity(0.0);
+    QPropertyAnimation *fadeAnim = new QPropertyAnimation(fadeIn, "opacity", this);
+    fadeAnim->setDuration(150);
+    fadeAnim->setStartValue(0.0);
+    fadeAnim->setEndValue(1.0);
+    fadeAnim->setEasingCurve(QEasingCurve::OutCubic);
+    fadeAnim->start(QAbstractAnimation::DeleteWhenStopped);
 
     m_openFiles.append(filePath);
     updateTabVisibility();
@@ -303,26 +342,9 @@ CodeEditor *CodeEditorWidget::createTextEditor()
     CodeEditor *textEdit = new CodeEditor();
     textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
 
-    // Set font — use a platform-native monospace font for best legibility.
-    // macOS: SF Mono (preferred) → Menlo → Monaco
-    // Windows: Consolas → Courier New
-    // Linux: DejaVu Sans Mono → Liberation Mono
-#if defined(Q_OS_MACOS)
-    QFont font("SF Mono", 12);
-    if (!font.exactMatch()) {
-        font.setFamily("Menlo");
-        if (!font.exactMatch())
-            font.setFamily("Monaco");
-    }
-#elif defined(Q_OS_WIN)
-    QFont font("Consolas", 10);
+    QFont font("JetBrains Mono", 11);
     if (!font.exactMatch())
-        font.setFamily("Courier New");
-#else
-    QFont font("DejaVu Sans Mono", 10);
-    if (!font.exactMatch())
-        font.setFamily("Liberation Mono");
-#endif
+        font.setFamily("Consolas");
     font.setFixedPitch(true);
     textEdit->setFont(font);
 
@@ -349,9 +371,22 @@ QString CodeEditorWidget::readFileContent(const QString &filePath)
         return QString();
     }
 
-    QTextStream stream(&file);
+    QByteArray raw = file.readAll();
+
+    // Try UTF-8 first
+    QTextStream stream(&raw, QIODevice::ReadOnly);
     stream.setEncoding(QStringConverter::Utf8);
-    return stream.readAll();
+    QString content = stream.readAll();
+
+    // If we see replacement characters, fall back to system locale
+    if (content.contains(QChar(0xFFFD)))
+    {
+        QTextStream fallback(&raw, QIODevice::ReadOnly);
+        fallback.setEncoding(QStringConverter::System);
+        content = fallback.readAll();
+    }
+
+    return content;
 }
 
 // ==============================================================================
@@ -384,11 +419,13 @@ void CodeEditorWidget::closeTab(int index)
 {
     if (index >= 0 && index < m_tabWidget->count())
     {
+        QWidget *w = m_tabWidget->widget(index);
         m_tabWidget->removeTab(index);
         if (index < m_openFiles.size())
         {
             m_openFiles.removeAt(index);
         }
+        w->deleteLater();
     }
     updateTabVisibility();
 }
@@ -411,6 +448,14 @@ void CodeEditorWidget::showFindReplace()
     if (m_stackedWidget->currentWidget() == m_tabWidget)
     {
         m_findReplaceWidget->show();
+        m_findReplaceWidget->setMaximumHeight(0);
+        int naturalHeight = m_findReplaceWidget->sizeHint().height();
+        QPropertyAnimation *slideIn = new QPropertyAnimation(m_findReplaceWidget, "maximumHeight", this);
+        slideIn->setDuration(80);
+        slideIn->setStartValue(0);
+        slideIn->setEndValue(naturalHeight);
+        slideIn->setEasingCurve(QEasingCurve::OutQuad);
+        slideIn->start(QAbstractAnimation::DeleteWhenStopped);
         m_findReplaceWidget->focusFindInput();
     }
 }
@@ -420,7 +465,14 @@ void CodeEditorWidget::showFindReplace()
 // ==============================================================================
 void CodeEditorWidget::hideFindReplace()
 {
-    m_findReplaceWidget->hide();
+    QPropertyAnimation *slideOut = new QPropertyAnimation(m_findReplaceWidget, "maximumHeight", this);
+    slideOut->setDuration(80);
+    slideOut->setStartValue(m_findReplaceWidget->height());
+    slideOut->setEndValue(0);
+    slideOut->setEasingCurve(QEasingCurve::InQuad);
+    connect(slideOut, &QPropertyAnimation::finished, m_findReplaceWidget, &QWidget::hide);
+    slideOut->start(QAbstractAnimation::DeleteWhenStopped);
+
     if (CodeEditor *editor = qobject_cast<CodeEditor *>(m_tabWidget->currentWidget()))
     {
         editor->setFocus();
@@ -432,15 +484,43 @@ void CodeEditorWidget::hideFindReplace()
 // ==============================================================================
 void CodeEditorWidget::updateTabVisibility()
 {
+    QWidget *current = m_stackedWidget->currentWidget();
+
     if (m_tabWidget->count() > 0)
     {
-        m_stackedWidget->setCurrentWidget(m_tabWidget);
+        if (current == m_welcomeWidget)
+            crossfade(m_welcomeWidget, m_tabWidget);
+        else
+            m_stackedWidget->setCurrentWidget(m_tabWidget);
     }
     else
     {
         m_stackedWidget->setCurrentWidget(m_welcomeWidget);
         m_findReplaceWidget->hide();
     }
+}
+
+void CodeEditorWidget::crossfade(QWidget *from, QWidget *to)
+{
+    QPixmap snapshot = from->grab();
+
+    QLabel *overlay = new QLabel(m_stackedWidget);
+    overlay->setPixmap(snapshot);
+    overlay->setGeometry(from->geometry());
+    overlay->show();
+    overlay->raise();
+
+    m_stackedWidget->setCurrentWidget(to);
+
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(overlay);
+    overlay->setGraphicsEffect(effect);
+    QPropertyAnimation *anim = new QPropertyAnimation(effect, "opacity", this);
+    anim->setDuration(200);
+    anim->setStartValue(1.0);
+    anim->setEndValue(0.0);
+    anim->setEasingCurve(QEasingCurve::OutCubic);
+    connect(anim, &QPropertyAnimation::finished, overlay, &QLabel::deleteLater);
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 // ==============================================================================
@@ -647,18 +727,19 @@ JavaSyntaxHighlighter::JavaSyntaxHighlighter(QTextDocument *parent)
     rule.format = classFormat;
     highlightingRules.append(rule);
 
-    // Methods
-    QTextCharFormat methodFormat;
-    methodFormat.setForeground(QColor(210, 168, 255)); // #D2A8FF (Purple)
-    rule.pattern = QRegularExpression("\\b[a-z][A-Za-z0-9_]*(?=\\s*\\()");
-    rule.format = methodFormat;
-    highlightingRules.append(rule);
-
     // Fields / Variables
     QTextCharFormat fieldFormat;
     fieldFormat.setForeground(QColor(156, 220, 254)); // #9CDCFE
     rule.pattern = QRegularExpression("\\b[a-z][A-Za-z0-9_]*\\b");
     rule.format = fieldFormat;
+    highlightingRules.append(rule);
+
+    // Methods — after field rule so the more specific pattern (with paren lookahead)
+    // wins for identifiers like `println(`
+    QTextCharFormat methodFormat;
+    methodFormat.setForeground(QColor(210, 168, 255)); // #D2A8FF (Purple)
+    rule.pattern = QRegularExpression("\\b[a-z][A-Za-z0-9_]*(?=\\s*\\()");
+    rule.format = methodFormat;
     highlightingRules.append(rule);
 
     // Numbers
@@ -671,7 +752,7 @@ JavaSyntaxHighlighter::JavaSyntaxHighlighter(QTextDocument *parent)
     // String literals
     QTextCharFormat stringFormat;
     stringFormat.setForeground(QColor(165, 214, 255)); // #A5D6FF (Light Blue)
-    rule.pattern = QRegularExpression("\"[^\"\\\\]*(\\\\.[^\"\\\\]*)*\"");
+    rule.pattern = QRegularExpression("\"(\\\\.|[^\"\\\\])*\"");
     rule.format = stringFormat;
     highlightingRules.append(rule);
 

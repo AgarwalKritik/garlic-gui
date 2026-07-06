@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="kt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7F52FF"></stop>
+      <stop offset="50%" stop-color="#C811E2"></stop>
+      <stop offset="100%" stop-color="#00D4FF"></stop>
+    </linearGradient>
+  </defs>
+
+  <path d="M24 10h56l24 24v84H24z" fill="url(#kt)" rx="16"></path>
+  <path d="M80 10v24h24" fill="#ffffff55"></path>
+
+  <text x="64" y="82" text-anchor="middle" font-family="JetBrains Mono,Inter,sans-serif" font-size="42" font-weight="800" fill="white">Kt</text>
+</svg>

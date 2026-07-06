@@ -118,6 +118,7 @@ public slots:
     void openFile(const QString &filePath);
     void closeTab(int index);
     void closeAllTabs();
+    WelcomeWidget *welcomeWidget() const { return m_welcomeWidget; }
 
 signals:
     // ==============================================================================
@@ -139,6 +140,7 @@ private slots:
     void replaceCurrent();
     void replaceAll();
     void updateTabVisibility();
+    void crossfade(QWidget *from, QWidget *to);
 
 private:
     // ==============================================================================

@@ -1,0 +1,283 @@
+/* ==============================================================================
+ * Garlic GUI — Centralized Theme Stylesheet
+ *
+ * All widget styling is defined here. Widget-specific overrides use
+ * object-name selectors (#widgetName). Global styles apply to all widgets
+ * of a given class.
+ * ============================================================================== */
+
+/* ==============================================================================
+ * Tooltip
+ * ============================================================================== */
+QToolTip {
+    color: #ffffff;
+    background-color: #202122;
+    border: 1px solid #191A1B;
+}
+
+/* ==============================================================================
+ * MainWindow separators
+ * ============================================================================== */
+QMainWindow::separator {
+    background: #333333;
+    width: 1px;
+    height: 1px;
+}
+QMainWindow::separator:hover {
+    background: #3994BC;
+}
+
+/* ==============================================================================
+ * Menu & MenuBar
+ * ============================================================================== */
+QMenu {
+    background-color: #202122;
+    color: #CCCCCC;
+    border: 1px solid #333333;
+}
+QMenu::item {
+    padding: 4px 20px;
+}
+QMenu::item:selected {
+    background-color: #3994BC;
+    color: white;
+}
+QMenuBar {
+    background-color: #3C3C3C;
+    color: #CCCCCC;
+}
+QMenuBar::item {
+    spacing: 3px;
+    padding: 4px 8px;
+    background: transparent;
+    border-radius: 2px;
+}
+QMenuBar::item:selected {
+    background: #505050;
+}
+QMenuBar::item:pressed {
+    background: #505050;
+}
+
+/* ==============================================================================
+ * StatusBar
+ * ============================================================================== */
+QStatusBar {
+    background-color: #121314;
+    color: #858585;
+    border-top: 1px solid #2D2D2D;
+}
+QStatusBar::item {
+    border: none;
+}
+QStatusBar QLabel {
+    padding: 0px 5px;
+    font-size: 12px;
+}
+
+/* ==============================================================================
+ * Splitter
+ * ============================================================================== */
+QSplitter::handle {
+    background-color: #333333;
+}
+QSplitter::handle:horizontal {
+    width: 1px;
+}
+QSplitter::handle:vertical {
+    height: 1px;
+}
+
+/* ==============================================================================
+ * QTabWidget & QTabBar (Editor Tabs)
+ * ============================================================================== */
+#editorTabs QWidget {
+    background-color: #121314;
+}
+#editorTabs::pane {
+    border: none;
+    border-top: 1px solid #191A1B;
+    background-color: #121314;
+}
+#editorTabs::tab-bar {
+    alignment: left;
+}
+#editorTabs QTabBar::tab {
+    background-color: #191A1B;
+    color: #969696;
+    border: none;
+    border-right: 1px solid #121314;
+    padding: 8px 16px;
+}
+#editorTabs QTabBar::tab:selected {
+    background-color: #121314;
+    color: #FFFFFF;
+    border-top: 1px solid #3994BC;
+}
+#editorTabs QTabBar::tab:hover:!selected {
+    background-color: #202122;
+}
+
+/* ==============================================================================
+ * Tree Widget (File Explorer)
+ * ============================================================================== */
+#fileTree {
+    border: none;
+    background-color: #191A1B;
+    color: #CCCCCC;
+}
+#fileTree::item {
+    padding: 3px 0px;
+    border: none;
+}
+#fileTree::item:hover {
+    background-color: #202122;
+}
+#fileTree::item:selected {
+    background-color: #3994BC;
+    color: #FFFFFF;
+}
+
+/* ==============================================================================
+ * Line Edit (Search box, Find/Replace inputs)
+ * ============================================================================== */
+QLineEdit {
+    padding: 4px;
+    border: 1px solid #202122;
+    background-color: #202122;
+    color: #CCCCCC;
+}
+QLineEdit:focus {
+    border: 1px solid #3994BC;
+}
+
+/* ==============================================================================
+ * PlainTextEdit (Log viewer, editors)
+ * ============================================================================== */
+QPlainTextEdit {
+    border: none;
+}
+
+/* ==============================================================================
+ * ProgressBar
+ * ============================================================================== */
+QProgressBar {
+    border: 1px solid #555;
+    border-radius: 3px;
+    text-align: center;
+    background-color: #2b2b2b;
+    color: white;
+}
+QProgressBar::chunk {
+    background-color: #3994BC;
+    border-radius: 2px;
+}
+
+/* ==============================================================================
+ * ScrollBars
+ * ============================================================================== */
+QScrollBar:vertical {
+    background: #161718;
+    width: 8px;
+    margin: 0;
+}
+QScrollBar::handle:vertical {
+    background: #3A3A3A;
+    min-height: 30px;
+    border: none;
+    border-radius: 4px;
+}
+QScrollBar::handle:vertical:hover {
+    background: #505050;
+}
+QScrollBar::handle:vertical:pressed {
+    background: #3994BC;
+}
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QScrollBar:horizontal {
+    background: #161718;
+    height: 8px;
+    margin: 0;
+}
+QScrollBar::handle:horizontal {
+    background: #3A3A3A;
+    min-width: 30px;
+    border: none;
+    border-radius: 4px;
+}
+QScrollBar::handle:horizontal:hover {
+    background: #505050;
+}
+QScrollBar::handle:horizontal:pressed {
+    background: #3994BC;
+}
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    background: none;
+}
+
+/* ==============================================================================
+ * TitleBar
+ * ============================================================================== */
+#titleBar {
+    background-color: #1E1E1E;
+}
+#titleBar QLabel {
+    color: #CCCCCC;
+    font-size: 12px;
+}
+#titleBtnMinimize,
+#titleBtnMaximize,
+#titleBtnClose {
+    border: none;
+    border-radius: 0px;
+    padding: 0px;
+    margin: 0px;
+    min-width: 46px;
+    max-width: 46px;
+    background-color: transparent;
+    color: #CCCCCC;
+    font-size: 12px;
+}
+#titleBtnMinimize:hover,
+#titleBtnMaximize:hover {
+    background-color: #3C3C3C;
+}
+#titleBtnClose:hover {
+    background-color: #E81123;
+    color: white;
+}
+
+/* ==============================================================================
+ * Splash Widget
+ * ============================================================================== */
+#splashContainer {
+    background-color: #1E1E1E;
+    border: 1px solid #333333;
+    border-radius: 8px;
+}
+#splashContainer QProgressBar {
+    background-color: #2b2b2b;
+    border: none;
+    border-radius: 2px;
+}
+#splashContainer QProgressBar::chunk {
+    background-color: #3994BC;
+    border-radius: 2px;
+}
+#splashContainer QLabel {
+    color: #858585;
+    font-size: 12px;
+}

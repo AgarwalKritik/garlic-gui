@@ -26,6 +26,7 @@ jobs:
         with:
           version: ${{ env.QT_VERSION }}
           target: "desktop"
+          # TODO: switch to "win64_mingw_static" once Qt CI provides static builds
           arch: "win64_mingw"
           tools: "tools_mingw1310"
 
@@ -49,6 +50,7 @@ jobs:
 
             cmake -B build -S . -G "MinGW Makefiles" `
               -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" `
+              -DGARLIC_STATIC_QT=OFF `
               -DCMAKE_BUILD_TYPE=Release `
               -DCMAKE_CXX_STANDARD=17 `
               -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition" `
@@ -65,75 +67,67 @@ jobs:
           cmake --install build --prefix install_dir
           Compress-Archive -Path install_dir/bin/* -DestinationPath Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64.zip
 
-      - name: Generate Inno Setup Script
-        shell: bash
-        run: |
-          mkdir -p windows
-          cat > windows/installer.iss << EOL
-          [Setup]
-          AppName=GarlicGUI
-          AppVersion=${APP_VERSION#v}
-          WizardStyle=modern
-          DefaultDirName={autopf}\GarlicGUI
-          DefaultGroupName=GarlicGUI
-          UninstallDisplayIcon={app}\GarlicGUI.exe
-          Compression=lzma2
-          SolidCompression=yes
-          OutputBaseFilename=Garlic-GUI-Windows-installer-${APP_VERSION}
-          OutputDir=Output
-
-          [Files]
-          Source: "..\install_dir\bin\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
-
-          [Icons]
-          Name: "{group}\GarlicGUI"; Filename: "{app}\GarlicGUI.exe"
-          Name: "{commondesktop}\GarlicGUI"; Filename: "{app}\GarlicGUI.exe"
-          
-          [Registry]
-          Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Check: NeedsAddPath(ExpandConstant('{app}'))
-
-          [Code]
-          function NeedsAddPath(Param: string): boolean;
-          var
-            OrigPath: string;
-          begin
-            if not RegQueryStringValue(HKEY_LOCAL_MACHINE,
-              'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
-              'Path', OrigPath)
-            then begin
-              Result := True;
-              exit;
-            end;
-            Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
-          end;
-          EOL
-
-      - name: Set up Inno Setup
-        run: |
-          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "inno-setup.exe"
-          .\inno-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-
-          $isccPath = Get-ChildItem -Path "C:\Program Files*\Inno Setup*" -Recurse -Filter "iscc.exe" -ErrorAction SilentlyContinue
-          if ($isccPath) {
-              $isccDir = Split-Path -Path $isccPath.FullName -Parent
-              $env:Path += ";$isccDir"
-              Write-Output "Inno Setup is installed at: $isccDir"
-          } else {
-              Write-Output "Inno Setup is not installed."
-          }
-        shell: pwsh
-
-      - name: Create Windows Installer
-        run: |
-          iscc windows/installer.iss
-          Move-Item windows/Output/Garlic-GUI-Windows-installer-${{ env.APP_VERSION }}.exe Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64-installer.exe
-
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v7
         with:
           name: windows-artifacts
           path: |
             Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64.zip
-            Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64-installer.exe
+
+  # ============================================================================
+  # Standalone (Static Qt6) Windows Build
+  #
+  # Produces a single .exe with zero DLL dependencies. The binary includes
+  # the platform plugin compiled in via Q_IMPORT_PLUGIN.
+  # ============================================================================
+  build-windows-static:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Qt (Windows)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          target: "desktop"
+          arch: "win64_mingw_static"
+          tools: "tools_mingw1310"
+
+      - name: Configure CMake (static)
+        shell: pwsh
+        run: |
+            $gcc = Get-Command gcc.exe -ErrorAction Stop
+            $gpp = Get-Command g++.exe -ErrorAction Stop
+            $make = Get-Command mingw32-make.exe -ErrorAction Stop
+
+            $env:CC = $gcc.Source
+            $env:CXX = $gpp.Source
+
+            cmake -B build -S . -G "MinGW Makefiles" `
+              -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" `
+              -DGARLIC_STATIC_QT=ON `
+              -DCMAKE_BUILD_TYPE=Release `
+              -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition -static -static-libgcc -static-libstdc++" `
+              -DCMAKE_C_COMPILER="$env:CC" `
+              -DCMAKE_CXX_COMPILER="$env:CXX" `
+              -DCMAKE_MAKE_PROGRAM="$($make.Source)"
+
+      - name: Build (static)
+        run: cmake --build build --clean-first -j4
+
+      - name: Package (standalone)
+        shell: pwsh
+        run: |
+            mkdir standalone
+            cp build/GarlicGUI.exe standalone/
+            cp icon/garlic.png standalone/
+            Compress-Archive -Path standalone/* -DestinationPath Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64-standalone.zip
+
+      - name: Upload Standalone Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-standalone-artifacts
+          path: Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64-standalone.zip
 
   build-linux:
     runs-on: ubuntu-24.04
@@ -157,24 +151,23 @@ jobs:
           chmod +x appimagetool-x86_64.AppImage
 
       - name: Configure CMake
-        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+        # TODO: switch to -DGARLIC_STATIC_QT=ON + static Qt install
+        run: cmake -B build -S . -DGARLIC_STATIC_QT=OFF -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --clean-first -j4
 
       - name: Package tar.gz
         run: |
-          mkdir -p tarball
-          cp -r build/* tarball/
-          tar -czvf Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.tar.gz -C tarball .
+          cmake --install build --prefix install_dir
+          tar -czvf Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.tar.gz -C install_dir .
 
       - name: Package DEB and RPM via FPM
         run: |
-          mkdir -p dist/linux/opt/garlicgui
+          cmake --install build --prefix dist/linux/opt/garlicgui
           mkdir -p dist/linux/usr/share/applications
           mkdir -p dist/linux/usr/local/bin
-          cp -r build/* dist/linux/opt/garlicgui/
-          ln -s /opt/garlicgui/GarlicGUI dist/linux/usr/local/bin/garlicgui
+          ln -s /opt/garlicgui/bin/GarlicGUI dist/linux/usr/local/bin/garlicgui
           cat > dist/linux/usr/share/applications/garlicgui.desktop <<EOF
           [Desktop Entry]
           Name=Garlic-GUI
@@ -274,7 +267,8 @@ jobs:
           target: "desktop"
 
       - name: Configure CMake
-        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+        # TODO: switch to -DGARLIC_STATIC_QT=ON + static Qt install
+        run: cmake -B build -S . -DGARLIC_STATIC_QT=OFF -DCMAKE_BUILD_TYPE=Release
 
       - name: Fix AGL framework bug on macOS
         run: find build -name "link.txt" -exec sed -i '' 's/-framework AGL//g' {} +
@@ -311,7 +305,8 @@ jobs:
           target: "desktop"
 
       - name: Configure CMake
-        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+        # TODO: switch to -DGARLIC_STATIC_QT=ON + static Qt install
+        run: cmake -B build -S . -DGARLIC_STATIC_QT=OFF -DCMAKE_BUILD_TYPE=Release
 
       - name: Fix AGL framework bug on macOS
         run: find build -name "link.txt" -exec sed -i '' 's/-framework AGL//g' {} +
@@ -335,7 +330,7 @@ jobs:
             Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
 
   release:
-    needs: [build-windows, build-linux, build-macos, build-macos-intel]
+    needs: [build-windows, build-linux, build-macos, build-macos-intel, build-windows-static]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -364,6 +359,12 @@ jobs:
           name: macos-intel-artifacts
           path: artifacts/
 
+      - name: Download Standalone Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: windows-standalone-artifacts
+          path: artifacts/
+
       - name: List downloaded artifacts
         run: ls -l artifacts/
 
@@ -377,7 +378,6 @@ jobs:
           prerelease: false
           files: |
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64.zip
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64-installer.exe
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.deb
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.rpm
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.tar.gz
@@ -386,5 +386,6 @@ jobs:
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.dmg
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.app.zip
+            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64-standalone.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

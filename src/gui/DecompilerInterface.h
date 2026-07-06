@@ -25,6 +25,9 @@
 #include <QObject>
 #include <QString>
 #include <QPointer>
+#include <QThread>
+#include <QTimer>
+#include <QElapsedTimer>
 
 class DecompilerInterface : public QObject
 {
@@ -58,8 +61,15 @@ private:
     // Private Members & Methods
     // ==============================================================================
     QString createTempOutputDirectory(const QString &inputPath);
+    void startWatchdog();
+    void stopWatchdog();
 
     QString m_currentOutputDir;
+    bool m_isDecompiling = false;
+    QThread *m_readerThread = nullptr;
+    QThread *m_workerThread = nullptr;
+    QTimer *m_watchdog = nullptr;
+    QElapsedTimer m_lastProgress;
 
     static DecompilerInterface *s_instance;
 };

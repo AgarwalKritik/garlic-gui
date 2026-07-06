@@ -27,28 +27,24 @@
 #include <QVBoxLayout>
 #include <QPixmap>
 #include <QPushButton>
+#include <QPropertyAnimation>
+#include <QGraphicsOpacityEffect>
 
 class WelcomeWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    // ==============================================================================
-    // Public Interface
-    // ==============================================================================
     explicit WelcomeWidget(QWidget *parent = nullptr);
 
 signals:
-    // ==============================================================================
-    // Signals
-    // ==============================================================================
     void openFileRequested();
 
 private:
-    // ==============================================================================
-    // Private Members & Methods
-    // ==============================================================================
     void setupUI();
+
+    QPropertyAnimation *m_logoAnim = nullptr;
+    QGraphicsOpacityEffect *m_logoEffect = nullptr;
 };
 
 #endif // WELCOMEWIDGET_H

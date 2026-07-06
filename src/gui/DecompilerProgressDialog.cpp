@@ -30,7 +30,8 @@ DecompilerProgressDialog::DecompilerProgressDialog(QWidget *parent)
     setupUI();
     setModal(true);
     setWindowTitle("Decompiling...");
-    setFixedSize(400, 150);
+    setFixedSize(400, 175);
+    setWindowFlags(windowFlags() & ~Qt::WindowCloseButtonHint);
 }
 
 // ==============================================================================
@@ -69,8 +70,13 @@ void DecompilerProgressDialog::setupUI()
         "}");
     m_mainLayout->addWidget(m_progressBar);
 
-    // Cancel button - Removed because Garlic C engine does not support cancellation.
-    // A synchronous blocking call in a background thread cannot be cleanly aborted.
+    // Cancel button intentionally absent — Garlic C engine does not support
+    // cancellation. A synchronous blocking call in a background thread
+    // cannot be cleanly aborted. The close button is also removed.
+    QLabel *noteLabel = new QLabel("Please wait — this operation cannot be canceled.", this);
+    noteLabel->setStyleSheet("QLabel { color: #777; font-size: 11px; font-style: italic; }");
+    noteLabel->setAlignment(Qt::AlignCenter);
+    m_mainLayout->addWidget(noteLabel);
 
     setLayout(m_mainLayout);
 }
@@ -89,5 +95,10 @@ void DecompilerProgressDialog::updateProgress(int progress)
 void DecompilerProgressDialog::setStatusText(const QString &text)
 {
     m_statusLabel->setText(text);
+}
+
+void DecompilerProgressDialog::closeEvent(QCloseEvent *event)
+{
+    event->ignore();
 }
 

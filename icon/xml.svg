@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+
+  <rect x="24" y="10" width="80" height="108" rx="16" fill="#F57C00"></rect>
+
+  <polygon points="80,10 104,34 80,34" fill="#ffffff55"></polygon>
+
+  <text x="64" y="82" text-anchor="middle" font-family="JetBrains Mono,Inter,sans-serif" font-size="26" font-weight="700" fill="white">&lt;/&gt;</text>
+
+</svg>

@@ -56,7 +56,7 @@ void FindReplaceWidget::setupUI()
     
     m_matchCaseCheck = new QCheckBox("Aa", this);
     m_matchCaseCheck->setToolTip("Match Case");
-    m_wholeWordCheck = new QCheckBox("\"\"", this);
+    m_wholeWordCheck = new QCheckBox("ab", this);
     m_wholeWordCheck->setToolTip("Match Whole Word");
     m_regexCheck = new QCheckBox(".*", this);
     m_regexCheck->setToolTip("Use Regular Expression");

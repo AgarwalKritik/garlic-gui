@@ -26,6 +26,7 @@
 #include <QProgressBar>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QCloseEvent>
 
 class DecompilerProgressDialog : public QDialog
 {
@@ -36,6 +37,9 @@ public:
     // Public Interface
     // ==============================================================================
     explicit DecompilerProgressDialog(QWidget *parent = nullptr);
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 public slots:
     // ==============================================================================

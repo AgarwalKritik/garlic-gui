@@ -1,5 +1,19 @@
 <RCC>
   <qresource prefix="/">
+    <file>icon/app.png</file>
     <file>icon/garlic.png</file>
+    <file>icon/splash.png</file>
+    <file>src/gui/theme.qss</file>
+    <file>fonts/JetBrainsMono-Regular.ttf</file>
+    <file>fonts/JetBrainsMono-Bold.ttf</file>
+    <file>fonts/JetBrainsMono-Italic.ttf</file>
+    <file>fonts/JetBrainsMono-BoldItalic.ttf</file>
+    <file>fonts/JetBrainsMono-Medium.ttf</file>
+    <file>icon/java.svg</file>
+    <file>icon/kt.svg</file>
+    <file>icon/smali.svg</file>
+    <file>icon/xml.svg</file>
+    <file>icon/apk.svg</file>
+    <file>icon/file.svg</file>
   </qresource>
 </RCC>

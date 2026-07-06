@@ -1,24 +1,3 @@
-// ==============================================================================
-//               Copyright 2026 Kritik Agarwal
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//          http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// ==============================================================================
-//
-// File: MainWindow.cpp
-// Description: Implementation of the main application window and global layout.
-//
-// ==============================================================================
 #include "MainWindow.h"
 #include "FileTreeWidget.h"
 #include "CodeEditorWidget.h"
@@ -26,19 +5,23 @@
 #include "DecompilerInterface.h"
 #include "ProjectManager.h"
 #include "DecompilerProgressDialog.h"
+#include "TitleBarWidget.h"
 
-#include <QDockWidget>
-#include <QPlainTextEdit>
-#include <QScrollBar>
+
+#include <QTimer>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
 
 #include <QApplication>
 #include <QScreen>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDialog>
-#include <QTextBrowser>
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QFrame>
+#include <QPushButton>
 #include <QStandardPaths>
 #include <QDir>
 #include <QThread>
@@ -47,6 +30,30 @@
 #ifdef Q_OS_MACOS
 #include <QWindow>
 #endif
+
+#ifdef Q_OS_WIN
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif
+#include <windows.h>
+#include <dwmapi.h>
+#endif
+
+static QString sanitizeEngineText(const QString &raw)
+{
+    QString out;
+    out.reserve(raw.size());
+    for (int i = 0; i < raw.size(); ++i) {
+        QChar c = raw[i];
+        if (c == '\033') {
+            while (i < raw.size() && raw[i] != 'm') ++i;
+            continue;
+        }
+        if (c.unicode() >= 0x20 || c == '\n' || c == '\t')
+            out += c;
+    }
+    return out.trimmed();
+}
 
 inline void ensureOutputDir(const QString &path)
 {
@@ -57,19 +64,14 @@ inline void ensureOutputDir(const QString &path)
     }
 }
 
-// ==============================================================================
-// Constructor & Destructor
-// ==============================================================================
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), m_menuBar(nullptr), m_statusBar(nullptr), m_centralSplitter(nullptr), m_fileTreeWidget(nullptr), m_codeEditorWidget(nullptr), m_logDock(nullptr), m_logTextEdit(nullptr), m_decompiler(nullptr), m_projectManager(nullptr), m_statusLabel(nullptr), m_progressBar(nullptr), m_progressDialog(nullptr)
+    : QMainWindow(parent), m_menuBar(nullptr), m_statusBar(nullptr), m_centralSplitter(nullptr), m_fileTreeWidget(nullptr), m_codeEditorWidget(nullptr), m_decompiler(nullptr), m_projectManager(nullptr), m_titleBar(nullptr), m_mainLayout(nullptr), m_centralContainer(nullptr), m_openAction(nullptr), m_saveAction(nullptr), m_exportAction(nullptr), m_exitAction(nullptr), m_aboutAction(nullptr), m_statusLabel(nullptr), m_progressBar(nullptr), m_gitLabel(nullptr), m_cursorPositionLabel(nullptr), m_fileTypeLabel(nullptr),  m_currentProject(), m_currentFile(), m_currentFileType(), m_progressDialog(nullptr), m_clearWorkspaceOnDecompile(true)
 {
     setupUI();
 
-    // Initialize core components
     m_decompiler = new DecompilerInterface(this);
     m_projectManager = new ProjectManager(this);
 
-    // Connect signals
     connect(m_decompiler, &DecompilerInterface::decompilationStarted,
             this, &MainWindow::onDecompilationStarted);
     connect(m_decompiler, &DecompilerInterface::decompilationFinished,
@@ -77,7 +79,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_decompiler, &DecompilerInterface::progressUpdated,
             this, &MainWindow::onDecompilationProgress);
     connect(m_decompiler, &DecompilerInterface::logMessage,
-            this, &MainWindow::appendLogMessage);
+            this, [this](const QString &msg) {
+        int lastB = msg.lastIndexOf('\b');
+        QString last = (lastB >= 0) ? msg.mid(lastB + 1) : msg;
+        QString clean = sanitizeEngineText(last);
+        if (clean.isEmpty())
+            return;
+        if (clean.startsWith("Progress :"))
+            return;
+        setStatusMessage(clean, false);
+    });
 
     connect(m_fileTreeWidget, &FileTreeWidget::fileSelected,
             m_codeEditorWidget, &CodeEditorWidget::openFile);
@@ -85,23 +96,14 @@ MainWindow::MainWindow(QWidget *parent)
     updateWindowTitle();
 }
 
-// ==============================================================================
-// Method: MainWindow::~MainWindow
-// ==============================================================================
 MainWindow::~MainWindow()
 {
 }
 
-// ==============================================================================
-// UI Initialization Methods
-// ==============================================================================
 void MainWindow::setupUI()
 {
 #ifdef Q_OS_MACOS
-    // macOS: reduce minimum size to fit 13" MacBook screens (1280×800 logical).
-    // The Dock and menu bar consume ~100px vertically, so 900×600 is safe.
     setMinimumSize(960, 600);
-    // Size the window to 85% of the available screen area on macOS.
     QRect available = QGuiApplication::primaryScreen()->availableGeometry();
     int w = qMin(1400, static_cast<int>(available.width() * 0.90));
     int h = qMin(900,  static_cast<int>(available.height() * 0.85));
@@ -111,19 +113,56 @@ void MainWindow::setupUI()
     resize(1400, 900);
 #endif
 
+#ifndef Q_OS_MACOS
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+
+# ifdef Q_OS_WIN
+    if (HWND hwnd = (HWND)effectiveWinId()) {
+        const MARGINS m = { 0, 0, 0, 1 };
+        DwmExtendFrameIntoClientArea(hwnd, &m);
+    }
+# endif
+#endif
+
+    m_centralContainer = new QWidget(this);
+    m_mainLayout = new QVBoxLayout(m_centralContainer);
+    m_mainLayout->setContentsMargins(0, 0, 0, 0);
+    m_mainLayout->setSpacing(0);
+
+#ifndef Q_OS_MACOS
+    setupTitleBar();
+#endif
+
     setupMenuBar();
     setupStatusBar();
     setupCentralWidget();
+
+    setCentralWidget(m_centralContainer);
 }
 
-// ==============================================================================
-// Method: MainWindow::setupMenuBar
-// ==============================================================================
+void MainWindow::setupTitleBar()
+{
+    m_titleBar = new TitleBarWidget(m_centralContainer);
+    m_mainLayout->addWidget(m_titleBar);
+
+    connect(m_titleBar, &TitleBarWidget::minimizeClicked, this, [this]() {
+        setWindowState(windowState() | Qt::WindowMinimized);
+    });
+    connect(m_titleBar, &TitleBarWidget::maximizeClicked, this, [this]() {
+        if (isMaximized()) showNormal(); else showMaximized();
+    });
+    connect(m_titleBar, &TitleBarWidget::closeClicked, this, &QWidget::close);
+}
+
 void MainWindow::setupMenuBar()
 {
+#ifdef Q_OS_MACOS
     m_menuBar = menuBar();
+#else
+    m_menuBar = new QMenuBar(m_centralContainer);
+    m_mainLayout->addWidget(m_menuBar);
+#endif
 
-    // File Menu
     QMenu *fileMenu = m_menuBar->addMenu("&File");
 
     m_openAction = new QAction("&Open APK/CLASS/JAR/DEX...", this);
@@ -155,12 +194,9 @@ void MainWindow::setupMenuBar()
     m_exitAction->setStatusTip("Exit the application");
     connect(m_exitAction, &QAction::triggered, this, &QWidget::close);
 #ifndef Q_OS_MACOS
-    // On macOS, the OS provides Quit (Cmd+Q) in the application menu.
-    // Adding it to the File menu duplicates the action against macOS HIG.
     fileMenu->addAction(m_exitAction);
 #endif
 
-    // Edit, View, Go, Run Menus (Placeholders for VS Code aesthetic)
     QMenu *editMenu = m_menuBar->addMenu("&Edit");
     editMenu->addAction("Undo");
     editMenu->addAction("Redo");
@@ -177,42 +213,22 @@ void MainWindow::setupMenuBar()
     helpMenu->addAction(m_aboutAction);
 }
 
-// ==============================================================================
-// Method: MainWindow::setupStatusBar
-// ==============================================================================
 void MainWindow::setupStatusBar()
 {
     m_statusBar = statusBar();
-    m_statusBar->setStyleSheet(
-        "QStatusBar { "
-        "  background-color: #121314; "
-        "  color: #858585; "
-        "  border-top: 1px solid #2D2D2D; "
-        "} "
-        "QStatusBar::item { "
-        "  border: none; "
-        "} "
-        "QLabel { "
-        "  padding: 0px 5px; "
-        "  font-size: 12px; "
-        "}");
 
-    // Left Side
     m_gitLabel = new QLabel(" Garlic-GUI ");
     m_statusBar->addWidget(m_gitLabel);
 
     m_statusLabel = new QLabel("Ready");
     m_statusBar->addWidget(m_statusLabel, 1);
+    setStatusMessage("Ready", true);
 
     m_progressBar = new QProgressBar();
     m_progressBar->setVisible(false);
     m_progressBar->setMaximumWidth(150);
-    m_progressBar->setStyleSheet(
-        "QProgressBar { background-color: #1E1E1E; border: 1px solid #333333; color: white; text-align: center; } "
-        "QProgressBar::chunk { background-color: #3994BC; }");
     m_statusBar->addWidget(m_progressBar);
 
-    // Right Side
     m_cursorPositionLabel = new QLabel("Ln 1, Col 1");
     m_statusBar->addPermanentWidget(m_cursorPositionLabel);
 
@@ -220,92 +236,40 @@ void MainWindow::setupStatusBar()
     m_statusBar->addPermanentWidget(m_fileTypeLabel);
 }
 
-// ==============================================================================
-// Method: MainWindow::setupCentralWidget
-// ==============================================================================
 void MainWindow::setupCentralWidget()
 {
     m_centralSplitter = new QSplitter(Qt::Horizontal, this);
-    m_centralSplitter->setStyleSheet(
-        "QSplitter::handle { "
-        "  background-color: #333333; "
-        "} "
-        "QSplitter::handle:horizontal { "
-        "  width: 1px; "
-        "}");
 
-    // Create file tree widget
     m_fileTreeWidget = new FileTreeWidget(this);
     m_fileTreeWidget->setMinimumWidth(250);
     m_fileTreeWidget->setMaximumWidth(400);
 
-    // Create code editor widget
     m_codeEditorWidget = new CodeEditorWidget(this);
     connect(m_codeEditorWidget, &CodeEditorWidget::cursorPositionChanged, this, &MainWindow::updateCursorPosition);
     connect(m_codeEditorWidget, &CodeEditorWidget::fileTypeChanged, this, &MainWindow::updateFileType);
     connect(m_codeEditorWidget, &CodeEditorWidget::openFileRequested, m_openAction, &QAction::trigger);
 
-    // Connect the WelcomeWidget "Open File" button to the open action.
-    // Note: WelcomeWidget is created inside CodeEditorWidget; we access it via signal.
-    // The WelcomeWidget's openFileRequested signal is forwarded by CodeEditorWidget.
-    // Direct connection to ensure the open dialog is triggered on all platforms.
-    WelcomeWidget *welcome = m_codeEditorWidget->findChild<WelcomeWidget *>();
-    if (welcome) {
-        connect(welcome, &WelcomeWidget::openFileRequested, m_openAction, &QAction::trigger);
-    }
+    WelcomeWidget *welcome = m_codeEditorWidget->welcomeWidget();
+    connect(welcome, &WelcomeWidget::openFileRequested, m_openAction, &QAction::trigger);
 
     m_centralSplitter->addWidget(m_fileTreeWidget);
     m_centralSplitter->addWidget(m_codeEditorWidget);
 
-    // Set splitter ratios
     m_centralSplitter->setStretchFactor(0, 0);
     m_centralSplitter->setStretchFactor(1, 1);
 
-    setCentralWidget(m_centralSplitter);
-
-    // Setup Log Dock
-    m_logDock = new QDockWidget("Output Log", this);
-    m_logDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
-
-    m_logTextEdit = new QPlainTextEdit(m_logDock);
-    m_logTextEdit->setReadOnly(true);
-    // Use a platform-appropriate monospace font cascade.
-    // SF Mono / Menlo are native on macOS; Consolas on Windows; DejaVu on Linux.
-    m_logTextEdit->setStyleSheet(
-        "QPlainTextEdit { "
-        "  background-color: #1e1e1e; "
-        "  color: #d4d4d4; "
-        "  font-family: 'SF Mono', Menlo, Monaco, Consolas, 'Courier New', monospace; "
-        "}");
-    m_logDock->setWidget(m_logTextEdit);
-
-    addDockWidget(Qt::BottomDockWidgetArea, m_logDock);
+    m_mainLayout->addWidget(m_centralSplitter, 1);
 }
 
-// ==============================================================================
-// Slots (Action Handlers)
-// ==============================================================================
 void MainWindow::openFile()
 {
     QString fileName;
 
-#ifdef Q_OS_MACOS
-    // On macOS Sequoia, the native NSOpenPanel can silently fail without a
-    // proper bundle identifier. Force Qt's own cross-platform dialog instead.
-    fileName = QFileDialog::getOpenFileName(
-        this,
-        "Open Android/Java File",
-        QString(),
-        "Android/Java Files (*.apk *.dex *.jar *.class);;APK Files (*.apk);;DEX Files (*.dex);;JAR Files (*.jar);;Class Files (*.class);;All Files (*)",
-        nullptr,
-        QFileDialog::DontUseNativeDialog);
-#else
     fileName = QFileDialog::getOpenFileName(
         this,
         "Open Android/Java File",
         QString(),
         "Android/Java Files (*.apk *.dex *.jar *.class);;APK Files (*.apk);;DEX Files (*.dex);;JAR Files (*.jar);;Class Files (*.class);;All Files (*)");
-#endif
 
     if (!fileName.isEmpty())
     {
@@ -343,16 +307,11 @@ void MainWindow::openFile()
         m_progressDialog = new DecompilerProgressDialog(this);
         m_progressDialog->show();
 
-        // Disconnect any existing connections to the previous dialog before
-        // reconnecting — prevents duplicate signal firings on subsequent file opens.
-        disconnect(m_decompiler, &DecompilerInterface::progressUpdated, nullptr, nullptr);
-        disconnect(m_decompiler, &DecompilerInterface::logMessage, nullptr, nullptr);
+        disconnect(m_decompiler, &DecompilerInterface::progressUpdated,
+                   m_progressDialog, &DecompilerProgressDialog::updateProgress);
+        disconnect(m_decompiler, &DecompilerInterface::logMessage,
+                   m_progressDialog, &DecompilerProgressDialog::setStatusText);
 
-        // Reconnect to the new dialog and to the persistent log dock.
-        connect(m_decompiler, &DecompilerInterface::progressUpdated,
-                this, &MainWindow::onDecompilationProgress);
-        connect(m_decompiler, &DecompilerInterface::logMessage,
-                this, &MainWindow::appendLogMessage);
         connect(m_decompiler, &DecompilerInterface::progressUpdated,
                 m_progressDialog, &DecompilerProgressDialog::updateProgress);
         connect(m_decompiler, &DecompilerInterface::logMessage,
@@ -362,9 +321,6 @@ void MainWindow::openFile()
     }
 }
 
-// ==============================================================================
-// Method: MainWindow::saveProject
-// ==============================================================================
 void MainWindow::saveProject()
 {
     if (!m_currentProject.isEmpty())
@@ -374,9 +330,6 @@ void MainWindow::saveProject()
     }
 }
 
-// ==============================================================================
-// Method: MainWindow::exportProject
-// ==============================================================================
 void MainWindow::exportProject()
 {
     if (m_currentProject.isEmpty())
@@ -384,99 +337,137 @@ void MainWindow::exportProject()
 
     QString exportDir;
 
-#ifdef Q_OS_MACOS
-    // Force non-native dialog on macOS Sequoia for reliability.
-    exportDir = QFileDialog::getExistingDirectory(
-        this,
-        "Export Project To",
-        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-        QFileDialog::ShowDirsOnly | QFileDialog::DontUseNativeDialog);
-#else
     exportDir = QFileDialog::getExistingDirectory(
         this,
         "Export Project To",
         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
-#endif
 
     if (!exportDir.isEmpty())
     {
         if (m_projectManager->exportProject(m_currentProject, exportDir))
         {
-
-// ==============================================================================
-// Method: QMessageBox::information
-// ==============================================================================
             QMessageBox::information(this, "Export Complete",
                                      QString("Project exported successfully to:\n%1").arg(exportDir));
         }
         else
         {
-
-// ==============================================================================
-// Method: QMessageBox::warning
-// ==============================================================================
             QMessageBox::warning(this, "Export Failed",
                                  "Failed to export project. Please check the destination directory.");
         }
     }
 }
 
-// ==============================================================================
-// Method: MainWindow::aboutApplication
-// ==============================================================================
 void MainWindow::aboutApplication()
 {
-
-    // Use a custom QDialog with QTextBrowser so HTML links are clickable.
-    // QMessageBox::about() does not support clickable links on macOS.
     QDialog *aboutDlg = new QDialog(this);
     aboutDlg->setWindowTitle("About Garlic Decompiler GUI");
-    aboutDlg->setMinimumSize(480, 320);
+    aboutDlg->setStyleSheet(
+        "QDialog { background-color: #1e1e1e; }"
+        "QLabel { color: #e0e0e0; font-family: -apple-system, 'Segoe UI', sans-serif; }");
 
     QVBoxLayout *layout = new QVBoxLayout(aboutDlg);
-    layout->setContentsMargins(20, 20, 20, 16);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
 
-    QTextBrowser *browser = new QTextBrowser(aboutDlg);
-    browser->setOpenExternalLinks(true);
-    browser->setStyleSheet(
-        "QTextBrowser { background-color: #1e1e1e; color: #e0e0e0; "
-        "border: none; font-family: -apple-system, 'Segoe UI', sans-serif; }");
-    browser->setHtml(
-        "<div style='font-family: -apple-system, \"Segoe UI\", sans-serif;'>"
-        "<h2 style='color: #4da6ff; margin-bottom: 5px; margin-top: 0px;'>Garlic Decompiler GUI</h2>"
-        "<h4 style='color: #a0a0a0; margin-top: 0px; margin-bottom: 15px;'>Version 1.0</h4>"
-        "<p style='font-size: 13px; color: #e0e0e0;'>"
-        "A lightning-fast Android <b>APK / CLASS / JAR / DEX</b> decompiler featuring a modern, responsive interface."
-        "</p>"
-        "<hr style='border: none; height: 1px; background-color: #333; margin: 15px 0px;'/>"
-        "<p style='font-size: 13px; color: #e0e0e0;'>"
-        "<b style='color: #ffffff;'>Powered By:</b><br/>"
-        "&nbsp;&bull;&nbsp; <a style='color: #4da6ff;' href='https://github.com/neocanable/garlic'>Garlic Decompiler Engine</a> (C)<br/>"
-        "&nbsp;&bull;&nbsp; <a style='color: #4da6ff;' href='https://www.qt.io/'>Qt 6 Framework</a> (C++)"
-        "</p>"
-        "<p style='font-size: 13px; color: #e0e0e0;'>"
-        "<b style='color: #ffffff;'>Acknowledgements:</b><br/>"
-        "&nbsp;&bull;&nbsp; GUI Concept &amp; Idea by <a style='color: #4da6ff;' href='https://lin.ky/abhithemodder'>AbhiTheModder</a>"
-        "</p>"
-        "<hr style='border: none; height: 1px; background-color: #333; margin: 15px 0px;'/>"
-        "<p style='font-size: 12px; color: #888; text-align: center; margin-bottom: 0px;'>"
-        "Designed and developed with ❤︎ by Kritik Agarwal.<br/>"
-        "&copy; 2026 <a style='color: #4da6ff;' href='https://github.com/AgarwalKritik'>Kritik Agarwal</a>. All rights reserved."
-        "</p>"
-        "</div>");
-    layout->addWidget(browser);
+    QLabel *logo = new QLabel(aboutDlg);
+    QPixmap pix(":/icon/garlic.png");
+    if (!pix.isNull())
+        logo->setPixmap(pix.scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    logo->setAlignment(Qt::AlignCenter);
+    logo->setStyleSheet("padding-top: 24px; padding-bottom: 8px;");
+    layout->addWidget(logo);
 
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok, aboutDlg);
-    connect(buttons, &QDialogButtonBox::accepted, aboutDlg, &QDialog::accept);
-    layout->addWidget(buttons);
+    QLabel *nameLabel = new QLabel("Garlic Decompiler GUI", aboutDlg);
+    nameLabel->setAlignment(Qt::AlignCenter);
+    nameLabel->setStyleSheet("font-size: 20px; font-weight: bold; color: #4da6ff; padding-bottom: 2px;");
+    layout->addWidget(nameLabel);
 
+    QLabel *versionLabel = new QLabel("Version 1.0", aboutDlg);
+    versionLabel->setAlignment(Qt::AlignCenter);
+    versionLabel->setStyleSheet("font-size: 12px; color: #858585; padding-bottom: 16px;");
+    layout->addWidget(versionLabel);
+
+    QFrame *sep1 = new QFrame(aboutDlg);
+    sep1->setFrameShape(QFrame::HLine);
+    sep1->setStyleSheet("color: #333333; margin: 0 24px;");
+    layout->addWidget(sep1);
+
+    QLabel *descLabel = new QLabel(
+        "A lightning-fast Android APK / CLASS / JAR / DEX\ndecompiler with a modern, responsive interface.", aboutDlg);
+    descLabel->setAlignment(Qt::AlignCenter);
+    descLabel->setStyleSheet("font-size: 12px; color: #b0b0b0; padding: 14px 24px 14px 24px;");
+    layout->addWidget(descLabel);
+
+    QFrame *sep2 = new QFrame(aboutDlg);
+    sep2->setFrameShape(QFrame::HLine);
+    sep2->setStyleSheet("color: #333333; margin: 0 24px;");
+    layout->addWidget(sep2);
+
+    auto makeLink = [](const QString &label, const QString &url) {
+        return QString("<a href='%1' style='color: #4da6ff; text-decoration: none;'>%2</a>").arg(url, label);
+    };
+
+    QLabel *poweredBy = new QLabel(aboutDlg);
+    poweredBy->setTextFormat(Qt::RichText);
+    poweredBy->setText(
+        QString("<b style='color: #ffffff;'>Powered By</b><br>"
+                "&bull; %1 &mdash; C<br>"
+                "&bull; %2 &mdash; C++")
+            .arg(makeLink("Garlic Decompiler Engine", "https://github.com/neocanable/garlic"),
+                 makeLink("Qt 6 Framework", "https://www.qt.io/")));
+    poweredBy->setAlignment(Qt::AlignCenter);
+    poweredBy->setStyleSheet("font-size: 12px; color: #b0b0b0; padding: 12px 24px 4px 24px;");
+    poweredBy->setOpenExternalLinks(true);
+    layout->addWidget(poweredBy);
+
+    QLabel *creditLabel = new QLabel(aboutDlg);
+    creditLabel->setTextFormat(Qt::RichText);
+    creditLabel->setText(
+        QString("<b style='color: #ffffff;'>Acknowledgements</b><br>"
+                "&bull; GUI Concept by %1")
+            .arg(makeLink("AbhiTheModder", "https://lin.ky/abhithemodder")));
+    creditLabel->setAlignment(Qt::AlignCenter);
+    creditLabel->setStyleSheet("font-size: 12px; color: #b0b0b0; padding: 4px 24px 4px 24px;");
+    creditLabel->setOpenExternalLinks(true);
+    layout->addWidget(creditLabel);
+
+    QFrame *sep3 = new QFrame(aboutDlg);
+    sep3->setFrameShape(QFrame::HLine);
+    sep3->setStyleSheet("color: #333333; margin: 12px 24px 0 24px;");
+    layout->addWidget(sep3);
+
+    QLabel *footer = new QLabel(aboutDlg);
+    footer->setTextFormat(Qt::RichText);
+    footer->setText(
+        QString("Designed and developed with ❤ by %1<br>"
+                "&copy; 2026 %2. All rights reserved.<br>"
+                "Source: %3")
+            .arg(makeLink("Kritik Agarwal", "https://github.com/AgarwalKritik"),
+                 makeLink("Kritik Agarwal", "https://github.com/AgarwalKritik"),
+                 makeLink("github.com/AgarwalKritik/garlic-gui", "https://github.com/AgarwalKritik/garlic-gui")));
+    footer->setAlignment(Qt::AlignCenter);
+    footer->setStyleSheet("font-size: 10px; color: #777777; padding: 10px 24px 16px 24px;");
+    footer->setOpenExternalLinks(true);
+    layout->addWidget(footer);
+
+    QHBoxLayout *btnLayout = new QHBoxLayout();
+    btnLayout->setContentsMargins(0, 0, 0, 0);
+    btnLayout->setAlignment(Qt::AlignCenter);
+    QPushButton *okBtn = new QPushButton("OK", aboutDlg);
+    okBtn->setFixedWidth(80);
+    okBtn->setStyleSheet(
+        "QPushButton { background-color: #3994BC; color: white; border: none; "
+        "padding: 6px 20px; border-radius: 4px; font-size: 13px; } "
+        "QPushButton:hover { background-color: #4da6ff; }");
+    connect(okBtn, &QPushButton::clicked, aboutDlg, &QDialog::accept);
+    btnLayout->addWidget(okBtn);
+    layout->addLayout(btnLayout);
+
+    aboutDlg->setFixedSize(aboutDlg->sizeHint());
     aboutDlg->exec();
     aboutDlg->deleteLater();
 }
 
-// ==============================================================================
-// Method: MainWindow::onDecompilationStarted
-// ==============================================================================
 void MainWindow::onDecompilationStarted()
 {
     m_statusLabel->setText(QString("Decompiling %1...").arg(m_currentFileType));
@@ -485,9 +476,6 @@ void MainWindow::onDecompilationStarted()
     m_openAction->setEnabled(false);
 }
 
-// ==============================================================================
-// Method: MainWindow::onDecompilationFinished
-// ==============================================================================
 void MainWindow::onDecompilationFinished(bool success)
 {
     m_progressBar->setVisible(false);
@@ -518,44 +506,28 @@ void MainWindow::onDecompilationFinished(bool success)
     else
     {
         m_statusLabel->setText("Decompilation failed");
-
-// ==============================================================================
-// Method: QMessageBox::warning
-// ==============================================================================
         QMessageBox::warning(this, "Decompilation Error",
                              "Failed to decompile the selected file. Please check if the file is valid.");
     }
 }
 
-// ==============================================================================
-// Method: MainWindow::onDecompilationProgress
-// ==============================================================================
 void MainWindow::onDecompilationProgress(int progress)
 {
     m_progressBar->setValue(progress);
     m_statusLabel->setText(QString("Decompiling %1... %2%").arg(m_currentFileType).arg(progress));
 }
 
-// ==============================================================================
-// Method: MainWindow::updateCursorPosition
-// ==============================================================================
 void MainWindow::updateCursorPosition(int line, int col)
 {
     m_cursorPositionLabel->setText(QString("Ln %1, Col %2").arg(line).arg(col));
 }
 
-// ==============================================================================
-// Method: MainWindow::updateFileType
-// ==============================================================================
 void MainWindow::updateFileType(const QString &type)
 {
     m_fileTypeLabel->setText(type);
     m_currentFileType = type;
 }
 
-// ==============================================================================
-// Method: MainWindow::updateWindowTitle
-// ==============================================================================
 void MainWindow::updateWindowTitle(const QString &projectPath)
 {
     QString title = "Garlic Decompiler";
@@ -565,47 +537,43 @@ void MainWindow::updateWindowTitle(const QString &projectPath)
         title += " - " + fileInfo.fileName();
 
 #ifdef Q_OS_MACOS
-        // Set the macOS proxy icon in the title bar so users can
-        // drag the file from the title bar directly to Finder.
         if (windowHandle())
             windowHandle()->setFilePath(projectPath);
 #endif
     }
+
     setWindowTitle(title);
+    if (m_titleBar)
+        m_titleBar->setTitle(title);
 }
 
-// ==============================================================================
-// Method: MainWindow::appendLogMessage
-// ==============================================================================
-void MainWindow::appendLogMessage(const QString &message)
+void MainWindow::setStatusMessage(const QString &message, bool persistent)
 {
-    if (m_logTextEdit)
+    m_statusLabel->setGraphicsEffect(nullptr);
+    m_statusLabel->setText(message);
+
+    if (!persistent)
     {
-        QTextCursor cursor = m_logTextEdit->textCursor();
-        cursor.beginEditBlock();
-        cursor.movePosition(QTextCursor::End);
-
-        for (int i = 0; i < message.length(); ++i)
-        {
-            QChar c = message[i];
-            if (c == '\b')
+        QTimer::singleShot(5000, this, [this, message]() {
+            if (m_statusLabel && m_statusLabel->text() == message)
             {
-                cursor.deletePreviousChar();
+                QGraphicsOpacityEffect *fade = new QGraphicsOpacityEffect(m_statusLabel);
+                m_statusLabel->setGraphicsEffect(fade);
+                QPropertyAnimation *anim = new QPropertyAnimation(fade, "opacity", this);
+                anim->setDuration(400);
+                anim->setStartValue(1.0);
+                anim->setEndValue(0.4);
+                anim->setEasingCurve(QEasingCurve::OutCubic);
+                connect(anim, &QPropertyAnimation::finished, this, [this]() {
+                    if (m_statusLabel)
+                        m_statusLabel->setGraphicsEffect(nullptr);
+                });
+                anim->start(QAbstractAnimation::DeleteWhenStopped);
             }
-            else if (c == '\r')
-            {
-                cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-                cursor.removeSelectedText();
-            }
-            else
-            {
-                cursor.insertText(QString(c));
-            }
-        }
-
-        cursor.endEditBlock();
-        m_logTextEdit->setTextCursor(cursor);
-        QScrollBar *bar = m_logTextEdit->verticalScrollBar();
-        bar->setValue(bar->maximum());
+        });
     }
 }
+
+
+
+

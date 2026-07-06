@@ -54,6 +54,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 99)
 
 # ==============================================================================
+# Standalone Build (Static Qt6)
+#
+# Enabled by default. Produces a single binary with zero runtime DLL/SO
+# dependencies. Devs can turn it off with -DGARLIC_STATIC_QT=OFF for faster
+# iteration with shared Qt6 DLLs.
+# ==============================================================================
+option(GARLIC_STATIC_QT "Statically link Qt6 for a fully standalone binary" ON)
+
+# ==============================================================================
 # Apple Platform Configuration
 #
 # Configure OpenGL discovery before locating Qt to prevent CMake from linking
@@ -237,16 +246,22 @@ set(GUI_SOURCES
     src/gui/ProjectManager.h
     src/gui/DecompilerProgressDialog.cpp
     src/gui/DecompilerProgressDialog.h
+    src/gui/ThemeManager.cpp
+    src/gui/ThemeManager.h
+    src/gui/TitleBarWidget.cpp
+    src/gui/TitleBarWidget.h
+    src/gui/SplashWidget.cpp
+    src/gui/SplashWidget.h
+    src/gui/theme.qss
     src/garlic/garlic_wrapper.c
     src/garlic/garlic_wrapper.h
     resources.qrc
 )
 
 # ==============================================================================
-# Enable verbose compiler and linker output to simplify debugging of
-# build failures and CI logs.
+# Verbose make is opt-in via -DCMAKE_VERBOSE_MAKEFILE=ON on the command line.
 # ==============================================================================
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 if(APPLE)
     configure_file(
@@ -272,7 +287,44 @@ add_executable(GarlicGUI
 # ==============================================================================
 # Link Required Libraries
 # ==============================================================================
-target_link_libraries(GarlicGUI Qt6::Core Qt6::Gui Qt6::Widgets)
+target_link_libraries(GarlicGUI PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
+
+if(WIN32)
+    target_link_libraries(GarlicGUI PRIVATE dwmapi)
+endif()
+
+# ==============================================================================
+# Static Qt6 Plugin Imports
+#
+# When GARLIC_STATIC_QT is ON, Qt platform plugins must be linked directly
+# and registered via Q_IMPORT_PLUGIN in main.cpp. This produces a single
+# binary with zero DLL/SO runtime dependencies.
+# ==============================================================================
+if(GARLIC_STATIC_QT)
+    set(QT_STATIC ON)
+    add_definitions(-DQT_STATIC)
+
+    if(WIN32)
+        target_link_libraries(GarlicGUI PRIVATE
+            Qt6::QWindowsIntegrationPlugin
+            Qt6::PlatformSupport
+        )
+    elseif(APPLE)
+        target_link_libraries(GarlicGUI PRIVATE
+            Qt6::QCocoaIntegrationPlugin
+        )
+    else()
+        target_link_libraries(GarlicGUI PRIVATE
+            Qt6::QXcbIntegrationPlugin
+            Qt6::PlatformSupport
+            Qt6::GlxSupport
+        )
+    endif()
+
+    message(STATUS "Static Qt6: ON — building standalone binary")
+else()
+    message(STATUS "Static Qt6: OFF — using shared Qt6 libraries")
+endif()
 
 # ==============================================================================
 # Platform-Specific Configuration
@@ -281,11 +333,11 @@ target_link_libraries(GarlicGUI Qt6::Core Qt6::Gui Qt6::Widgets)
 # Linux, Windows, and macOS.
 # ==============================================================================
 if (UNIX)
-    target_link_libraries(GarlicGUI pthread)
+    target_link_libraries(GarlicGUI PRIVATE pthread)
 endif ()
 
 if (WIN32)
-    target_link_libraries(GarlicGUI ws2_32)
+    target_link_libraries(GarlicGUI PRIVATE ws2_32)
     set_target_properties(GarlicGUI PROPERTIES WIN32_EXECUTABLE TRUE)
 endif ()
 
@@ -380,12 +432,12 @@ install(TARGETS GarlicGUI
     RUNTIME DESTINATION bin
 )
 
-if(WIN32)
+if(WIN32 AND NOT GARLIC_STATIC_QT)
     # Run windeployqt during install step so CPack includes the Qt DLLs
     install(CODE "execute_process(COMMAND windeployqt \"\${CMAKE_INSTALL_PREFIX}/bin/GarlicGUI.exe\")")
 endif()
 
-if(APPLE)
+if(APPLE AND NOT GARLIC_STATIC_QT)
     # Run macdeployqt to embed Qt frameworks and platform plugins into the .app.
     find_program(
         MACDEPLOYQT_EXECUTABLE

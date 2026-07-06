@@ -107,6 +107,7 @@ cd garlic-gui
 
 # Configure the build and point CMake to your Qt6 installation
 cmake -B build -S . -DCMAKE_PREFIX_PATH="C:/Qt/6.x.x/mingw_64" -DCMAKE_BUILD_TYPE=Release
+cmake -B build -G Ninja -DCMAKE_CXX_COMPILER="C:/utils/MinGW/mingw64/mingw64/bin/c++.exe" -DCMAKE_PREFIX_PATH="C:/Qt/6.9.2/mingw_64" -DGARLIC_STATIC_QT=OFF -DCMAKE_BUILD_TYPE=Release
 
 # Compile the application
 cmake --build build -j4

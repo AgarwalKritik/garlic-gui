@@ -55,9 +55,11 @@ typedef enum
 // ==============================================================================
 // Progress callback function pointer
 static void (*progress_callback)(int progress) = NULL;
+// `volatile` prevents the compiler from caching the value in a register
+// across the long-running decompile call. An exact memory barrier is
+// unnecessary — stale reads are harmless for UI progress hints.
 static volatile int current_progress = 0;
 
-// Thread-safe progress update
 static void update_progress(int progress)
 {
     current_progress = progress;
@@ -138,8 +140,6 @@ static int decompile_apk_file(const char *input_path, const char *output_path, i
 
     update_progress(30);
 
-    update_progress(30);
-
     // Call Garlic's APK decompilation function
     apk_decompile_analyse((char *)input_path,
                           (char *)output_path,
@@ -160,8 +160,6 @@ static int decompile_dex_file(const char *input_path, const char *output_path, i
 
     update_progress(30);
 
-    update_progress(30);
-
     // Call Garlic's DEX decompilation function
     dex_file_analyse((char *)input_path,
                      (char *)output_path,
@@ -179,8 +177,6 @@ static int decompile_jar_file(const char *input_path, const char *output_path, i
     prepare_output_directory(input_path, output_path);
 
     update_progress(20);
-
-    update_progress(30);
 
     update_progress(30);
 

@@ -57,6 +57,18 @@ void WelcomeWidget::setupUI()
     logoLabel->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(logoLabel);
 
+    m_logoEffect = new QGraphicsOpacityEffect(logoLabel);
+    m_logoEffect->setOpacity(0.85);
+    logoLabel->setGraphicsEffect(m_logoEffect);
+
+    m_logoAnim = new QPropertyAnimation(m_logoEffect, "opacity", this);
+    m_logoAnim->setDuration(2500);
+    m_logoAnim->setStartValue(0.75);
+    m_logoAnim->setEndValue(1.0);
+    m_logoAnim->setEasingCurve(QEasingCurve::SineCurve);
+    m_logoAnim->setLoopCount(-1);
+    m_logoAnim->start();
+
     QLabel *titleLabel = new QLabel("Garlic Decompiler", this);
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("font-size: 28px; font-weight: bold; color: #E0E0E0;");

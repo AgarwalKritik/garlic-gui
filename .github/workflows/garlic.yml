@@ -97,7 +97,7 @@ jobs:
       - name: Install Qt (static via vcpkg)
         shell: pwsh
         run: |
-          vcpkg install qt6[core,gui,widgets,svg]:x64-windows-static --no-print-usage
+          vcpkg install qtbase:x64-windows-static qtsvg:x64-windows-static --no-print-usage
 
       - name: Configure CMake
         shell: pwsh

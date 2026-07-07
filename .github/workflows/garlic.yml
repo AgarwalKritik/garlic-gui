@@ -74,49 +74,6 @@ jobs:
           path: |
             Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64.zip
 
-  # ============================================================================
-  # Standalone (Static Qt6) Windows Build
-  #
-  # Uses vcpkg to install Qt 6 statically (MSVC), producing a single .exe
-  # with zero DLL dependencies. vcpkg handles building Qt from source with
-  # static linkage, with GitHub Actions cache for subsequent runs.
-  # ============================================================================
-  build-windows-standalone:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Restore vcpkg cache
-        uses: actions/cache@v4
-        with:
-          path: C:\vcpkg\installed
-          key: vcpkg-x64-windows-static-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            vcpkg-x64-windows-static-
-
-      - name: Install Qt (static via vcpkg)
-        shell: pwsh
-        run: |
-          vcpkg install qtbase:x64-windows-static qtsvg:x64-windows-static --no-print-usage
-
-      - name: Configure CMake
-        shell: pwsh
-        run: |
-          cmake -B build -S . -G "Visual Studio 17 2022" -A x64 `
-            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake" `
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
-            -DGARLIC_STATIC_QT=ON `
-            -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
-        run: cmake --build build --config Release -j4
-
-      - name: Upload Standalone Executable
-        uses: actions/upload-artifact@v7
-        with:
-          name: windows-standalone-artifacts
-          path: build/Release/GarlicGUI.exe
-
   build-linux:
     runs-on: ubuntu-24.04
     outputs:
@@ -318,7 +275,7 @@ jobs:
             Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
 
   release:
-    needs: [build-windows, build-linux, build-macos, build-macos-intel, build-windows-standalone]
+    needs: [build-windows, build-linux, build-macos, build-macos-intel]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -347,12 +304,6 @@ jobs:
           name: macos-intel-artifacts
           path: artifacts/
 
-      - name: Download Windows Standalone Artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: windows-standalone-artifacts
-          path: artifacts/
-
       - name: List downloaded artifacts
         run: ls -l artifacts/
 
@@ -374,6 +325,5 @@ jobs:
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.dmg
             artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.app.zip
-            artifacts/GarlicGUI.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

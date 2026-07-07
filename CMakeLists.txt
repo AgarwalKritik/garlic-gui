@@ -307,7 +307,6 @@ if(GARLIC_STATIC_QT)
     if(WIN32)
         target_link_libraries(GarlicGUI PRIVATE
             Qt6::QWindowsIntegrationPlugin
-            Qt6::PlatformSupport
         )
     elseif(APPLE)
         target_link_libraries(GarlicGUI PRIVATE

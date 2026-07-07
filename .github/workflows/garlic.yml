@@ -26,8 +26,7 @@ jobs:
         with:
           version: ${{ env.QT_VERSION }}
           target: "desktop"
-          # TODO: switch to "win64_mingw_static" once Qt CI provides static builds
-          arch: "win64_mingw"
+          arch: "win64_mingw_static"
           tools: "tools_mingw1310"
 
       - name: Configure CMake (Windows)
@@ -50,7 +49,7 @@ jobs:
 
             cmake -B build -S . -G "MinGW Makefiles" `
               -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" `
-              -DGARLIC_STATIC_QT=OFF `
+              -DGARLIC_STATIC_QT=ON `
               -DCMAKE_BUILD_TYPE=Release `
               -DCMAKE_CXX_STANDARD=17 `
               -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-multiple-definition" `
@@ -96,8 +95,7 @@ jobs:
           chmod +x appimagetool-x86_64.AppImage
 
       - name: Configure CMake
-        # TODO: switch to -DGARLIC_STATIC_QT=ON + static Qt install
-        run: cmake -B build -S . -DGARLIC_STATIC_QT=OFF -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -S . -DGARLIC_STATIC_QT=ON -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --clean-first -j4
@@ -212,8 +210,7 @@ jobs:
           target: "desktop"
 
       - name: Configure CMake
-        # TODO: switch to -DGARLIC_STATIC_QT=ON + static Qt install
-        run: cmake -B build -S . -DGARLIC_STATIC_QT=OFF -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -S . -DGARLIC_STATIC_QT=ON -DCMAKE_BUILD_TYPE=Release
 
       - name: Fix AGL framework bug on macOS
         run: find build -name "link.txt" -exec sed -i '' 's/-framework AGL//g' {} +
@@ -250,8 +247,7 @@ jobs:
           target: "desktop"
 
       - name: Configure CMake
-        # TODO: switch to -DGARLIC_STATIC_QT=ON + static Qt install
-        run: cmake -B build -S . -DGARLIC_STATIC_QT=OFF -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -S . -DGARLIC_STATIC_QT=ON -DCMAKE_BUILD_TYPE=Release
 
       - name: Fix AGL framework bug on macOS
         run: find build -name "link.txt" -exec sed -i '' 's/-framework AGL//g' {} +

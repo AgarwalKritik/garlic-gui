@@ -316,9 +316,13 @@ if(GARLIC_STATIC_QT)
     else()
         target_link_libraries(GarlicGUI PRIVATE
             Qt6::QXcbIntegrationPlugin
-            Qt6::PlatformSupport
-            Qt6::GlxSupport
         )
+        if(TARGET Qt6::PlatformSupport)
+            target_link_libraries(GarlicGUI PRIVATE Qt6::PlatformSupport)
+        endif()
+        if(TARGET Qt6::GlxSupport)
+            target_link_libraries(GarlicGUI PRIVATE Qt6::GlxSupport)
+        endif()
     endif()
 
     message(STATUS "Static Qt6: ON — building standalone binary")

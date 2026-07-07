@@ -26,7 +26,7 @@ jobs:
         with:
           version: ${{ env.QT_VERSION }}
           target: "desktop"
-          arch: "win64_mingw_static"
+          arch: "win64_mingw"
           tools: "tools_mingw1310"
 
       - name: Configure CMake (Windows)
@@ -60,18 +60,11 @@ jobs:
       - name: Build
         run: cmake --build build --clean-first -j4
 
-      - name: Package Windows ZIP
-        shell: pwsh
-        run: |
-          cmake --install build --prefix install_dir
-          Compress-Archive -Path install_dir/bin/* -DestinationPath Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64.zip
-
-      - name: Upload Windows Artifacts
+      - name: Upload Windows Executable
         uses: actions/upload-artifact@v7
         with:
           name: windows-artifacts
-          path: |
-            Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64.zip
+          path: build/GarlicGUI.exe
 
   build-linux:
     runs-on: ubuntu-24.04
@@ -86,115 +79,17 @@ jobs:
           version: ${{ env.QT_VERSION }}
           target: "desktop"
 
-      - name: Install packaging dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libgl1-mesa-dev dpkg-dev rpm ruby ruby-dev pkg-config libfuse2
-          sudo gem install --no-document fpm
-          wget -O appimagetool-x86_64.AppImage "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
-          chmod +x appimagetool-x86_64.AppImage
-
       - name: Configure CMake
         run: cmake -B build -S . -DGARLIC_STATIC_QT=ON -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --clean-first -j4
 
-      - name: Package tar.gz
-        run: |
-          cmake --install build --prefix install_dir
-          tar -czvf Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.tar.gz -C install_dir .
-
-      - name: Package DEB and RPM via FPM
-        run: |
-          cmake --install build --prefix dist/linux/opt/garlicgui
-          mkdir -p dist/linux/usr/share/applications
-          mkdir -p dist/linux/usr/local/bin
-          ln -s /opt/garlicgui/bin/GarlicGUI dist/linux/usr/local/bin/garlicgui
-          cat > dist/linux/usr/share/applications/garlicgui.desktop <<EOF
-          [Desktop Entry]
-          Name=Garlic-GUI
-          Exec=GarlicGUI
-          Icon=garlicgui
-          Terminal=false
-          Type=Application
-          Categories=Development;
-          EOF
-          fpm -s dir -t deb -n garlicgui -v ${APP_VERSION#v} -p "Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.deb" -C dist/linux .
-          fpm -s dir -t rpm -n garlicgui -v ${APP_VERSION#v} -p "Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.rpm" -C dist/linux .
-
-      - name: Package AppImage
-        run: |
-          # Create AppDir structure
-          mkdir -p AppDir/usr/bin
-          mkdir -p AppDir/usr/share/applications
-          mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
-
-          # Install application binary
-          install -Dm755 build/GarlicGUI AppDir/usr/bin/GarlicGUI
-
-          # Install icon into icon theme
-          install -Dm644 icon/garlic.png AppDir/usr/share/icons/hicolor/256x256/apps/garlicgui.png
-
-          # REQUIRED: Root icon for appimagetool
-          install -Dm644 icon/garlic.png  AppDir/garlicgui.png
-
-          # AppRun launcher
-          cat > AppDir/AppRun <<'EOF'
-          #!/bin/sh
-          HERE="$(dirname "$(readlink -f "$0")")"
-          exec "$HERE/usr/bin/GarlicGUI" "$@"
-          EOF
-          chmod +x AppDir/AppRun
-
-          # REQUIRED: Desktop file at AppDir root
-          cat > AppDir/garlicgui.desktop <<EOF
-          [Desktop Entry]
-          Type=Application
-          Name=Garlic GUI
-          Exec=GarlicGUI
-          Icon=garlicgui
-          Terminal=false
-          Categories=Development;
-          EOF
-
-          # Optional desktop file location
-          cp AppDir/garlicgui.desktop AppDir/usr/share/applications/garlicgui.desktop
-
-          # Diagnostics
-          echo "===== AppDir ====="
-          find AppDir -type f
-
-          echo
-          echo "===== Root ====="
-          ls -lah AppDir
-
-          echo
-          echo "===== Binary ====="
-          ls -lah AppDir/usr/bin
-
-          echo
-          echo "===== Icons ====="
-          ls -lah AppDir/usr/share/icons/hicolor/256x256/apps
-
-          test -f AppDir/AppRun
-          test -f AppDir/garlicgui.desktop
-          test -f AppDir/garlicgui.png
-          test -x AppDir/usr/bin/GarlicGUI
-
-          export VERSION=${APP_VERSION#v}
-
-          ./appimagetool-x86_64.AppImage --verbose AppDir Garlic-GUI-${APP_VERSION}-Linux-x64.AppImage
-
-      - name: Upload Linux Artifacts
+      - name: Upload Linux Executable
         uses: actions/upload-artifact@v7
         with:
           name: linux-artifacts
-          path: |
-            Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.deb
-            Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.rpm
-            Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.tar.gz
-            Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.AppImage
+          path: build/GarlicGUI
 
   build-macos-intel:
     runs-on: macos-26-intel
@@ -218,20 +113,14 @@ jobs:
       - name: Build
         run: cmake --build build --clean-first -j4
 
-      - name: Deploy and Package
-        run: |
-          macdeployqt build/GarlicGUI.app -dmg
-          mv build/GarlicGUI.dmg Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.dmg
-          cd build
-          zip -r ../Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.app.zip GarlicGUI.app
+      - name: Package and Upload
+        run: tar czf Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.tar.gz -C build GarlicGUI.app
 
       - name: Upload MacOS Artifacts
         uses: actions/upload-artifact@v7
         with:
           name: macos-intel-artifacts
-          path: |
-            Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.dmg
-            Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.app.zip
+          path: Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.tar.gz
 
   build-macos:
     runs-on: macos-26
@@ -255,20 +144,14 @@ jobs:
       - name: Build
         run: cmake --build build --clean-first -j4
 
-      - name: Deploy and Package
-        run: |
-          macdeployqt build/GarlicGUI.app -dmg
-          mv build/GarlicGUI.dmg Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.dmg
-          cd build
-          zip -r ../Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip GarlicGUI.app
+      - name: Package and Upload
+        run: tar czf Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.tar.gz -C build GarlicGUI.app
 
       - name: Upload MacOS Artifacts
         uses: actions/upload-artifact@v7
         with:
           name: macos-artifacts
-          path: |
-            Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.dmg
-            Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
+          path: Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.tar.gz
 
   release:
     needs: [build-windows, build-linux, build-macos, build-macos-intel]

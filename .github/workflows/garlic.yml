@@ -16,8 +16,6 @@ permissions:
 jobs:
   build-windows:
     runs-on: windows-latest
-    outputs:
-      windows-artifacts: ${{ steps.export.outputs.artifacts }}
     steps:
       - uses: actions/checkout@v7
 
@@ -68,8 +66,6 @@ jobs:
 
   build-linux:
     runs-on: ubuntu-24.04
-    outputs:
-      linux-artifacts: ${{ steps.export.outputs.artifacts }}
     steps:
       - uses: actions/checkout@v7
 
@@ -93,8 +89,6 @@ jobs:
 
   build-macos-intel:
     runs-on: macos-26-intel
-    outputs:
-      macos-artifacts: ${{ steps.export.outputs.artifacts }}
     steps:
       - uses: actions/checkout@v7
 
@@ -124,8 +118,6 @@ jobs:
 
   build-macos:
     runs-on: macos-26
-    outputs:
-      macos-artifacts: ${{ steps.export.outputs.artifacts }}
     steps:
       - uses: actions/checkout@v7
 
@@ -195,14 +187,9 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Windows-x64.zip
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.deb
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.rpm
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.tar.gz
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-Linux-x64.AppImage
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.dmg
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.app.zip
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.dmg
-            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.app.zip
+            artifacts/GarlicGUI.exe
+            artifacts/GarlicGUI
+            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-arm64.tar.gz
+            artifacts/Garlic-GUI-${{ env.APP_VERSION }}-MacOS-intel-x64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

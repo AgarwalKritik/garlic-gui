@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.26)
 
 # ==============================================================================
 #               Copyright 2026 Kritik Agarwal
@@ -47,7 +47,7 @@ cmake_minimum_required(VERSION 3.16)
 # ==============================================================================
 # Project Configuration
 # ==============================================================================
-project(GarlicGUI VERSION 1.0)
+project(GarlicGUI VERSION 1.1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
